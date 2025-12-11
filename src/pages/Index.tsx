@@ -80,10 +80,10 @@ export default function Index() {
             </nav>
             <div className="flex items-center gap-3">
               <Button variant="ghost" asChild>
-                <Link to="/dashboard">Anmelden</Link>
+                <Link to="/auth/login">Anmelden</Link>
               </Button>
               <Button variant="gradient" asChild>
-                <Link to="/dashboard">Kostenlos starten</Link>
+                <Link to="/auth/register">Kostenlos starten</Link>
               </Button>
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function Index() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button variant="hero" size="xl" asChild>
-                <Link to="/dashboard">
+                <Link to="/auth/register">
                   Jetzt starten
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
@@ -234,7 +234,7 @@ export default function Index() {
                   className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20"
                   asChild
                 >
-                  <Link to="/dashboard">
+                  <Link to="/auth/register">
                     Kostenlos starten
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
