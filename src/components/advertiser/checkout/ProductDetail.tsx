@@ -1,4 +1,5 @@
-import { Check, Building2, Zap, Shield, BarChart3, Headphones, Clock, ArrowRight, Star, Lock, Sparkles } from 'lucide-react';
+import { Check, Zap, Shield, BarChart3, Headphones, Clock, ArrowRight, Star, Lock, Sparkles } from 'lucide-react';
+import metaLogo from '@/assets/meta-logo.png';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -42,14 +43,9 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
               {/* Left Column - Pricing Hero */}
               <div className="flex flex-col justify-center order-2 lg:order-1">
                 <div className="space-y-4">
-                  {/* Icon and Badge */}
+                  {/* Logo and Badge */}
                   <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-primary/20 rounded-xl blur-lg" />
-                      <div className="relative w-12 h-12 rounded-xl gradient-bg flex items-center justify-center shadow-lg">
-                        <Building2 className="h-6 w-6 text-primary-foreground" />
-                      </div>
-                    </div>
+                    <img src={metaLogo} alt="Meta Logo" className="h-8 w-auto" />
                     <Badge className="gradient-bg text-primary-foreground border-0 text-sm px-3 py-1">
                       Premium • 30 Tage
                     </Badge>
@@ -58,7 +54,7 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
                   {/* Title */}
                   <div>
                     <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-1">
-                      Agency Account
+                      META Agency Account
                     </h2>
                     <p className="text-sm text-muted-foreground">
                       Dein Schlüssel zu professionellem Advertising
