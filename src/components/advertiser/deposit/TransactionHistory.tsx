@@ -53,16 +53,29 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
   };
 
   const getTypeBadge = (type: string) => {
-    if (type === 'deposit') {
-      return <Badge variant="outline" className="text-green-600 border-green-200">Einzahlung</Badge>;
+    switch (type) {
+      case 'deposit':
+        return <Badge variant="outline" className="text-green-600 border-green-200">Einzahlung</Badge>;
+      case 'rental':
+        return <Badge variant="outline" className="text-blue-600 border-blue-200">Account Miete</Badge>;
+      case 'withdrawal':
+        return <Badge variant="outline" className="text-orange-600 border-orange-200">Auszahlung</Badge>;
+      default:
+        return <Badge variant="outline">{type}</Badge>;
     }
-    return <Badge variant="outline" className="text-orange-600 border-orange-200">Auszahlung</Badge>;
   };
 
   const handleExportCSV = () => {
     const columns = [
       { header: 'Datum', accessor: (d: Deposit) => formatDateForCSV(d.created_at) },
-      { header: 'Typ', accessor: (d: Deposit) => d.type === 'deposit' ? 'Einzahlung' : 'Auszahlung' },
+      { header: 'Typ', accessor: (d: Deposit) => {
+        switch (d.type) {
+          case 'deposit': return 'Einzahlung';
+          case 'rental': return 'Account Miete';
+          case 'withdrawal': return 'Auszahlung';
+          default: return d.type;
+        }
+      }},
       { header: 'Betrag', accessor: (d: Deposit) => formatCurrency(d.amount) },
       { header: 'Status', accessor: (d: Deposit) => d.status === 'completed' ? 'Bestätigt' : d.status === 'pending' ? 'Ausstehend' : 'Fehlgeschlagen' },
       { header: 'Beschreibung', accessor: (d: Deposit) => d.description || '-' },
