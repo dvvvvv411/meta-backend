@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import Datenschutz from "./pages/legal/Datenschutz";
+import Impressum from "./pages/legal/Impressum";
 import Dashboard from "./pages/Dashboard";
 import BrandingsPage from "./pages/admin/BrandingsPage";
 import BrandingDetailPage from "./pages/admin/BrandingDetailPage";
@@ -61,6 +63,8 @@ const App = () => (
               <Route path="/admin/tickets" element={<TicketsPage />} />
               <Route path="/admin/tickets/:id" element={<TicketDetailPage />} />
             </Route>
+            <Route path="/datenschutz" element={<Datenschutz />} />
+            <Route path="/impressum" element={<Impressum />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

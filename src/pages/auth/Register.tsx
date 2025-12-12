@@ -66,56 +66,65 @@ const Register: React.FC = () => {
         <div className="space-y-2">
           <Label htmlFor="email">E-Mail</Label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
             <Input
               id="email"
               type="email"
               placeholder="ihre@email.de"
               className="pl-10"
+              aria-required="true"
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
               {...register('email')}
             />
           </div>
           {errors.email && (
-            <p className="text-sm text-destructive">{errors.email.message}</p>
+            <p id="email-error" className="text-sm text-destructive" role="alert">{errors.email.message}</p>
           )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="password">Passwort</Label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
             <Input
               id="password"
               type={showPassword ? 'text' : 'password'}
               placeholder="Mindestens 8 Zeichen"
               className="pl-10 pr-10"
+              aria-required="true"
+              aria-invalid={!!errors.password}
+              aria-describedby={errors.password ? "password-error" : undefined}
               {...register('password')}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+              aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPassword ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
             </button>
           </div>
           {errors.password && (
-            <p className="text-sm text-destructive">{errors.password.message}</p>
+            <p id="password-error" className="text-sm text-destructive" role="alert">{errors.password.message}</p>
           )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="companyName">Firmenname (optional)</Label>
           <div className="relative">
-            <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
             <Input
               id="companyName"
               type="text"
               placeholder="Ihre Firma GmbH"
               className="pl-10"
+              aria-describedby="companyName-hint"
               {...register('companyName')}
             />
           </div>
+          <p id="companyName-hint" className="sr-only">Optional, kann später hinzugefügt werden</p>
         </div>
 
         <Button type="submit" variant="gradient" className="w-full" disabled={isLoading}>

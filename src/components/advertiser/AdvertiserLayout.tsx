@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { AdvertiserSidebar } from './AdvertiserSidebar';
 import { AdvertiserHeader } from './AdvertiserHeader';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { LegalFooter } from '@/components/ui/legal-footer';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export const AdvertiserLayout = () => {
@@ -31,6 +32,7 @@ export const AdvertiserLayout = () => {
         <main className="flex-1 p-6 overflow-auto">
           <Outlet />
         </main>
+        <LegalFooter />
       </div>
     </div>
   );
