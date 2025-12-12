@@ -148,7 +148,7 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
           <DialogTitle>Transaktionsdetails</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Status */}
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Status</span>
@@ -158,73 +158,88 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
           {/* QR Code & Payment Address */}
           {transaction.pay_address && !isExpired && transaction.status !== 'completed' && (
             <div className="space-y-4">
-              {/* QR Code */}
+              {/* Timer - Prominent on mobile */}
+              {timeLeft && (
+                <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 sm:p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
+                      <span className="text-sm sm:text-base text-orange-700 font-medium">Ablauf in</span>
+                    </div>
+                    <span className="font-mono text-lg sm:text-xl font-bold text-orange-600">
+                      {timeLeft}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* QR Code - Responsive size */}
               <div className="flex justify-center">
-                <div className="p-4 bg-white rounded-xl">
+                <div className="p-3 sm:p-4 bg-white rounded-xl shadow-sm">
+                  <QRCodeSVG
+                    value={transaction.pay_address}
+                    size={140}
+                    level="M"
+                    includeMargin={false}
+                    className="sm:hidden"
+                  />
                   <QRCodeSVG
                     value={transaction.pay_address}
                     size={180}
                     level="M"
                     includeMargin={false}
+                    className="hidden sm:block"
                   />
                 </div>
               </div>
 
               {/* Amount to pay */}
-              <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+              <div className="bg-muted/50 rounded-xl p-3 sm:p-4 space-y-3">
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Zu zahlen</p>
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono font-semibold text-lg">
+                  <p className="text-xs text-muted-foreground mb-2">Zu zahlen</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <span className="font-mono font-semibold text-xl sm:text-lg">
                       {formatAmount(transaction.pay_amount, transaction.pay_currency)}
                     </span>
                     {transaction.pay_amount && (
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
+                        className="w-full sm:w-auto h-10 sm:h-8"
                         onClick={() => copyToClipboard(transaction.pay_amount!.toString(), 'Betrag')}
                       >
-                        <Copy className="h-4 w-4" />
+                        <Copy className="h-4 w-4 mr-2 sm:mr-0" />
+                        <span className="sm:hidden">Betrag kopieren</span>
                       </Button>
                     )}
                   </div>
                 </div>
 
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Wallet-Adresse</p>
-                  <div className="flex items-center gap-2">
-                    <code className="flex-1 text-xs bg-background rounded px-2 py-1.5 font-mono truncate">
-                      {transaction.pay_address}
-                    </code>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => copyToClipboard(transaction.pay_address!, 'Wallet-Adresse')}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
+                <div className="pt-3 border-t border-border">
+                  <p className="text-xs text-muted-foreground mb-2">Wallet-Adresse</p>
+                  <code className="block text-xs bg-background rounded-lg px-3 py-2.5 font-mono break-all sm:truncate mb-2">
+                    {transaction.pay_address}
+                  </code>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full sm:w-auto h-10 sm:h-8"
+                    onClick={() => copyToClipboard(transaction.pay_address!, 'Wallet-Adresse')}
+                  >
+                    <Copy className="h-4 w-4 mr-2 sm:mr-0" />
+                    <span className="sm:hidden">Adresse kopieren</span>
+                  </Button>
                 </div>
-
-                {/* Timer */}
-                {timeLeft && (
-                  <div className="flex items-center justify-between pt-2 border-t border-border">
-                    <span className="text-xs text-muted-foreground">Ablauf in</span>
-                    <span className="font-mono text-sm font-medium text-orange-600">
-                      {timeLeft}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
           )}
 
           {/* Expired Warning */}
           {isExpired && transaction.status !== 'completed' && (
-            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-center">
-              <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-2" />
-              <p className="text-sm font-medium text-destructive">Zahlungsfrist abgelaufen</p>
-              <p className="text-xs text-muted-foreground mt-1">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4 sm:p-4 text-center">
+              <AlertCircle className="h-10 w-10 sm:h-8 sm:w-8 text-destructive mx-auto mb-2" />
+              <p className="text-base sm:text-sm font-medium text-destructive">Zahlungsfrist abgelaufen</p>
+              <p className="text-sm sm:text-xs text-muted-foreground mt-1">
                 Diese Zahlungsanfrage ist nicht mehr gültig.
               </p>
             </div>
@@ -232,17 +247,17 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
 
           {/* Completed */}
           {transaction.status === 'completed' && (
-            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 text-center">
-              <CheckCircle2 className="h-8 w-8 text-green-600 mx-auto mb-2" />
-              <p className="text-sm font-medium text-green-600">Zahlung abgeschlossen</p>
-              <p className="text-xs text-muted-foreground mt-1">
+            <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 sm:p-4 text-center">
+              <CheckCircle2 className="h-10 w-10 sm:h-8 sm:w-8 text-green-600 mx-auto mb-2" />
+              <p className="text-base sm:text-sm font-medium text-green-600">Zahlung abgeschlossen</p>
+              <p className="text-sm sm:text-xs text-muted-foreground mt-1">
                 Der Betrag wurde deinem Guthaben gutgeschrieben.
               </p>
             </div>
           )}
 
           {/* Transaction Details */}
-          <div className="space-y-2 text-sm">
+          <div className="space-y-3 sm:space-y-2 text-sm bg-muted/30 rounded-xl p-3 sm:p-0 sm:bg-transparent">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Betrag (EUR)</span>
               <span className="font-medium">
@@ -256,16 +271,18 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
               </div>
             )}
             {transaction.tx_hash && (
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
                 <span className="text-muted-foreground">TX Hash</span>
                 <Button
                   variant="link"
                   size="sm"
-                  className="h-auto p-0 text-xs font-mono"
+                  className="h-auto p-0 text-xs font-mono justify-start sm:justify-end"
                   onClick={() => copyToClipboard(transaction.tx_hash!, 'TX Hash')}
                 >
-                  {transaction.tx_hash.slice(0, 8)}...{transaction.tx_hash.slice(-8)}
-                  <ExternalLink className="h-3 w-3 ml-1" />
+                  <span className="truncate max-w-[200px]">
+                    {transaction.tx_hash.slice(0, 8)}...{transaction.tx_hash.slice(-8)}
+                  </span>
+                  <ExternalLink className="h-3 w-3 ml-1 flex-shrink-0" />
                 </Button>
               </div>
             )}
