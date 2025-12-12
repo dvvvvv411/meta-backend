@@ -13,6 +13,8 @@ import BrandingsPage from "./pages/admin/BrandingsPage";
 import BrandingDetailPage from "./pages/admin/BrandingDetailPage";
 import AccountsPage from "./pages/admin/AccountsPage";
 import AccountDetailPage from "./pages/admin/AccountDetailPage";
+import TicketsPage from "./pages/admin/TicketsPage";
+import TicketDetailPage from "./pages/admin/TicketDetailPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
@@ -39,6 +41,8 @@ const App = () => (
               <Route path="/admin/brandings/:id" element={<BrandingDetailPage />} />
               <Route path="/admin/accounts" element={<AccountsPage />} />
               <Route path="/admin/accounts/:id" element={<AccountDetailPage />} />
+              <Route path="/admin/tickets" element={<TicketsPage />} />
+              <Route path="/admin/tickets/:id" element={<TicketDetailPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

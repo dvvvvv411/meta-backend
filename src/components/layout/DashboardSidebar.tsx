@@ -13,15 +13,19 @@ import {
   LogOut,
   Menu,
   CreditCard,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
+import { useNewTicketCount } from "@/hooks/useTickets";
 
 interface NavItem {
   title: string;
   href: string;
   icon: React.ElementType;
   adminOnly?: boolean;
+  badge?: number;
 }
 
 const navItems: NavItem[] = [
@@ -31,6 +35,7 @@ const navItems: NavItem[] = [
   { title: "Benutzer", href: "/dashboard/benutzer", icon: Users, adminOnly: true },
   { title: "Brandings", href: "/admin/brandings", icon: Palette, adminOnly: true },
   { title: "Accounts & Billing", href: "/admin/accounts", icon: CreditCard, adminOnly: true },
+  { title: "Tickets", href: "/admin/tickets", icon: MessageSquare, adminOnly: true },
   { title: "Einstellungen", href: "/dashboard/einstellungen", icon: Settings },
 ];
 
@@ -42,10 +47,17 @@ interface SidebarContentProps {
 
 function SidebarNavContent({ collapsed, isAdmin, onCollapse }: SidebarContentProps) {
   const location = useLocation();
+  const { data: newTicketCount } = useNewTicketCount();
 
   const filteredItems = navItems.filter(
     (item) => !item.adminOnly || isAdmin
   );
+
+  // Add badge to tickets nav item
+  const itemsWithBadge = filteredItems.map((item) => ({
+    ...item,
+    badge: item.href === "/admin/tickets" ? newTicketCount || 0 : 0,
+  }));
 
   return (
     <div className="flex h-full flex-col">
@@ -68,7 +80,7 @@ function SidebarNavContent({ collapsed, isAdmin, onCollapse }: SidebarContentPro
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-3">
-        {filteredItems.map((item) => {
+        {itemsWithBadge.map((item) => {
           const isActive = location.pathname === item.href;
           return (
             <NavLink
@@ -83,7 +95,19 @@ function SidebarNavContent({ collapsed, isAdmin, onCollapse }: SidebarContentPro
               )}
             >
               <item.icon className={cn("h-5 w-5 shrink-0", isActive && "text-primary")} />
-              {!collapsed && <span>{item.title}</span>}
+              {!collapsed && (
+                <>
+                  <span className="flex-1">{item.title}</span>
+                  {item.badge > 0 && (
+                    <Badge variant="destructive" className="h-5 min-w-[20px] px-1.5 text-xs">
+                      {item.badge}
+                    </Badge>
+                  )}
+                </>
+              )}
+              {collapsed && item.badge > 0 && (
+                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive" />
+              )}
             </NavLink>
           );
         })}
