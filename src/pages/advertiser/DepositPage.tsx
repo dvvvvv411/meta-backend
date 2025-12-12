@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
+import { useUserBalance } from '@/hooks/useUserBalance';
 import { useDeposits } from '@/hooks/useDeposits';
 import { BalanceOverview } from '@/components/advertiser/deposit/BalanceOverview';
 import { TransactionHistory } from '@/components/advertiser/deposit/TransactionHistory';
@@ -14,7 +14,7 @@ import { DepositModal } from '@/components/advertiser/deposit/DepositModal';
 
 export default function DepositPage() {
   const { toast } = useToast();
-  const { totalBalanceEur } = useAdvertiserAccounts();
+  const { balanceEur } = useUserBalance();
   const { deposits } = useDeposits();
   const [depositModalOpen, setDepositModalOpen] = useState(false);
 
@@ -43,7 +43,7 @@ export default function DepositPage() {
       </div>
 
       {/* Current Balance */}
-      <BalanceOverview balanceEur={totalBalanceEur} />
+      <BalanceOverview balanceEur={balanceEur} />
 
       {/* Action Buttons */}
       <div className="grid gap-4 sm:grid-cols-2">

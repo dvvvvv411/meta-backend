@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/popover';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
+import { useUserBalance } from '@/hooks/useUserBalance';
 
 interface AdvertiserHeaderProps {
   onMenuToggle?: () => void;
@@ -28,7 +29,8 @@ interface AdvertiserHeaderProps {
 
 export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: AdvertiserHeaderProps) => {
   const { user, signOut } = useAuth();
-  const { hasActiveAccount, totalBalanceEur, isLoading } = useAdvertiserAccounts();
+  const { hasActiveAccount, isLoading: accountsLoading } = useAdvertiserAccounts();
+  const { balanceEur, isLoading: balanceLoading } = useUserBalance();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -78,13 +80,13 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
         {/* Quick Balance */}
         <Card className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-card/50 border-border/50">
           <Wallet className="h-4 w-4 text-muted-foreground" />
-          {isLoading ? (
+          {balanceLoading ? (
             <Skeleton className="h-5 w-20" />
           ) : (
             <div className="text-right">
               <p className="text-xs text-muted-foreground leading-none">Guthaben</p>
               <p className="text-sm font-semibold text-foreground leading-none">
-                {formatCurrency(totalBalanceEur)}
+                {formatCurrency(balanceEur)}
               </p>
             </div>
           )}
@@ -135,7 +137,7 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
                 <p className="text-sm font-medium leading-tight">
                   {companyName || user?.email?.split('@')[0] || 'Benutzer'}
                 </p>
-                {isLoading ? (
+              {accountsLoading ? (
                   <Skeleton className="h-4 w-12 mt-0.5" />
                 ) : (
                   <Badge 

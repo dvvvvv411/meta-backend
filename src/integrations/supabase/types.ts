@@ -204,18 +204,21 @@ export type Database = {
       }
       profiles: {
         Row: {
+          balance_eur: number | null
           company_name: string | null
           created_at: string | null
           email: string
           id: string
         }
         Insert: {
+          balance_eur?: number | null
           company_name?: string | null
           created_at?: string | null
           email: string
           id: string
         }
         Update: {
+          balance_eur?: number | null
           company_name?: string | null
           created_at?: string | null
           email?: string
