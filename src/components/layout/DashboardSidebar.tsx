@@ -12,7 +12,7 @@ import {
   ChevronRight,
   LogOut,
   Menu,
-  X,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -29,7 +29,7 @@ const navItems: NavItem[] = [
   { title: "Kampagnen", href: "/dashboard/kampagnen", icon: Megaphone },
   { title: "Analysen", href: "/dashboard/analysen", icon: BarChart3 },
   { title: "Benutzer", href: "/dashboard/benutzer", icon: Users, adminOnly: true },
-  { title: "Branding", href: "/dashboard/branding", icon: Palette, adminOnly: true },
+  { title: "Brandings", href: "/admin/brandings", icon: Palette, adminOnly: true },
   { title: "Einstellungen", href: "/dashboard/einstellungen", icon: Settings },
 ];
 
