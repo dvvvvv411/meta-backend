@@ -14,36 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_audit_logs: {
+        Row: {
+          account_id: string
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_audit_logs_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       accounts: {
         Row: {
+          account_status: Database["public"]["Enums"]["account_status"] | null
           assigned_to: string | null
+          balance_eur: number | null
+          balance_usdt: number | null
           branding_id: string | null
           created_at: string | null
+          expire_at: string | null
           id: string
           monthly_budget: number | null
           name: string
           platform: string
+          start_date: string | null
           status: string
+          updated_at: string | null
+          updated_by: string | null
+          user_id: string | null
         }
         Insert: {
+          account_status?: Database["public"]["Enums"]["account_status"] | null
           assigned_to?: string | null
+          balance_eur?: number | null
+          balance_usdt?: number | null
           branding_id?: string | null
           created_at?: string | null
+          expire_at?: string | null
           id?: string
           monthly_budget?: number | null
           name: string
           platform?: string
+          start_date?: string | null
           status?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          user_id?: string | null
         }
         Update: {
+          account_status?: Database["public"]["Enums"]["account_status"] | null
           assigned_to?: string | null
+          balance_eur?: number | null
+          balance_usdt?: number | null
           branding_id?: string | null
           created_at?: string | null
+          expire_at?: string | null
           id?: string
           monthly_budget?: number | null
           name?: string
           platform?: string
+          start_date?: string | null
           status?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -51,6 +110,13 @@ export type Database = {
             columns: ["branding_id"]
             isOneToOne: false
             referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -183,6 +249,7 @@ export type Database = {
       }
       transactions: {
         Row: {
+          account_id: string | null
           amount: number
           created_at: string | null
           currency: string | null
@@ -193,6 +260,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_id?: string | null
           amount: number
           created_at?: string | null
           currency?: string | null
@@ -203,6 +271,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_id?: string | null
           amount?: number
           created_at?: string | null
           currency?: string | null
@@ -212,7 +281,15 @@ export type Database = {
           type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -246,6 +323,7 @@ export type Database = {
       }
     }
     Enums: {
+      account_status: "active" | "expired" | "canceled" | "suspended"
       app_role: "admin" | "werbetreibender"
     }
     CompositeTypes: {
@@ -374,6 +452,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      account_status: ["active", "expired", "canceled", "suspended"],
       app_role: ["admin", "werbetreibender"],
     },
   },
