@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useNowPayments } from '@/hooks/useNowPayments';
 import { cn } from '@/lib/utils';
+import { getCryptoIcon } from '@/lib/crypto-icons';
 
 interface DepositModalProps {
   open: boolean;
@@ -27,17 +28,25 @@ interface CurrencyOption {
   name: string;
   symbol: string;
   network?: string;
-  icon: string;
-  minEur: number; // Minimum EUR amount for this currency
+  minEur: number;
+  category: 'stablecoin' | 'crypto';
 }
 
 const CURRENCIES: CurrencyOption[] = [
-  { id: 'usdttrc20', name: 'Tether', symbol: 'USDT', network: 'TRC20', icon: '₮', minEur: 10 },
-  { id: 'usdterc20', name: 'Tether', symbol: 'USDT', network: 'ERC20', icon: '₮', minEur: 20 },
-  { id: 'usdtbsc', name: 'Tether', symbol: 'USDT', network: 'BSC', icon: '₮', minEur: 10 },
-  { id: 'usdc', name: 'USD Coin', symbol: 'USDC', network: 'ERC20', icon: '$', minEur: 20 },
-  { id: 'btc', name: 'Bitcoin', symbol: 'BTC', icon: '₿', minEur: 50 },
-  { id: 'eth', name: 'Ethereum', symbol: 'ETH', icon: 'Ξ', minEur: 30 },
+  // Stablecoins
+  { id: 'usdttrc20', name: 'Tether', symbol: 'USDT', network: 'TRC20', minEur: 10, category: 'stablecoin' },
+  { id: 'usdterc20', name: 'Tether', symbol: 'USDT', network: 'ERC20', minEur: 20, category: 'stablecoin' },
+  { id: 'usdtbsc', name: 'Tether', symbol: 'USDT', network: 'BSC (BEP20)', minEur: 10, category: 'stablecoin' },
+  { id: 'usdtmatic', name: 'Tether', symbol: 'USDT', network: 'Polygon', minEur: 10, category: 'stablecoin' },
+  { id: 'usdcerc20', name: 'USD Coin', symbol: 'USDC', network: 'ERC20', minEur: 20, category: 'stablecoin' },
+  // Cryptocurrencies
+  { id: 'btc', name: 'Bitcoin', symbol: 'BTC', minEur: 50, category: 'crypto' },
+  { id: 'eth', name: 'Ethereum', symbol: 'ETH', minEur: 30, category: 'crypto' },
+  { id: 'ltc', name: 'Litecoin', symbol: 'LTC', minEur: 10, category: 'crypto' },
+  { id: 'sol', name: 'Solana', symbol: 'SOL', minEur: 10, category: 'crypto' },
+  { id: 'trx', name: 'Tron', symbol: 'TRX', minEur: 5, category: 'crypto' },
+  { id: 'bnbbsc', name: 'BNB', symbol: 'BNB', network: 'BSC', minEur: 15, category: 'crypto' },
+  { id: 'xmr', name: 'Monero', symbol: 'XMR', minEur: 10, category: 'crypto' },
 ];
 
 export function DepositModal({ open, onOpenChange }: DepositModalProps) {
@@ -255,43 +264,94 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
               </Button>
               
-              <div className="grid gap-2">
-                {CURRENCIES.map((currency) => {
-                  const numAmount = parseFloat(amount);
-                  const isBelowMin = numAmount < currency.minEur;
-                  
-                  return (
-                  <button
-                    key={currency.id}
-                    onClick={() => handleCurrencySelect(currency)}
-                    disabled={createPayment.isPending || isBelowMin}
-                    className={cn(
-                      "flex items-center gap-3 p-3 rounded-lg border transition-all",
-                      isBelowMin 
-                        ? "opacity-50 cursor-not-allowed border-muted"
-                        : "hover:border-primary/50 hover:bg-primary/5",
-                      "disabled:cursor-not-allowed"
-                    )}
-                  >
-                    <div className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold",
-                      isBelowMin ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"
-                    )}>
-                      {currency.icon}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="font-medium">{currency.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {currency.symbol} {currency.network && `(${currency.network})`}
-                        {isBelowMin && ` • Min. ${currency.minEur}€`}
-                      </p>
-                    </div>
-                    {createPayment.isPending && selectedCurrency?.id === currency.id && (
-                      <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                    )}
-                  </button>
-                  );
-                })}
+              {/* Stablecoins */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-1">
+                  Stablecoins
+                </h4>
+                <div className="grid gap-2">
+                  {CURRENCIES.filter(c => c.category === 'stablecoin').map((currency) => {
+                    const numAmount = parseFloat(amount);
+                    const isBelowMin = numAmount < currency.minEur;
+                    const CryptoIcon = getCryptoIcon(currency.id);
+                    
+                    return (
+                      <button
+                        key={currency.id}
+                        onClick={() => handleCurrencySelect(currency)}
+                        disabled={createPayment.isPending || isBelowMin}
+                        className={cn(
+                          "flex items-center gap-3 p-3 rounded-xl border transition-all",
+                          isBelowMin 
+                            ? "opacity-50 cursor-not-allowed border-muted bg-muted/30"
+                            : "hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm",
+                          "disabled:cursor-not-allowed"
+                        )}
+                      >
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+                          <CryptoIcon size={40} />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <p className="font-medium">{currency.symbol}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {currency.name} {currency.network && `• ${currency.network}`}
+                          </p>
+                        </div>
+                        {isBelowMin && (
+                          <span className="text-xs text-muted-foreground">Min. {currency.minEur}€</span>
+                        )}
+                        {createPayment.isPending && selectedCurrency?.id === currency.id && (
+                          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Cryptocurrencies */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-1">
+                  Kryptowährungen
+                </h4>
+                <div className="grid gap-2">
+                  {CURRENCIES.filter(c => c.category === 'crypto').map((currency) => {
+                    const numAmount = parseFloat(amount);
+                    const isBelowMin = numAmount < currency.minEur;
+                    const CryptoIcon = getCryptoIcon(currency.id);
+                    
+                    return (
+                      <button
+                        key={currency.id}
+                        onClick={() => handleCurrencySelect(currency)}
+                        disabled={createPayment.isPending || isBelowMin}
+                        className={cn(
+                          "flex items-center gap-3 p-3 rounded-xl border transition-all",
+                          isBelowMin 
+                            ? "opacity-50 cursor-not-allowed border-muted bg-muted/30"
+                            : "hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm",
+                          "disabled:cursor-not-allowed"
+                        )}
+                      >
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+                          <CryptoIcon size={40} />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <p className="font-medium">{currency.symbol}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {currency.name} {currency.network && `• ${currency.network}`}
+                          </p>
+                        </div>
+                        {isBelowMin && (
+                          <span className="text-xs text-muted-foreground">Min. {currency.minEur}€</span>
+                        )}
+                        {createPayment.isPending && selectedCurrency?.id === currency.id && (
+                          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
