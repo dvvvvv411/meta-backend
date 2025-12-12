@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Copy, Loader2, AlertCircle, FileText, Check, ArrowLeft } from 'lucide-react';
+import { Copy, Loader2, AlertCircle, Check, ArrowLeft, ShoppingBag, CreditCard, Coins } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   Dialog,
@@ -14,10 +14,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { PaymentMethodSelector } from './PaymentMethodSelector';
 import { useNowPayments } from '@/hooks/useNowPayments';
-import { getCryptoIcon } from '@/lib/crypto-icons';
 import { cn } from '@/lib/utils';
+import { CurrencySearchSelector, CurrencyOption } from '@/components/advertiser/shared/CurrencySearchSelector';
+import { TrustBadges, PoweredByBadge } from '@/components/advertiser/shared/TrustBadges';
+import { PaymentStatusIndicator } from '@/components/advertiser/shared/PaymentStatusIndicator';
+import metaLogo from '@/assets/meta-logo.png';
 
 const RENTAL_PRICE = 150;
 
@@ -30,32 +32,6 @@ interface CheckoutModalProps {
 }
 
 type Step = 'select' | 'balance-confirm' | 'crypto-currency' | 'crypto-payment' | 'success';
-
-interface CurrencyOption {
-  id: string;
-  name: string;
-  symbol: string;
-  network?: string;
-  minEur: number;
-  category: 'stablecoin' | 'crypto';
-}
-
-const CURRENCIES: CurrencyOption[] = [
-  // Stablecoins
-  { id: 'usdttrc20', name: 'Tether', symbol: 'USDT', network: 'TRC20', minEur: 10, category: 'stablecoin' },
-  { id: 'usdterc20', name: 'Tether', symbol: 'USDT', network: 'ERC20', minEur: 20, category: 'stablecoin' },
-  { id: 'usdtbsc', name: 'Tether', symbol: 'USDT', network: 'BSC (BEP20)', minEur: 10, category: 'stablecoin' },
-  { id: 'usdtmatic', name: 'Tether', symbol: 'USDT', network: 'Polygon', minEur: 10, category: 'stablecoin' },
-  { id: 'usdcerc20', name: 'USD Coin', symbol: 'USDC', network: 'ERC20', minEur: 20, category: 'stablecoin' },
-  // Cryptocurrencies
-  { id: 'btc', name: 'Bitcoin', symbol: 'BTC', minEur: 50, category: 'crypto' },
-  { id: 'eth', name: 'Ethereum', symbol: 'ETH', minEur: 30, category: 'crypto' },
-  { id: 'ltc', name: 'Litecoin', symbol: 'LTC', minEur: 10, category: 'crypto' },
-  { id: 'sol', name: 'Solana', symbol: 'SOL', minEur: 10, category: 'crypto' },
-  { id: 'trx', name: 'Tron', symbol: 'TRX', minEur: 5, category: 'crypto' },
-  { id: 'bnbbsc', name: 'BNB', symbol: 'BNB', network: 'BSC', minEur: 15, category: 'crypto' },
-  { id: 'xmr', name: 'Monero', symbol: 'XMR', minEur: 10, category: 'crypto' },
-];
 
 export function CheckoutModal({ 
   open, 
@@ -75,22 +51,24 @@ export function CheckoutModal({
   } | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string>('waiting');
   const [isPolling, setIsPolling] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<'amount' | 'address' | null>(null);
   
   const { toast } = useToast();
   const { createPayment, checkPaymentStatus } = useNowPayments();
+
+  const hasSufficientBalance = balanceEur >= RENTAL_PRICE;
 
   // Reset state when modal closes
   useEffect(() => {
     if (!open) {
       setStep('select');
-      setPaymentMethod('crypto');
+      setPaymentMethod(hasSufficientBalance ? 'balance' : 'crypto');
       setSelectedCurrency(null);
       setPaymentData(null);
       setPaymentStatus('waiting');
       setIsPolling(false);
     }
-  }, [open]);
+  }, [open, hasSufficientBalance]);
 
   // Poll for payment status
   useEffect(() => {
@@ -103,7 +81,6 @@ export function CheckoutModal({
         
         if (status.payment_status === 'finished' || status.payment_status === 'confirmed') {
           setIsPolling(false);
-          // Payment successful - create account
           await onPaymentSuccess('crypto', paymentData.payment_id);
           setStep('success');
         } else if (status.payment_status === 'failed' || status.payment_status === 'expired') {
@@ -121,10 +98,6 @@ export function CheckoutModal({
 
     return () => clearInterval(interval);
   }, [paymentData?.payment_id, isPolling, checkPaymentStatus, onPaymentSuccess, toast]);
-
-  const handlePaymentMethodSelect = (method: 'balance' | 'crypto') => {
-    setPaymentMethod(method);
-  };
 
   const handleContinue = () => {
     if (paymentMethod === 'balance') {
@@ -175,39 +148,24 @@ export function CheckoutModal({
     }
   };
 
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text: string, type: 'amount' | 'address') => {
     navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopied(type);
+    setTimeout(() => setCopied(null), 2000);
     toast({
       title: 'Kopiert!',
-      description: 'Wurde in die Zwischenablage kopiert.',
+      description: type === 'address' ? 'Adresse kopiert.' : 'Betrag kopiert.',
     });
   };
 
-  const getStatusInfo = () => {
-    switch (paymentStatus) {
-      case 'waiting':
-        return { text: 'Warte auf Zahlung...', color: 'text-yellow-500', icon: Loader2 };
-      case 'confirming':
-        return { text: 'Bestätigung läuft...', color: 'text-blue-500', icon: Loader2 };
-      case 'confirmed':
-      case 'finished':
-        return { text: 'Zahlung erfolgreich!', color: 'text-green-500', icon: Check };
-      default:
-        return { text: 'Warte auf Zahlung...', color: 'text-yellow-500', icon: Loader2 };
-    }
-  };
-
-  const statusInfo = getStatusInfo();
-  const StatusIcon = statusInfo.icon;
-  const hasSufficientBalance = balanceEur >= RENTAL_PRICE;
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader className="text-center pb-2">
+          <div className="mx-auto w-12 h-12 rounded-2xl gradient-bg flex items-center justify-center mb-3">
+            <ShoppingBag className="h-6 w-6 text-primary-foreground" />
+          </div>
+          <DialogTitle className="text-xl">
             {step === 'select' && 'Checkout'}
             {step === 'balance-confirm' && 'Zahlung bestätigen'}
             {step === 'crypto-currency' && 'Kryptowährung wählen'}
@@ -215,69 +173,146 @@ export function CheckoutModal({
             {step === 'success' && 'Erfolgreich!'}
           </DialogTitle>
           <DialogDescription>
-            {step === 'select' && 'Schließe deinen Kauf ab um sofort loszulegen.'}
-            {step === 'balance-confirm' && 'Bestätige die Zahlung mit deinem Guthaben.'}
+            {step === 'select' && 'Sichere Zahlung für dein Agency Account'}
+            {step === 'balance-confirm' && 'Bestätige die Zahlung mit deinem Guthaben'}
             {step === 'crypto-currency' && 'Wähle deine bevorzugte Kryptowährung'}
             {step === 'crypto-payment' && 'Scanne den QR-Code oder kopiere die Adresse'}
             {step === 'success' && 'Dein Agency Account wurde aktiviert!'}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-5">
           {/* Step: Select Payment Method */}
           {step === 'select' && (
             <>
-              {/* Order Summary Card */}
-              <Card className="bg-muted/30 border-border/50">
-                <CardContent className="pt-4 pb-3">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="h-10 w-10 rounded-lg gradient-bg flex items-center justify-center">
-                      <FileText className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-foreground">Agency Account</p>
-                      <p className="text-xs text-muted-foreground">Meta Ads Werbekonto</p>
+              {/* Product Card */}
+              <Card className="overflow-hidden border-border/50 shadow-sm">
+                <CardContent className="p-0">
+                  {/* Product Header */}
+                  <div className="p-4 bg-gradient-to-br from-muted/50 to-muted/20 border-b border-border/50">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-white shadow-sm flex items-center justify-center p-2">
+                        <img src={metaLogo} alt="Meta" className="w-full h-full object-contain" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-bold text-foreground">Agency Account</p>
+                        <p className="text-sm text-muted-foreground">Meta Ads Werbekonto</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                            Premium
+                          </span>
+                          <span className="text-xs text-muted-foreground">30 Tage</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="space-y-1.5">
+                  
+                  {/* Price Breakdown */}
+                  <div className="p-4 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Laufzeit</span>
                       <span className="font-medium">30 Tage</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Automatische Verlängerung</span>
-                      <span className="font-medium text-primary">Aktiv</span>
+                      <span className="text-muted-foreground">Auto-Verlängerung</span>
+                      <span className="font-medium text-primary flex items-center gap-1">
+                        <Check className="h-3.5 w-3.5" />
+                        Aktiv
+                      </span>
                     </div>
-                    <Separator className="my-2" />
-                    <div className="flex justify-between text-sm">
-                      <span className="font-medium">Gesamt</span>
-                      <span className="font-bold text-lg">{RENTAL_PRICE},00 €</span>
+                    <Separator className="my-3" />
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold">Gesamt</span>
+                      <span className="text-2xl font-bold">{RENTAL_PRICE},00 €</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <div>
-                <p className="text-sm font-medium mb-3">Zahlungsmethode wählen:</p>
-                <PaymentMethodSelector 
-                  selected={paymentMethod} 
-                  onSelect={handlePaymentMethodSelect}
-                  balanceEur={balanceEur}
-                  requiredAmount={RENTAL_PRICE}
-                />
+              {/* Payment Method Selection */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Zahlungsmethode wählen</Label>
+                
+                <div className="grid gap-2">
+                  {/* Balance Option */}
+                  <button
+                    onClick={() => setPaymentMethod('balance')}
+                    disabled={!hasSufficientBalance}
+                    className={cn(
+                      "flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left",
+                      paymentMethod === 'balance' && hasSufficientBalance
+                        ? "border-primary bg-primary/5"
+                        : "border-border/50 hover:border-border",
+                      !hasSufficientBalance && "opacity-50 cursor-not-allowed"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center",
+                      paymentMethod === 'balance' && hasSufficientBalance
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted"
+                    )}>
+                      <CreditCard className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold">Guthaben verwenden</p>
+                      <p className="text-sm text-muted-foreground">
+                        {hasSufficientBalance 
+                          ? `${balanceEur.toFixed(2)} € verfügbar`
+                          : `${balanceEur.toFixed(2)} € (nicht genug)`
+                        }
+                      </p>
+                    </div>
+                    {hasSufficientBalance && paymentMethod === 'balance' && (
+                      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <Check className="h-3 w-3 text-primary-foreground" />
+                      </div>
+                    )}
+                    {!hasSufficientBalance && (
+                      <span className="text-xs text-destructive font-medium">Nicht genug</span>
+                    )}
+                  </button>
+                  
+                  {/* Crypto Option */}
+                  <button
+                    onClick={() => setPaymentMethod('crypto')}
+                    className={cn(
+                      "flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left",
+                      paymentMethod === 'crypto'
+                        ? "border-primary bg-primary/5"
+                        : "border-border/50 hover:border-border"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center",
+                      paymentMethod === 'crypto'
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted"
+                    )}>
+                      <Coins className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold">Kryptowährung</p>
+                      <p className="text-sm text-muted-foreground">USDT, BTC, ETH, USDC & mehr</p>
+                    </div>
+                    {paymentMethod === 'crypto' && (
+                      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <Check className="h-3 w-3 text-primary-foreground" />
+                      </div>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <Button 
-                className="w-full" 
+                className="w-full h-12 gradient-bg text-base font-semibold" 
                 size="lg"
                 onClick={handleContinue}
               >
                 Weiter
               </Button>
 
-              <p className="text-xs text-center text-muted-foreground">
-                Probleme? support@agency-ads.de
-              </p>
+              <TrustBadges variant="footer" />
             </>
           )}
 
@@ -288,13 +323,13 @@ export function CheckoutModal({
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setStep('select')}
-                className="mb-2"
+                className="-ml-2"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
               </Button>
 
-              <Card className="bg-muted/30 border-border/50">
-                <CardContent className="pt-4 pb-3 space-y-3">
+              <Card className="border-border/50">
+                <CardContent className="pt-4 pb-4 space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Aktuelles Guthaben</span>
                     <span className="font-medium">{balanceEur.toFixed(2)} €</span>
@@ -304,22 +339,22 @@ export function CheckoutModal({
                     <span className="font-medium text-destructive">-{RENTAL_PRICE},00 €</span>
                   </div>
                   <Separator />
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium">Neues Guthaben</span>
-                    <span className="font-bold text-primary">{(balanceEur - RENTAL_PRICE).toFixed(2)} €</span>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Neues Guthaben</span>
+                    <span className="font-bold text-lg text-primary">{(balanceEur - RENTAL_PRICE).toFixed(2)} €</span>
                   </div>
                 </CardContent>
               </Card>
 
-              <Alert variant="default" className="bg-primary/10 border-primary/20">
+              <Alert variant="default" className="bg-primary/5 border-primary/20">
                 <AlertCircle className="h-4 w-4 text-primary" />
-                <AlertDescription className="text-xs">
-                  Mit Klick auf "Jetzt bezahlen" wird dein Agency Account sofort aktiviert und {RENTAL_PRICE}€ von deinem Guthaben abgezogen.
+                <AlertDescription className="text-sm">
+                  Mit Klick auf "Jetzt bezahlen" wird dein Agency Account sofort aktiviert.
                 </AlertDescription>
               </Alert>
 
               <Button 
-                className="w-full gradient-bg" 
+                className="w-full h-12 gradient-bg text-base font-semibold" 
                 size="lg"
                 onClick={handleBalancePayment}
                 disabled={isProcessing || !hasSufficientBalance}
@@ -333,6 +368,8 @@ export function CheckoutModal({
                   `Jetzt ${RENTAL_PRICE}€ bezahlen`
                 )}
               </Button>
+              
+              <TrustBadges variant="footer" />
             </>
           )}
 
@@ -343,170 +380,112 @@ export function CheckoutModal({
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setStep('select')}
-                className="mb-2"
+                className="-ml-2"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
               </Button>
               
-              {/* Stablecoins */}
-              <div className="space-y-2">
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-1">
-                  Stablecoins
-                </h4>
-                <div className="grid gap-2 max-h-40 overflow-y-auto">
-                  {CURRENCIES.filter(c => c.category === 'stablecoin').map((currency) => {
-                    const CryptoIcon = getCryptoIcon(currency.id);
-                    
-                    return (
-                      <button
-                        key={currency.id}
-                        onClick={() => handleCurrencySelect(currency)}
-                        disabled={createPayment.isPending}
-                        className={cn(
-                          "flex items-center gap-3 p-3 rounded-xl border transition-all",
-                          "hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm",
-                          "disabled:cursor-not-allowed disabled:opacity-50"
-                        )}
-                      >
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
-                          <CryptoIcon size={32} />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-medium text-sm">{currency.symbol}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {currency.name} {currency.network && `• ${currency.network}`}
-                          </p>
-                        </div>
-                        {createPayment.isPending && selectedCurrency?.id === currency.id && (
-                          <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+              {/* Price Summary */}
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/50">
+                <span className="text-sm text-muted-foreground">Zu zahlen</span>
+                <span className="font-bold text-lg">{RENTAL_PRICE},00 €</span>
               </div>
               
-              {/* Cryptocurrencies */}
-              <div className="space-y-2">
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-1">
-                  Kryptowährungen
-                </h4>
-                <div className="grid gap-2 max-h-40 overflow-y-auto">
-                  {CURRENCIES.filter(c => c.category === 'crypto').map((currency) => {
-                    const CryptoIcon = getCryptoIcon(currency.id);
-                    
-                    return (
-                      <button
-                        key={currency.id}
-                        onClick={() => handleCurrencySelect(currency)}
-                        disabled={createPayment.isPending}
-                        className={cn(
-                          "flex items-center gap-3 p-3 rounded-xl border transition-all",
-                          "hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm",
-                          "disabled:cursor-not-allowed disabled:opacity-50"
-                        )}
-                      >
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
-                          <CryptoIcon size={32} />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-medium text-sm">{currency.symbol}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {currency.name} {currency.network && `• ${currency.network}`}
-                          </p>
-                        </div>
-                        {createPayment.isPending && selectedCurrency?.id === currency.id && (
-                          <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <CurrencySearchSelector
+                onSelect={handleCurrencySelect}
+                isLoading={createPayment.isPending}
+                loadingCurrencyId={selectedCurrency?.id}
+                amount={RENTAL_PRICE}
+              />
             </>
           )}
 
           {/* Step: Crypto Payment */}
           {step === 'crypto-payment' && paymentData && (
-            <>
-              <div className="flex items-center justify-center p-4 bg-white rounded-lg">
-                <QRCodeSVG 
-                  value={paymentData.pay_address} 
-                  size={160}
-                  level="H"
-                  includeMargin
-                />
+            <div className="space-y-5">
+              {/* QR Code */}
+              <div className="flex flex-col items-center">
+                <div className="p-4 bg-white rounded-2xl shadow-lg">
+                  <QRCodeSVG 
+                    value={paymentData.pay_address} 
+                    size={180}
+                    level="H"
+                    includeMargin
+                  />
+                </div>
               </div>
               
+              {/* Payment Details */}
               <div className="space-y-3">
-                <div className="space-y-1">
+                {/* Amount to pay */}
+                <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">Zu zahlender Betrag</Label>
-                  <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/50">
-                    <span className="font-mono text-lg font-bold">
+                  <div className="flex items-center gap-2 p-3 rounded-xl border border-border/50 bg-muted/20">
+                    <span className="flex-1 font-mono text-lg font-bold">
                       {paymentData.pay_amount} {paymentData.pay_currency.toUpperCase()}
                     </span>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(paymentData.pay_amount.toString())}
+                      className="h-8 px-3"
+                      onClick={() => copyToClipboard(paymentData.pay_amount.toString(), 'amount')}
                     >
-                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {copied === 'amount' ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>
                 
-                <div className="space-y-1">
+                {/* Wallet Address */}
+                <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">Wallet-Adresse</Label>
-                  <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted/50">
-                    <span className="font-mono text-xs flex-1 break-all">
+                  <div className="flex items-center gap-2 p-3 rounded-xl border border-border/50 bg-muted/20">
+                    <span className="flex-1 font-mono text-xs break-all leading-relaxed">
                       {paymentData.pay_address}
                     </span>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(paymentData.pay_address)}
+                      className="h-8 px-3 shrink-0"
+                      onClick={() => copyToClipboard(paymentData.pay_address, 'address')}
                     >
-                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {copied === 'address' ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>
               </div>
               
-              <div className={cn(
-                "flex items-center justify-center gap-2 p-3 rounded-lg border",
-                statusInfo.color
-              )}>
-                <StatusIcon className={cn("h-5 w-5", (paymentStatus === 'waiting' || paymentStatus === 'confirming') && "animate-spin")} />
-                <span className="font-medium">{statusInfo.text}</span>
-              </div>
+              {/* Status Indicator */}
+              <PaymentStatusIndicator status={paymentStatus} />
               
-              <p className="text-xs text-center text-muted-foreground">
-                Nach Zahlungseingang wird dein Account automatisch aktiviert.
-                <br />
-                Du kannst dieses Fenster schließen.
-              </p>
-            </>
+              {/* Footer Info */}
+              <div className="text-center space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  Dein Account wird nach Zahlungseingang automatisch aktiviert.
+                </p>
+                <PoweredByBadge />
+              </div>
+            </div>
           )}
 
           {/* Step: Success */}
           {step === 'success' && (
-            <div className="space-y-4 text-center py-4">
-              <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center bg-green-100 text-green-600">
-                <Check className="h-8 w-8" />
+            <div className="space-y-5 text-center py-4">
+              <div className="w-20 h-20 rounded-full mx-auto flex items-center justify-center bg-emerald-100 text-emerald-600">
+                <Check className="h-10 w-10" />
               </div>
               
               <div>
-                <h3 className="text-lg font-semibold">Agency Account aktiviert!</h3>
+                <p className="text-lg font-semibold">Dein Agency Account ist aktiv!</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Dein Werbekonto ist jetzt für 30 Tage aktiv.
+                  Du kannst jetzt mit dem Werben beginnen. Viel Erfolg!
                 </p>
               </div>
               
               <Button 
-                className="w-full" 
+                className="w-full h-12 gradient-bg text-base font-semibold"
                 onClick={() => onOpenChange(false)}
               >
-                Zum Dashboard
+                Los geht's
               </Button>
             </div>
           )}
