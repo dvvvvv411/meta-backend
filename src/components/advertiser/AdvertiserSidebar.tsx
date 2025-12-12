@@ -36,18 +36,27 @@ const navItems: NavItem[] = [
   { label: 'Support / Tickets', icon: HelpCircle, path: '/advertiser/support' },
 ];
 
-export const AdvertiserSidebar = () => {
+interface AdvertiserSidebarProps {
+  isMobile?: boolean;
+  onNavigate?: () => void;
+}
+
+export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const { hasActiveAccount } = useAdvertiserAccounts();
 
+  // Mobile is always expanded
+  const isCollapsed = isMobile ? false : collapsed;
+
   const handleNavigation = (item: NavItem) => {
     if (item.requiresAccount && !hasActiveAccount) {
       return;
     }
     navigate(item.path);
+    onNavigate?.();
   };
 
   const handleLogout = async () => {
@@ -58,23 +67,26 @@ export const AdvertiserSidebar = () => {
   return (
     <aside 
       className={cn(
-        "sticky top-0 h-screen bg-card border-r border-border flex flex-col transition-all duration-300",
-        collapsed ? "w-16" : "w-64"
+        "h-screen bg-card border-r border-border flex flex-col transition-all duration-300",
+        isMobile ? "w-full" : "sticky top-0",
+        !isMobile && (isCollapsed ? "w-16" : "w-64")
       )}
     >
       {/* Logo / Brand */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-border">
-        {!collapsed && (
+        {!isCollapsed && (
           <span className="font-bold text-lg text-foreground">Dashboard</span>
         )}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto"
-        >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
+        {!isMobile && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCollapsed(!collapsed)}
+            className="ml-auto"
+          >
+            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </Button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -90,7 +102,7 @@ export const AdvertiserSidebar = () => {
               variant={isActive ? "secondary" : "ghost"}
               className={cn(
                 "w-full justify-start gap-3 h-11",
-                collapsed && "justify-center px-2",
+                isCollapsed && "justify-center px-2",
                 isLocked && "opacity-50 cursor-not-allowed"
               )}
               onClick={() => handleNavigation(item)}
@@ -102,11 +114,11 @@ export const AdvertiserSidebar = () => {
                   <Lock className="h-3 w-3 absolute -top-1 -right-1 text-muted-foreground" />
                 )}
               </div>
-              {!collapsed && <span>{item.label}</span>}
+              {!isCollapsed && <span>{item.label}</span>}
             </Button>
           );
 
-          if (collapsed || isLocked) {
+          if (isCollapsed || isLocked) {
             return (
               <Tooltip key={item.path} delayDuration={0}>
                 <TooltipTrigger asChild>
@@ -134,15 +146,15 @@ export const AdvertiserSidebar = () => {
               variant="ghost"
               className={cn(
                 "w-full justify-start gap-3 h-11 text-destructive hover:text-destructive hover:bg-destructive/10",
-                collapsed && "justify-center px-2"
+                isCollapsed && "justify-center px-2"
               )}
               onClick={handleLogout}
             >
               <LogOut className="h-5 w-5 shrink-0" />
-              {!collapsed && <span>Abmelden</span>}
+              {!isCollapsed && <span>Abmelden</span>}
             </Button>
           </TooltipTrigger>
-          {collapsed && (
+          {isCollapsed && (
             <TooltipContent side="right">Abmelden</TooltipContent>
           )}
         </Tooltip>

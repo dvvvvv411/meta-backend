@@ -1,15 +1,45 @@
-import { User, Wallet } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { User, Wallet, Menu, Bell, Search, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
 
-export const AdvertiserHeader = () => {
-  const { user } = useAuth();
+interface AdvertiserHeaderProps {
+  onMenuToggle?: () => void;
+  showMenuButton?: boolean;
+}
+
+export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: AdvertiserHeaderProps) => {
+  const { user, signOut } = useAuth();
   const { hasActiveAccount, totalBalanceEur, totalBalanceUsdt, isLoading } = useAdvertiserAccounts();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const companyName = user?.user_metadata?.company_name as string | undefined;
+
+  // Mock notifications - in production this would come from the database
+  const notifications = [
+    { id: '1', title: 'Zahlung erhalten', message: '150 EUR wurde gutgeschrieben', time: 'vor 2 Std.' },
+    { id: '2', title: 'Account läuft ab', message: 'Dein Account läuft in 3 Tagen ab', time: 'vor 1 Tag' },
+  ];
+  const unreadCount = notifications.length;
 
   const formatCurrency = (amount: number, currency: string) => {
     if (currency === 'EUR') {
@@ -18,50 +48,51 @@ export const AdvertiserHeader = () => {
     return `${amount.toLocaleString('de-DE', { minimumFractionDigits: 2 })} USDT`;
   };
 
-  return (
-    <header className="sticky top-0 z-10 h-16 bg-background/95 backdrop-blur border-b border-border px-6 flex items-center justify-between gap-4">
-      {/* User Card */}
-      <Card className="flex items-center gap-3 px-4 py-2 bg-card/50">
-        <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-          <User className="h-5 w-5 text-primary" />
-        </div>
-        <div className="hidden sm:block">
-          <p className="text-sm font-medium text-foreground leading-tight">
-            {companyName || user?.email?.split('@')[0] || 'Benutzer'}
-          </p>
-          <p className="text-xs text-muted-foreground leading-tight">
-            {user?.email}
-          </p>
-        </div>
-        {isLoading ? (
-          <Skeleton className="h-5 w-16 ml-2" />
-        ) : (
-          <Badge 
-            variant={hasActiveAccount ? "default" : "secondary"}
-            className="ml-2"
-          >
-            {hasActiveAccount ? 'Aktiv' : 'Kein Account'}
-          </Badge>
-        )}
-      </Card>
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/auth/login');
+  };
 
-      {/* Quick Balance */}
-      <div className="flex items-center gap-3">
-        <Card className="flex items-center gap-2 px-4 py-2 bg-card/50">
+  return (
+    <header className="sticky top-0 z-10 h-16 bg-background/95 backdrop-blur border-b border-border px-4 sm:px-6 flex items-center justify-between gap-2 sm:gap-4">
+      {/* Left: Menu Button (Mobile) + Search */}
+      <div className="flex items-center gap-2 sm:gap-4 flex-1">
+        {showMenuButton && (
+          <Button variant="ghost" size="icon" onClick={onMenuToggle} className="shrink-0">
+            <Menu className="h-5 w-5" />
+          </Button>
+        )}
+
+        {/* Global Search - Hidden on small screens */}
+        <div className="relative hidden md:block max-w-xs flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Kampagnen, Statistiken..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 bg-muted/50"
+          />
+        </div>
+      </div>
+
+      {/* Right: Balance, Notifications, User Dropdown */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Quick Balance */}
+        <Card className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-card/50 border-border/50">
           <Wallet className="h-4 w-4 text-muted-foreground" />
           {isLoading ? (
-            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-5 w-20" />
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <div className="text-right">
-                <p className="text-xs text-muted-foreground leading-none mb-0.5">EUR</p>
+                <p className="text-xs text-muted-foreground leading-none">EUR</p>
                 <p className="text-sm font-semibold text-foreground leading-none">
                   {formatCurrency(totalBalanceEur, 'EUR')}
                 </p>
               </div>
-              <div className="h-8 w-px bg-border" />
+              <div className="h-6 w-px bg-border" />
               <div className="text-right">
-                <p className="text-xs text-muted-foreground leading-none mb-0.5">USDT</p>
+                <p className="text-xs text-muted-foreground leading-none">USDT</p>
                 <p className="text-sm font-semibold text-foreground leading-none">
                   {formatCurrency(totalBalanceUsdt, 'USDT')}
                 </p>
@@ -69,6 +100,83 @@ export const AdvertiserHeader = () => {
             </div>
           )}
         </Card>
+
+        {/* Notifications Bell */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-0 bg-popover" align="end">
+            <div className="p-3 border-b border-border">
+              <h4 className="font-semibold text-sm">Benachrichtigungen</h4>
+            </div>
+            <div className="max-h-80 overflow-y-auto">
+              {notifications.length > 0 ? (
+                notifications.map((notification) => (
+                  <div key={notification.id} className="p-3 hover:bg-muted/50 cursor-pointer border-b border-border last:border-0">
+                    <p className="text-sm font-medium">{notification.title}</p>
+                    <p className="text-xs text-muted-foreground">{notification.message}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-center text-sm text-muted-foreground">
+                  Keine neuen Benachrichtigungen
+                </div>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {/* User Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="flex items-center gap-2 px-2 h-auto py-1.5">
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <User className="h-4 w-4 text-primary" />
+              </div>
+              <div className="hidden sm:block text-left">
+                <p className="text-sm font-medium leading-tight">
+                  {companyName || user?.email?.split('@')[0] || 'Benutzer'}
+                </p>
+                {isLoading ? (
+                  <Skeleton className="h-4 w-12 mt-0.5" />
+                ) : (
+                  <Badge 
+                    variant={hasActiveAccount ? "default" : "secondary"}
+                    className="text-[10px] h-4 px-1.5"
+                  >
+                    {hasActiveAccount ? 'Aktiv' : 'Kein Account'}
+                  </Badge>
+                )}
+              </div>
+              <ChevronDown className="h-4 w-4 text-muted-foreground hidden sm:block" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 bg-popover">
+            <div className="px-2 py-1.5 sm:hidden">
+              <p className="text-sm font-medium">{companyName || user?.email?.split('@')[0]}</p>
+              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            </div>
+            <DropdownMenuSeparator className="sm:hidden" />
+            <DropdownMenuItem onClick={() => navigate('/advertiser/settings')}>
+              <Settings className="h-4 w-4 mr-2" />
+              Einstellungen
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+              <LogOut className="h-4 w-4 mr-2" />
+              Abmelden
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
