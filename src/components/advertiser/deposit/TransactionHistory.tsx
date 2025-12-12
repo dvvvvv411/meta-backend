@@ -33,7 +33,17 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, expiresAt: string | null) => {
+    // Check if expired (pending + expires_at in past)
+    if (status === 'pending' && expiresAt && new Date(expiresAt) < new Date()) {
+      return (
+        <Badge className="bg-gray-500/10 text-gray-500 border-gray-500/20">
+          <XCircle className="h-3 w-3 mr-1" />
+          Abgelaufen
+        </Badge>
+      );
+    }
+
     switch (status) {
       case 'completed':
         return (
@@ -86,7 +96,12 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
         }
       }},
       { header: 'Betrag', accessor: (d: Deposit) => formatCurrency(d.amount) },
-      { header: 'Status', accessor: (d: Deposit) => d.status === 'completed' ? 'Bestätigt' : d.status === 'pending' ? 'Ausstehend' : 'Fehlgeschlagen' },
+      { header: 'Status', accessor: (d: Deposit) => {
+        if (d.status === 'pending' && d.expires_at && new Date(d.expires_at) < new Date()) {
+          return 'Abgelaufen';
+        }
+        return d.status === 'completed' ? 'Bestätigt' : d.status === 'pending' ? 'Ausstehend' : 'Fehlgeschlagen';
+      }},
       { header: 'Beschreibung', accessor: (d: Deposit) => d.description || '-' },
     ];
 
@@ -150,7 +165,7 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
                       {formatCurrency(deposit.amount)}
                     </TableCell>
                     <TableCell>
-                      {getStatusBadge(deposit.status || 'pending')}
+                      {getStatusBadge(deposit.status || 'pending', deposit.expires_at)}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-muted-foreground">
                       {deposit.description || '-'}
