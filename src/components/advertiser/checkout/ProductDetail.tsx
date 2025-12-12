@@ -43,18 +43,18 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-accent/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
           
-          <div className="relative p-8 md:p-10 lg:p-12">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+          <div className="relative p-6 md:p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
               
               {/* Left Column - Pricing Hero */}
               <div className="flex flex-col justify-center order-2 lg:order-1">
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {/* Icon and Badge */}
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-lg" />
-                      <div className="relative w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center shadow-lg">
-                        <Building2 className="h-8 w-8 text-primary-foreground" />
+                      <div className="absolute inset-0 bg-primary/20 rounded-xl blur-lg" />
+                      <div className="relative w-12 h-12 rounded-xl gradient-bg flex items-center justify-center shadow-lg">
+                        <Building2 className="h-6 w-6 text-primary-foreground" />
                       </div>
                     </div>
                     <Badge className="gradient-bg text-primary-foreground border-0 text-sm px-3 py-1">
@@ -64,24 +64,22 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
 
                   {/* Title */}
                   <div>
-                    <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-2">
+                    <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-1">
                       Agency Account
                     </h2>
-                    <p className="text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       Dein Schlüssel zu professionellem Advertising
                     </p>
                   </div>
 
                   {/* Price */}
-                  <div className="py-4">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-6xl lg:text-7xl font-bold gradient-text">150€</span>
-                      <span className="text-xl text-muted-foreground">/ 30 Tage</span>
-                    </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-5xl lg:text-6xl font-bold gradient-text">150€</span>
+                    <span className="text-lg text-muted-foreground">/ 30 Tage</span>
                   </div>
 
                   {/* Features list */}
-                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                  <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                       <span>Automatische Verlängerung</span>
@@ -94,7 +92,7 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
 
                   {/* CTA Button */}
                   <Button 
-                    size="xl"
+                    size="lg"
                     variant="hero"
                     className="w-full group"
                     onClick={onRentClick}
@@ -104,42 +102,42 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
                   </Button>
 
                   {/* Trust badge */}
-                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                    <Lock className="h-4 w-4" />
+                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                    <Lock className="h-3.5 w-3.5" />
                     <span>Sichere & verschlüsselte Zahlung</span>
                   </div>
                 </div>
               </div>
 
               {/* Right Column - Benefits */}
-              <div className="order-1 lg:order-2 lg:border-l lg:border-border/50 lg:pl-16">
-                <h3 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
-                  <span className="w-8 h-1 gradient-bg rounded-full" />
+              <div className="order-1 lg:order-2 lg:border-l lg:border-border/50 lg:pl-10">
+                <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <span className="w-6 h-1 gradient-bg rounded-full" />
                   Deine Vorteile
                 </h3>
 
-                <div className="space-y-4 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
                   {benefits.map((benefit, i) => (
                     <div 
                       key={i} 
-                      className="group flex items-start gap-4 p-4 rounded-2xl bg-background/50 hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all duration-300"
+                      className="group flex items-start gap-3 p-3 rounded-xl bg-background/50 hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all duration-300"
                     >
-                      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 group-hover:gradient-bg flex items-center justify-center transition-all duration-300">
-                        <benefit.icon className="h-6 w-6 text-primary group-hover:text-primary-foreground transition-colors duration-300" />
+                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 group-hover:gradient-bg flex items-center justify-center transition-all duration-300">
+                        <benefit.icon className="h-5 w-5 text-primary group-hover:text-primary-foreground transition-colors duration-300" />
                       </div>
                       <div>
-                        <span className="font-semibold text-foreground block">{benefit.text}</span>
-                        <span className="text-sm text-muted-foreground">{benefit.description}</span>
+                        <span className="font-medium text-sm text-foreground block">{benefit.text}</span>
+                        <span className="text-xs text-muted-foreground">{benefit.description}</span>
                       </div>
                     </div>
                   ))}
                 </div>
 
                 {/* Additional trust points */}
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2">
                   {trustPoints.map((point, i) => (
-                    <div key={i} className="flex items-center gap-2 text-sm bg-secondary/50 text-secondary-foreground px-3 py-1.5 rounded-full">
-                      <Check className="h-4 w-4 text-primary" />
+                    <div key={i} className="flex items-center gap-1.5 text-xs bg-secondary/50 text-secondary-foreground px-2.5 py-1 rounded-full">
+                      <Check className="h-3.5 w-3.5 text-primary" />
                       <span>{point}</span>
                     </div>
                   ))}
@@ -148,14 +146,14 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
             </div>
 
             {/* Social Proof Footer */}
-            <div className="mt-10 pt-8 border-t border-border/50">
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
-                <div className="flex items-center gap-1">
+            <div className="mt-5 pt-4 border-t border-border/50">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-center">
+                <div className="flex items-center gap-0.5">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-warning text-warning" />
+                    <Star key={i} className="h-4 w-4 fill-warning text-warning" />
                   ))}
                 </div>
-                <p className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   <span className="font-semibold text-foreground">500+</span> zufriedene Werbetreibende vertrauen uns
                 </p>
               </div>
