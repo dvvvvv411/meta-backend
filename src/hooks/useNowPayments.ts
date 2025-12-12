@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface CreatePaymentParams {
   amount_eur: number;
   pay_currency: string;
+  payment_type?: 'deposit' | 'rental';
 }
 
 interface PaymentResponse {
