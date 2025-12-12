@@ -1,0 +1,10 @@
+-- Add crypto-specific columns to transactions table
+ALTER TABLE public.transactions 
+ADD COLUMN IF NOT EXISTS coin_type TEXT DEFAULT 'USDT',
+ADD COLUMN IF NOT EXISTS network TEXT,
+ADD COLUMN IF NOT EXISTS gross_amount NUMERIC,
+ADD COLUMN IF NOT EXISTS fee_amount NUMERIC DEFAULT 0,
+ADD COLUMN IF NOT EXISTS confirmations INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS confirmations_required INTEGER DEFAULT 3,
+ADD COLUMN IF NOT EXISTS wallet_address TEXT,
+ADD COLUMN IF NOT EXISTS tx_hash TEXT;
