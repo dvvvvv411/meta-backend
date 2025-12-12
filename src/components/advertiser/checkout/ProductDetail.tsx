@@ -42,9 +42,9 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
               
               {/* Left Column - Pricing Hero */}
               <div className="flex flex-col justify-center order-2 lg:order-1">
-                <div className="space-y-4">
+                <div className="space-y-4 text-center">
                   {/* Logo and Badge */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center gap-3">
                     <img src={metaLogo} alt="Meta Logo" className="h-8 w-auto" />
                     <Badge className="gradient-bg text-primary-foreground border-0 text-sm px-3 py-1">
                       Premium • 30 Tage
@@ -62,13 +62,13 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
                   </div>
 
                   {/* Price */}
-                  <div className="flex items-baseline gap-2">
+                  <div className="flex items-baseline justify-center gap-2">
                     <span className="text-5xl lg:text-6xl font-bold gradient-text">150€</span>
                     <span className="text-lg text-muted-foreground">/ 30 Tage</span>
                   </div>
 
                   {/* Features list */}
-                  <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                  <div className="flex flex-wrap justify-center gap-3 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                       <span>Automatische Verlängerung</span>
