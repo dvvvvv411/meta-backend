@@ -28,7 +28,7 @@ interface AdvertiserHeaderProps {
 
 export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: AdvertiserHeaderProps) => {
   const { user, signOut } = useAuth();
-  const { hasActiveAccount, totalBalanceEur, totalBalanceUsdt, isLoading } = useAdvertiserAccounts();
+  const { hasActiveAccount, totalBalanceEur, isLoading } = useAdvertiserAccounts();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -41,11 +41,8 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
   ];
   const unreadCount = notifications.length;
 
-  const formatCurrency = (amount: number, currency: string) => {
-    if (currency === 'EUR') {
-      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
-    }
-    return `${amount.toLocaleString('de-DE', { minimumFractionDigits: 2 })} USDT`;
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
   const handleLogout = async () => {
@@ -84,20 +81,11 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
           {isLoading ? (
             <Skeleton className="h-5 w-20" />
           ) : (
-            <div className="flex items-center gap-2">
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground leading-none">EUR</p>
-                <p className="text-sm font-semibold text-foreground leading-none">
-                  {formatCurrency(totalBalanceEur, 'EUR')}
-                </p>
-              </div>
-              <div className="h-6 w-px bg-border" />
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground leading-none">USDT</p>
-                <p className="text-sm font-semibold text-foreground leading-none">
-                  {formatCurrency(totalBalanceUsdt, 'USDT')}
-                </p>
-              </div>
+            <div className="text-right">
+              <p className="text-xs text-muted-foreground leading-none">Guthaben</p>
+              <p className="text-sm font-semibold text-foreground leading-none">
+                {formatCurrency(totalBalanceEur)}
+              </p>
             </div>
           )}
         </Card>
