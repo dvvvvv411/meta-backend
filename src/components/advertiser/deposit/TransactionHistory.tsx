@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { CheckCircle2, Clock, XCircle, Receipt, Download, Eye } from 'lucide-react';
+import { CheckCircle2, Clock, XCircle, Receipt, Download, Eye, ChevronDown } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +13,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import type { Deposit } from '@/hooks/useDeposits';
 import { generateCSV, downloadCSV, formatDateForCSV } from '@/lib/csv-export';
 import { TransactionDetailModal } from './TransactionDetailModal';
@@ -109,6 +114,69 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
     downloadCSV(csvContent, `transaktionen-${format(new Date(), 'yyyy-MM-dd')}.csv`);
   };
 
+  // Mobile Card Component
+  const TransactionCard = ({ deposit }: { deposit: Deposit }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <div className="border rounded-xl p-4 bg-card">
+          <CollapsibleTrigger className="w-full text-left">
+            <div className="flex items-center justify-between gap-3">
+              {/* Left: Date + Type */}
+              <div className="flex flex-col items-start gap-1.5 min-w-0">
+                <span className="text-sm text-muted-foreground">
+                  {format(new Date(deposit.created_at), 'dd.MM.yyyy', { locale: de })}
+                </span>
+                {getTypeBadge(deposit.type)}
+              </div>
+              
+              {/* Right: Amount + Status + Chevron */}
+              <div className="flex items-center gap-3 shrink-0">
+                <div className="text-right">
+                  <div className="font-mono font-semibold text-base">
+                    {formatCurrency(deposit.amount)}
+                  </div>
+                  <div className="mt-1">
+                    {getStatusBadge(deposit.status || 'pending', deposit.expires_at)}
+                  </div>
+                </div>
+                <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+              </div>
+            </div>
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent>
+            <div className="pt-4 mt-4 border-t space-y-3">
+              {/* Description */}
+              {deposit.description && (
+                <div className="flex justify-between items-start gap-2">
+                  <span className="text-sm text-muted-foreground">Beschreibung</span>
+                  <span className="text-sm text-right">{deposit.description}</span>
+                </div>
+              )}
+              
+              {/* Details Button if pay_address exists */}
+              {deposit.pay_address && (
+                <Button 
+                  variant="outline" 
+                  className="w-full h-10" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openDetails(deposit);
+                  }}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Zahlungsdetails anzeigen
+                </Button>
+              )}
+            </div>
+          </CollapsibleContent>
+        </div>
+      </Collapsible>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -140,53 +208,63 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Datum</TableHead>
-                  <TableHead>Typ</TableHead>
-                  <TableHead className="text-right">Betrag</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="hidden sm:table-cell">Beschreibung</TableHead>
-                  <TableHead className="text-right">Aktionen</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {deposits.map((deposit) => (
-                  <TableRow key={deposit.id}>
-                    <TableCell className="whitespace-nowrap">
-                      {format(new Date(deposit.created_at), 'dd.MM.yyyy', { locale: de })}
-                    </TableCell>
-                    <TableCell>
-                      {getTypeBadge(deposit.type)}
-                    </TableCell>
-                    <TableCell className="text-right font-mono font-medium">
-                      {formatCurrency(deposit.amount)}
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(deposit.status || 'pending', deposit.expires_at)}
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell text-muted-foreground">
-                      {deposit.description || '-'}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {deposit.pay_address && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openDetails(deposit)}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          Details
-                        </Button>
-                      )}
-                    </TableCell>
+          <>
+            {/* Mobile: Collapsible Cards */}
+            <div className="md:hidden space-y-3">
+              {deposits.map((deposit) => (
+                <TransactionCard key={deposit.id} deposit={deposit} />
+              ))}
+            </div>
+
+            {/* Desktop: Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Datum</TableHead>
+                    <TableHead>Typ</TableHead>
+                    <TableHead className="text-right">Betrag</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Beschreibung</TableHead>
+                    <TableHead className="text-right">Aktionen</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {deposits.map((deposit) => (
+                    <TableRow key={deposit.id}>
+                      <TableCell className="whitespace-nowrap">
+                        {format(new Date(deposit.created_at), 'dd.MM.yyyy', { locale: de })}
+                      </TableCell>
+                      <TableCell>
+                        {getTypeBadge(deposit.type)}
+                      </TableCell>
+                      <TableCell className="text-right font-mono font-medium">
+                        {formatCurrency(deposit.amount)}
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(deposit.status || 'pending', deposit.expires_at)}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {deposit.description || '-'}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {deposit.pay_address && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openDetails(deposit)}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            Details
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
       </CardContent>
 
