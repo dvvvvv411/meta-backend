@@ -385,10 +385,16 @@ export type Database = {
           created_at: string | null
           currency: string | null
           description: string | null
+          expires_at: string | null
           fee_amount: number | null
           gross_amount: number | null
           id: string
           network: string | null
+          nowpayments_id: string | null
+          pay_address: string | null
+          pay_amount: number | null
+          pay_currency: string | null
+          payment_status: string | null
           status: string | null
           tx_hash: string | null
           type: string
@@ -404,10 +410,16 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          expires_at?: string | null
           fee_amount?: number | null
           gross_amount?: number | null
           id?: string
           network?: string | null
+          nowpayments_id?: string | null
+          pay_address?: string | null
+          pay_amount?: number | null
+          pay_currency?: string | null
+          payment_status?: string | null
           status?: string | null
           tx_hash?: string | null
           type?: string
@@ -423,10 +435,16 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          expires_at?: string | null
           fee_amount?: number | null
           gross_amount?: number | null
           id?: string
           network?: string | null
+          nowpayments_id?: string | null
+          pay_address?: string | null
+          pay_amount?: number | null
+          pay_currency?: string | null
+          payment_status?: string | null
           status?: string | null
           tx_hash?: string | null
           type?: string
