@@ -58,19 +58,20 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
       {/* Left: Menu Button (Mobile) + Search */}
       <div className="flex items-center gap-2 sm:gap-4 flex-1">
         {showMenuButton && (
-          <Button variant="ghost" size="icon" onClick={onMenuToggle} className="shrink-0">
-            <Menu className="h-5 w-5" />
+          <Button variant="ghost" size="icon" onClick={onMenuToggle} className="shrink-0" aria-label="Navigation öffnen">
+            <Menu className="h-5 w-5" aria-hidden="true" />
           </Button>
         )}
 
         {/* Global Search - Hidden on small screens */}
         <div className="relative hidden md:block max-w-xs flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <Input
             placeholder="Kampagnen, Statistiken..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 bg-muted/50"
+            aria-label="Suche"
           />
         </div>
       </div>
@@ -104,10 +105,10 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
         {/* Notifications Bell */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="relative" aria-label={`Benachrichtigungen${unreadCount > 0 ? `, ${unreadCount} ungelesen` : ''}`}>
+              <Bell className="h-5 w-5" aria-hidden="true" />
               {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center" aria-hidden="true">
                   {unreadCount}
                 </span>
               )}
