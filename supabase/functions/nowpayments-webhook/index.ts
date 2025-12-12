@@ -95,7 +95,6 @@ serve(async (req) => {
     // Update transaction status
     const updateData: Record<string, unknown> = {
       payment_status: payment_status,
-      updated_at: new Date().toISOString(),
     };
 
     // Duplicate protection - don't credit again if already completed
