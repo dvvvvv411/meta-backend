@@ -154,6 +154,7 @@ export function CheckoutModal({
       const result = await createPayment.mutateAsync({
         amount_eur: RENTAL_PRICE,
         pay_currency: currency.id,
+        payment_type: 'rental',
       });
       
       setPaymentData({

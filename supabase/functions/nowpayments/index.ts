@@ -67,7 +67,7 @@ serve(async (req) => {
     }
 
     if (path === 'create-payment' && req.method === 'POST') {
-      const { amount_eur, pay_currency } = await req.json();
+      const { amount_eur, pay_currency, payment_type } = await req.json();
       
       // Validate input
       if (!amount_eur || amount_eur < 10 || amount_eur > 10000) {
@@ -145,8 +145,9 @@ serve(async (req) => {
         });
       }
 
-      // Calculate fee (2%)
-      const feeAmount = amount_eur * 0.02;
+      // Calculate fee (2% for deposits, 0% for rentals)
+      const isRental = payment_type === 'rental';
+      const feeAmount = isRental ? 0 : amount_eur * 0.02;
       const netAmount = amount_eur - feeAmount;
 
       // Create transaction record
@@ -154,7 +155,7 @@ serve(async (req) => {
         .from('transactions')
         .insert({
           user_id: user.id,
-          type: 'deposit',
+          type: isRental ? 'rental' : 'deposit',
           amount: netAmount,
           gross_amount: amount_eur,
           fee_amount: feeAmount,
@@ -168,7 +169,9 @@ serve(async (req) => {
           pay_currency: paymentData.pay_currency,
           payment_status: paymentData.payment_status || 'waiting',
           expires_at: paymentData.expiration_estimate_date || new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-          description: `Einzahlung ${amount_eur} EUR via ${pay_currency.toUpperCase()}`,
+          description: isRental 
+            ? `Agency Account Miete ${amount_eur} EUR via ${pay_currency.toUpperCase()}`
+            : `Einzahlung ${amount_eur} EUR via ${pay_currency.toUpperCase()}`,
         })
         .select()
         .single();
