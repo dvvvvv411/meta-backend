@@ -98,30 +98,42 @@ serve(async (req) => {
       updated_at: new Date().toISOString(),
     };
 
+    // Duplicate protection - don't credit again if already completed
+    if (transaction.status === 'completed') {
+      console.log(`Transaction ${transaction.id} already completed, skipping balance credit`);
+      return new Response(JSON.stringify({ success: true, message: 'Already processed' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Map NOWPayments status to our status
     if (payment_status === 'finished' || payment_status === 'confirmed') {
       updateData.status = 'completed';
       updateData.tx_hash = payload.hash || null;
       
-      // Credit user balance
-      const { data: account, error: accountError } = await supabase
-        .from('accounts')
+      // Credit user balance in PROFILES table (not accounts!)
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
         .select('balance_eur')
-        .eq('user_id', transaction.user_id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .eq('id', transaction.user_id)
+        .single();
 
-      if (account) {
-        const newBalance = (account.balance_eur || 0) + transaction.amount;
-        await supabase
-          .from('accounts')
-          .update({ balance_eur: newBalance })
-          .eq('user_id', transaction.user_id)
-          .order('created_at', { ascending: false })
-          .limit(1);
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+      } else if (profile) {
+        const currentBalance = profile.balance_eur || 0;
+        const newBalance = currentBalance + transaction.amount;
         
-        console.log(`Credited ${transaction.amount} EUR to user ${transaction.user_id}`);
+        const { error: updateBalanceError } = await supabase
+          .from('profiles')
+          .update({ balance_eur: newBalance })
+          .eq('id', transaction.user_id);
+        
+        if (updateBalanceError) {
+          console.error('Error updating balance:', updateBalanceError);
+        } else {
+          console.log(`Credited ${transaction.amount} EUR to user ${transaction.user_id}. New balance: ${newBalance}`);
+        }
       }
     } else if (payment_status === 'failed' || payment_status === 'expired' || payment_status === 'refunded') {
       updateData.status = 'failed';
