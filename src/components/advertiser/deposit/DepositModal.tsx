@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, Loader2, Check, Copy, ExternalLink, AlertCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Copy, Check, Wallet } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   Dialog,
@@ -14,7 +14,11 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useNowPayments } from '@/hooks/useNowPayments';
 import { cn } from '@/lib/utils';
-import { getCryptoIcon } from '@/lib/crypto-icons';
+import { CurrencySearchSelector, CurrencyOption } from '@/components/advertiser/shared/CurrencySearchSelector';
+import { TrustBadges, PoweredByBadge } from '@/components/advertiser/shared/TrustBadges';
+import { QuickAmountSelector } from '@/components/advertiser/shared/QuickAmountSelector';
+import { FeeCalculator } from '@/components/advertiser/shared/FeeCalculator';
+import { PaymentStatusIndicator } from '@/components/advertiser/shared/PaymentStatusIndicator';
 
 interface DepositModalProps {
   open: boolean;
@@ -23,31 +27,7 @@ interface DepositModalProps {
 
 type Step = 'amount' | 'currency' | 'payment' | 'status';
 
-interface CurrencyOption {
-  id: string;
-  name: string;
-  symbol: string;
-  network?: string;
-  minEur: number;
-  category: 'stablecoin' | 'crypto';
-}
-
-const CURRENCIES: CurrencyOption[] = [
-  // Stablecoins
-  { id: 'usdttrc20', name: 'Tether', symbol: 'USDT', network: 'TRC20', minEur: 10, category: 'stablecoin' },
-  { id: 'usdterc20', name: 'Tether', symbol: 'USDT', network: 'ERC20', minEur: 20, category: 'stablecoin' },
-  { id: 'usdtbsc', name: 'Tether', symbol: 'USDT', network: 'BSC (BEP20)', minEur: 10, category: 'stablecoin' },
-  { id: 'usdtmatic', name: 'Tether', symbol: 'USDT', network: 'Polygon', minEur: 10, category: 'stablecoin' },
-  { id: 'usdcerc20', name: 'USD Coin', symbol: 'USDC', network: 'ERC20', minEur: 20, category: 'stablecoin' },
-  // Cryptocurrencies
-  { id: 'btc', name: 'Bitcoin', symbol: 'BTC', minEur: 50, category: 'crypto' },
-  { id: 'eth', name: 'Ethereum', symbol: 'ETH', minEur: 30, category: 'crypto' },
-  { id: 'ltc', name: 'Litecoin', symbol: 'LTC', minEur: 10, category: 'crypto' },
-  { id: 'sol', name: 'Solana', symbol: 'SOL', minEur: 10, category: 'crypto' },
-  { id: 'trx', name: 'Tron', symbol: 'TRX', minEur: 5, category: 'crypto' },
-  { id: 'bnbbsc', name: 'BNB', symbol: 'BNB', network: 'BSC', minEur: 15, category: 'crypto' },
-  { id: 'xmr', name: 'Monero', symbol: 'XMR', minEur: 10, category: 'crypto' },
-];
+const QUICK_AMOUNTS = [50, 100, 250, 500];
 
 export function DepositModal({ open, onOpenChange }: DepositModalProps) {
   const { toast } = useToast();
@@ -66,7 +46,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
     fee_amount: number;
   } | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string>('waiting');
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<'amount' | 'address' | null>(null);
   const [isPolling, setIsPolling] = useState(false);
 
   // Reset state when modal closes
@@ -104,13 +84,18 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
       } catch (error) {
         console.error('Status check error:', error);
       }
-    }, 10000); // Check every 10 seconds
+    }, 10000);
 
     return () => clearInterval(interval);
-  }, [paymentData?.payment_id, isPolling, checkPaymentStatus, toast]);
+  }, [paymentData?.payment_id, isPolling, checkPaymentStatus, toast, paymentData?.net_amount]);
+
+  const numAmount = parseFloat(amount) || 0;
+
+  const handleQuickAmountSelect = (value: number) => {
+    setAmount(value.toString());
+  };
 
   const handleAmountSubmit = () => {
-    const numAmount = parseFloat(amount);
     if (isNaN(numAmount) || numAmount < 10 || numAmount > 10000) {
       toast({
         title: 'Ungültiger Betrag',
@@ -127,7 +112,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
     
     try {
       const result = await createPayment.mutateAsync({
-        amount_eur: parseFloat(amount),
+        amount_eur: numAmount,
         pay_currency: currency.id,
       });
       
@@ -152,102 +137,88 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
     }
   };
 
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text: string, type: 'amount' | 'address') => {
     navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopied(type);
+    setTimeout(() => setCopied(null), 2000);
     toast({
       title: 'Kopiert!',
-      description: 'Adresse wurde in die Zwischenablage kopiert.',
+      description: type === 'address' ? 'Adresse kopiert.' : 'Betrag kopiert.',
     });
   };
 
-  const getStatusInfo = () => {
-    switch (paymentStatus) {
-      case 'waiting':
-        return { text: 'Warte auf Zahlung...', color: 'text-yellow-500', icon: Loader2 };
-      case 'confirming':
-        return { text: 'Bestätigung läuft...', color: 'text-blue-500', icon: Loader2 };
-      case 'confirmed':
-      case 'finished':
-        return { text: 'Zahlung erfolgreich!', color: 'text-green-500', icon: Check };
-      case 'failed':
-      case 'expired':
-        return { text: 'Zahlung fehlgeschlagen', color: 'text-red-500', icon: AlertCircle };
-      default:
-        return { text: 'Status unbekannt', color: 'text-muted-foreground', icon: Loader2 };
-    }
-  };
-
-  const statusInfo = getStatusInfo();
-  const StatusIcon = statusInfo.icon;
+  const isSuccess = paymentStatus === 'finished' || paymentStatus === 'confirmed';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
-            {step === 'amount' && 'Betrag eingeben'}
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader className="text-center pb-2">
+          <div className="mx-auto w-12 h-12 rounded-2xl gradient-bg flex items-center justify-center mb-3">
+            <Wallet className="h-6 w-6 text-primary-foreground" />
+          </div>
+          <DialogTitle className="text-xl">
+            {step === 'amount' && 'Guthaben einzahlen'}
             {step === 'currency' && 'Kryptowährung wählen'}
             {step === 'payment' && 'Zahlung durchführen'}
-            {step === 'status' && 'Zahlungsstatus'}
+            {step === 'status' && (isSuccess ? 'Erfolgreich!' : 'Zahlung fehlgeschlagen')}
           </DialogTitle>
           <DialogDescription>
-            {step === 'amount' && 'Wie viel möchtest du einzahlen?'}
+            {step === 'amount' && 'Sichere Einzahlung via Kryptowährung'}
             {step === 'currency' && 'Wähle deine bevorzugte Kryptowährung'}
             {step === 'payment' && 'Scanne den QR-Code oder kopiere die Adresse'}
-            {step === 'status' && 'Deine Zahlung wurde verarbeitet'}
+            {step === 'status' && (isSuccess ? 'Dein Guthaben wurde aktualisiert' : 'Die Zahlung konnte nicht abgeschlossen werden')}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-5">
           {/* Step: Amount */}
           {step === 'amount' && (
-            <div className="space-y-4">
+            <div className="space-y-5">
+              {/* Quick Amount Selection */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Schnellauswahl</Label>
+                <QuickAmountSelector
+                  amounts={QUICK_AMOUNTS}
+                  selectedAmount={QUICK_AMOUNTS.includes(numAmount) ? numAmount : null}
+                  onSelect={handleQuickAmountSelect}
+                />
+              </div>
+
+              {/* Custom Amount Input */}
               <div className="space-y-2">
-                <Label htmlFor="amount">Betrag in EUR</Label>
+                <Label htmlFor="amount" className="text-sm font-medium">Eigener Betrag</Label>
                 <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-muted-foreground">€</span>
                   <Input
                     id="amount"
                     type="number"
                     min="10"
                     max="10000"
                     step="1"
-                    placeholder="100"
+                    placeholder="0"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="pr-10 text-lg"
+                    className="pl-10 pr-4 h-14 text-2xl font-bold text-center bg-muted/30 border-border/50 focus:border-primary focus:bg-background"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">€</span>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Min. 10€ • Max. 10.000€ • 2% Gebühr wird abgezogen
+                <p className="text-xs text-muted-foreground text-center">
+                  Min. 10€ • Max. 10.000€
                 </p>
               </div>
               
-              {amount && parseFloat(amount) >= 10 && (
-                <div className="rounded-lg border bg-muted/50 p-3 space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Einzahlung</span>
-                    <span>{parseFloat(amount).toFixed(2)} €</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Gebühr (2%)</span>
-                    <span className="text-destructive">-{(parseFloat(amount) * 0.02).toFixed(2)} €</span>
-                  </div>
-                  <div className="flex justify-between font-medium pt-1 border-t">
-                    <span>Gutschrift</span>
-                    <span className="text-primary">{(parseFloat(amount) * 0.98).toFixed(2)} €</span>
-                  </div>
-                </div>
-              )}
+              {/* Fee Calculator */}
+              <FeeCalculator grossAmount={numAmount} />
+              
+              {/* Trust Badge */}
+              <TrustBadges />
               
               <Button 
-                className="w-full gradient-bg" 
+                className="w-full h-12 gradient-bg text-base font-semibold" 
                 onClick={handleAmountSubmit}
-                disabled={!amount || parseFloat(amount) < 10}
+                disabled={numAmount < 10}
               >
-                Weiter <ArrowRight className="ml-2 h-4 w-4" />
+                Weiter zur Zahlung
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           )}
@@ -259,196 +230,127 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setStep('amount')}
-                className="mb-2"
+                className="mb-2 -ml-2"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
               </Button>
               
-              {/* Stablecoins */}
-              <div className="space-y-2">
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-1">
-                  Stablecoins
-                </h4>
-                <div className="grid gap-2">
-                  {CURRENCIES.filter(c => c.category === 'stablecoin').map((currency) => {
-                    const numAmount = parseFloat(amount);
-                    const isBelowMin = numAmount < currency.minEur;
-                    const CryptoIcon = getCryptoIcon(currency.id);
-                    
-                    return (
-                      <button
-                        key={currency.id}
-                        onClick={() => handleCurrencySelect(currency)}
-                        disabled={createPayment.isPending || isBelowMin}
-                        className={cn(
-                          "flex items-center gap-3 p-3 rounded-xl border transition-all",
-                          isBelowMin 
-                            ? "opacity-50 cursor-not-allowed border-muted bg-muted/30"
-                            : "hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm",
-                          "disabled:cursor-not-allowed"
-                        )}
-                      >
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
-                          <CryptoIcon size={40} />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-medium">{currency.symbol}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {currency.name} {currency.network && `• ${currency.network}`}
-                          </p>
-                        </div>
-                        {isBelowMin && (
-                          <span className="text-xs text-muted-foreground">Min. {currency.minEur}€</span>
-                        )}
-                        {createPayment.isPending && selectedCurrency?.id === currency.id && (
-                          <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+              {/* Amount Summary */}
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/50">
+                <span className="text-sm text-muted-foreground">Einzahlung</span>
+                <span className="font-bold text-lg">{numAmount.toFixed(2)} €</span>
               </div>
               
-              {/* Cryptocurrencies */}
-              <div className="space-y-2">
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-1">
-                  Kryptowährungen
-                </h4>
-                <div className="grid gap-2">
-                  {CURRENCIES.filter(c => c.category === 'crypto').map((currency) => {
-                    const numAmount = parseFloat(amount);
-                    const isBelowMin = numAmount < currency.minEur;
-                    const CryptoIcon = getCryptoIcon(currency.id);
-                    
-                    return (
-                      <button
-                        key={currency.id}
-                        onClick={() => handleCurrencySelect(currency)}
-                        disabled={createPayment.isPending || isBelowMin}
-                        className={cn(
-                          "flex items-center gap-3 p-3 rounded-xl border transition-all",
-                          isBelowMin 
-                            ? "opacity-50 cursor-not-allowed border-muted bg-muted/30"
-                            : "hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm",
-                          "disabled:cursor-not-allowed"
-                        )}
-                      >
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
-                          <CryptoIcon size={40} />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-medium">{currency.symbol}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {currency.name} {currency.network && `• ${currency.network}`}
-                          </p>
-                        </div>
-                        {isBelowMin && (
-                          <span className="text-xs text-muted-foreground">Min. {currency.minEur}€</span>
-                        )}
-                        {createPayment.isPending && selectedCurrency?.id === currency.id && (
-                          <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <CurrencySearchSelector
+                onSelect={handleCurrencySelect}
+                isLoading={createPayment.isPending}
+                loadingCurrencyId={selectedCurrency?.id}
+                amount={numAmount}
+              />
             </div>
           )}
 
           {/* Step: Payment */}
           {step === 'payment' && paymentData && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-center p-4 bg-white rounded-lg">
-                <QRCodeSVG 
-                  value={paymentData.pay_address} 
-                  size={180}
-                  level="H"
-                  includeMargin
-                />
+            <div className="space-y-5">
+              {/* QR Code */}
+              <div className="flex flex-col items-center">
+                <div className="p-4 bg-white rounded-2xl shadow-lg">
+                  <QRCodeSVG 
+                    value={paymentData.pay_address} 
+                    size={180}
+                    level="H"
+                    includeMargin
+                  />
+                </div>
               </div>
               
+              {/* Payment Details */}
               <div className="space-y-3">
-                <div className="space-y-1">
+                {/* Amount to pay */}
+                <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">Zu zahlender Betrag</Label>
-                  <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/50">
-                    <span className="font-mono text-lg font-bold">
+                  <div className="flex items-center gap-2 p-3 rounded-xl border border-border/50 bg-muted/20">
+                    <span className="flex-1 font-mono text-lg font-bold">
                       {paymentData.pay_amount} {paymentData.pay_currency.toUpperCase()}
                     </span>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(paymentData.pay_amount.toString())}
+                      className="h-8 px-3"
+                      onClick={() => copyToClipboard(paymentData.pay_amount.toString(), 'amount')}
                     >
-                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {copied === 'amount' ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>
                 
-                <div className="space-y-1">
+                {/* Wallet Address */}
+                <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">Wallet-Adresse</Label>
-                  <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted/50">
-                    <span className="font-mono text-xs flex-1 break-all">
+                  <div className="flex items-center gap-2 p-3 rounded-xl border border-border/50 bg-muted/20">
+                    <span className="flex-1 font-mono text-xs break-all leading-relaxed">
                       {paymentData.pay_address}
                     </span>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(paymentData.pay_address)}
+                      className="h-8 px-3 shrink-0"
+                      onClick={() => copyToClipboard(paymentData.pay_address, 'address')}
                     >
-                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {copied === 'address' ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>
               </div>
               
-              <div className={cn(
-                "flex items-center justify-center gap-2 p-3 rounded-lg border",
-                statusInfo.color
-              )}>
-                <StatusIcon className={cn("h-5 w-5", paymentStatus === 'waiting' && "animate-spin")} />
-                <span className="font-medium">{statusInfo.text}</span>
-              </div>
+              {/* Status Indicator */}
+              <PaymentStatusIndicator status={paymentStatus} />
               
-              <p className="text-xs text-center text-muted-foreground">
-                Nach Zahlungseingang wird dein Guthaben automatisch aktualisiert.
-                <br />
-                Du kannst dieses Fenster schließen.
-              </p>
+              {/* Footer Info */}
+              <div className="text-center space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  Nach Zahlungseingang wird dein Guthaben automatisch aktualisiert.
+                </p>
+                <PoweredByBadge />
+              </div>
             </div>
           )}
 
           {/* Step: Status */}
           {step === 'status' && (
-            <div className="space-y-4 text-center py-4">
+            <div className="space-y-5 text-center py-4">
               <div className={cn(
-                "w-16 h-16 rounded-full mx-auto flex items-center justify-center",
-                paymentStatus === 'finished' || paymentStatus === 'confirmed' 
-                  ? "bg-green-100 text-green-600" 
+                "w-20 h-20 rounded-full mx-auto flex items-center justify-center",
+                isSuccess 
+                  ? "bg-emerald-100 text-emerald-600" 
                   : "bg-red-100 text-red-600"
               )}>
-                <StatusIcon className="h-8 w-8" />
+                {isSuccess ? (
+                  <Check className="h-10 w-10" />
+                ) : (
+                  <ArrowLeft className="h-10 w-10" />
+                )}
               </div>
               
               <div>
-                <h3 className="font-semibold text-lg">{statusInfo.text}</h3>
-                {paymentData && (paymentStatus === 'finished' || paymentStatus === 'confirmed') && (
-                  <p className="text-muted-foreground mt-1">
-                    {paymentData.net_amount.toFixed(2)} € wurden gutgeschrieben
-                  </p>
-                )}
-                {(paymentStatus === 'failed' || paymentStatus === 'expired') && (
-                  <p className="text-muted-foreground mt-1">
-                    Die Zahlung ist fehlgeschlagen oder abgelaufen. Bitte versuche es erneut.
-                  </p>
-                )}
+                <p className="text-lg font-semibold">
+                  {isSuccess ? 'Zahlung abgeschlossen!' : 'Zahlung nicht erfolgreich'}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {isSuccess 
+                    ? `${paymentData?.net_amount.toFixed(2)} € wurden deinem Guthaben gutgeschrieben.`
+                    : 'Die Zahlung ist abgelaufen oder fehlgeschlagen. Bitte versuche es erneut.'
+                  }
+                </p>
               </div>
               
               <Button 
-                className="w-full" 
+                className={cn("w-full h-12", isSuccess && "gradient-bg")}
+                variant={isSuccess ? "default" : "outline"}
                 onClick={() => onOpenChange(false)}
               >
-                Schließen
+                {isSuccess ? 'Fertig' : 'Schließen'}
               </Button>
             </div>
           )}
