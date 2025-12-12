@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { ArrowDownToLine, ArrowUpFromLine, Shield, Receipt, Calendar, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
@@ -9,18 +10,13 @@ import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
 import { useDeposits } from '@/hooks/useDeposits';
 import { BalanceOverview } from '@/components/advertiser/deposit/BalanceOverview';
 import { TransactionHistory } from '@/components/advertiser/deposit/TransactionHistory';
+import { DepositModal } from '@/components/advertiser/deposit/DepositModal';
 
 export default function DepositPage() {
   const { toast } = useToast();
   const { totalBalanceEur } = useAdvertiserAccounts();
   const { deposits } = useDeposits();
-
-  const handleDeposit = () => {
-    toast({
-      title: 'Funktion in Entwicklung',
-      description: 'Die Einzahlungsfunktion wird bald verfügbar sein.',
-    });
-  };
+  const [depositModalOpen, setDepositModalOpen] = useState(false);
 
   const handleWithdraw = () => {
     toast({
@@ -51,7 +47,7 @@ export default function DepositPage() {
 
       {/* Action Buttons */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-primary/30" onClick={handleDeposit}>
+        <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-primary/30" onClick={() => setDepositModalOpen(true)}>
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl gradient-bg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
@@ -158,6 +154,9 @@ export default function DepositPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Deposit Modal */}
+      <DepositModal open={depositModalOpen} onOpenChange={setDepositModalOpen} />
     </div>
   );
 }
