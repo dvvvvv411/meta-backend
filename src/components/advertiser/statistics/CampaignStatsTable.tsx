@@ -1,6 +1,10 @@
+import { useState, useMemo } from 'react';
+import { ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
 export interface CampaignStats {
@@ -18,6 +22,9 @@ interface CampaignStatsTableProps {
   campaigns: CampaignStats[];
 }
 
+type SortField = 'name' | 'spend' | 'impressions' | 'clicks' | 'conversions' | 'ctr';
+type SortOrder = 'asc' | 'desc';
+
 const statusLabels: Record<string, string> = {
   active: 'Aktiv',
   paused: 'Pausiert',
@@ -32,7 +39,95 @@ const statusStyles: Record<string, string> = {
   draft: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
 };
 
+const PAGE_SIZES = [5, 10, 25, 50];
+
 export function CampaignStatsTable({ campaigns }: CampaignStatsTableProps) {
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('desc');
+    }
+  };
+
+  const getCtr = (campaign: CampaignStats) => {
+    return campaign.impressions > 0 ? (campaign.clicks / campaign.impressions) * 100 : 0;
+  };
+
+  const sortedCampaigns = useMemo(() => {
+    if (!sortField) return campaigns;
+
+    return [...campaigns].sort((a, b) => {
+      let aValue: number;
+      let bValue: number;
+
+      switch (sortField) {
+        case 'name':
+          return sortOrder === 'asc' 
+            ? a.name.localeCompare(b.name) 
+            : b.name.localeCompare(a.name);
+        case 'spend':
+          aValue = a.spend;
+          bValue = b.spend;
+          break;
+        case 'impressions':
+          aValue = a.impressions;
+          bValue = b.impressions;
+          break;
+        case 'clicks':
+          aValue = a.clicks;
+          bValue = b.clicks;
+          break;
+        case 'conversions':
+          aValue = a.conversions;
+          bValue = b.conversions;
+          break;
+        case 'ctr':
+          aValue = getCtr(a);
+          bValue = getCtr(b);
+          break;
+        default:
+          return 0;
+      }
+
+      return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+    });
+  }, [campaigns, sortField, sortOrder]);
+
+  // Pagination
+  const totalPages = Math.ceil(sortedCampaigns.length / pageSize);
+  const paginatedCampaigns = sortedCampaigns.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="h-4 w-4 ml-1 opacity-50" />;
+    }
+    return sortOrder === 'asc' 
+      ? <ArrowUp className="h-4 w-4 ml-1 text-primary" />
+      : <ArrowDown className="h-4 w-4 ml-1 text-primary" />;
+  };
+
+  const SortableHeader = ({ field, children, className }: { field: SortField; children: React.ReactNode; className?: string }) => (
+    <TableHead 
+      className={cn("cursor-pointer hover:bg-muted/50 transition-colors select-none", className)}
+      onClick={() => handleSort(field)}
+    >
+      <div className="flex items-center">
+        {children}
+        <SortIcon field={field} />
+      </div>
+    </TableHead>
+  );
+
   return (
     <Card className="animate-fade-in" style={{ animationDelay: '500ms' }}>
       <CardHeader>
@@ -44,21 +139,19 @@ export function CampaignStatsTable({ campaigns }: CampaignStatsTableProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Kampagne</TableHead>
+                <SortableHeader field="name">Kampagne</SortableHeader>
                 <TableHead>Start</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ausgaben</TableHead>
-                <TableHead className="text-right">Impressionen</TableHead>
-                <TableHead className="text-right">Klicks</TableHead>
-                <TableHead className="text-right">CTR</TableHead>
-                <TableHead className="text-right">Conversions</TableHead>
+                <SortableHeader field="spend" className="text-right">Ausgaben</SortableHeader>
+                <SortableHeader field="impressions" className="text-right">Impressionen</SortableHeader>
+                <SortableHeader field="clicks" className="text-right">Klicks</SortableHeader>
+                <SortableHeader field="ctr" className="text-right">CTR</SortableHeader>
+                <SortableHeader field="conversions" className="text-right">Conversions</SortableHeader>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {campaigns.map((campaign) => {
-                const ctr = campaign.impressions > 0 
-                  ? ((campaign.clicks / campaign.impressions) * 100).toFixed(2) 
-                  : '0.00';
+              {paginatedCampaigns.map((campaign) => {
+                const ctr = getCtr(campaign).toFixed(2);
                 
                 return (
                   <TableRow key={campaign.id} className="hover:bg-muted/50 transition-colors">
@@ -91,6 +184,54 @@ export function CampaignStatsTable({ campaigns }: CampaignStatsTableProps) {
             </TableBody>
           </Table>
         </div>
+
+        {/* Pagination */}
+        {campaigns.length > PAGE_SIZES[0] && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 pt-4 border-t border-border">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>Zeige</span>
+              <Select 
+                value={pageSize.toString()} 
+                onValueChange={(value) => {
+                  setPageSize(Number(value));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-16 h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover">
+                  {PAGE_SIZES.map((size) => (
+                    <SelectItem key={size} value={size.toString()}>{size}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span>von {campaigns.length} Einträgen</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-sm text-muted-foreground px-2">
+                Seite {currentPage} von {totalPages || 1}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

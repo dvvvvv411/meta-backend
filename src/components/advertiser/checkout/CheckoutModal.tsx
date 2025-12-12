@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Loader2, AlertCircle } from 'lucide-react';
+import { Copy, Loader2, AlertCircle, FileText, Clock } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
 
@@ -31,6 +33,7 @@ export function CheckoutModal({
   isProcessing 
 }: CheckoutModalProps) {
   const [paymentMethod, setPaymentMethod] = useState<'crypto' | 'fiat'>('crypto');
+  const [showConfirmationTracker, setShowConfirmationTracker] = useState(false);
   const { toast } = useToast();
 
   const copyAddress = () => {
@@ -40,6 +43,16 @@ export function CheckoutModal({
       description: 'Die Wallet-Adresse wurde in die Zwischenablage kopiert.',
     });
   };
+
+  const handlePaymentConfirmed = async () => {
+    setShowConfirmationTracker(true);
+    await onPaymentConfirmed();
+  };
+
+  // Mock confirmation state
+  const confirmations = 0;
+  const requiredConfirmations = 3;
+  const confirmationProgress = (confirmations / requiredConfirmations) * 100;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -52,22 +65,35 @@ export function CheckoutModal({
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Produkt</span>
-              <span className="font-medium">Agency Account</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Laufzeit</span>
-              <span className="font-medium">30 Tage (auto. Verlängerung)</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Preis</span>
-              <span className="font-medium">150,00 €</span>
-            </div>
-          </div>
-
-          <Separator />
+          {/* Order Summary Card */}
+          <Card className="bg-muted/30 border-border/50">
+            <CardContent className="pt-4 pb-3">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-10 w-10 rounded-lg gradient-bg flex items-center justify-center">
+                  <FileText className="h-5 w-5 text-primary-foreground" />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">Agency Account</p>
+                  <p className="text-xs text-muted-foreground">Meta Ads Werbekonto</p>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Laufzeit</span>
+                  <span className="font-medium">30 Tage</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Automatische Verlängerung</span>
+                  <span className="font-medium text-primary">Aktiv</span>
+                </div>
+                <Separator className="my-2" />
+                <div className="flex justify-between text-sm">
+                  <span className="font-medium">Gesamt</span>
+                  <span className="font-bold text-lg">150,00 €</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           <div>
             <p className="text-sm font-medium mb-3">Zahlungsmethode wählen:</p>
@@ -77,7 +103,7 @@ export function CheckoutModal({
             />
           </div>
 
-          {paymentMethod === 'crypto' && (
+          {paymentMethod === 'crypto' && !showConfirmationTracker && (
             <div className="space-y-3">
               <Separator />
               
@@ -107,21 +133,44 @@ export function CheckoutModal({
             </div>
           )}
 
-          <Button 
-            className="w-full" 
-            size="lg"
-            onClick={onPaymentConfirmed}
-            disabled={isProcessing}
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Wird verarbeitet...
-              </>
-            ) : (
-              'Ich habe bezahlt - Transaktion prüfen'
-            )}
-          </Button>
+          {/* Confirmation Tracker */}
+          {showConfirmationTracker && (
+            <Card className="bg-primary/5 border-primary/20">
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Clock className="h-4 w-4 text-primary animate-pulse" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Warte auf Bestätigungen...</p>
+                    <p className="text-xs text-muted-foreground">{confirmations}/{requiredConfirmations} Bestätigungen</p>
+                  </div>
+                </div>
+                <Progress value={confirmationProgress} className="h-2" />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Dies kann einige Minuten dauern. Du kannst dieses Fenster schließen - wir benachrichtigen dich.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {!showConfirmationTracker && (
+            <Button 
+              className="w-full" 
+              size="lg"
+              onClick={handlePaymentConfirmed}
+              disabled={isProcessing}
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Wird verarbeitet...
+                </>
+              ) : (
+                'Ich habe bezahlt - Transaktion prüfen'
+              )}
+            </Button>
+          )}
 
           <p className="text-xs text-center text-muted-foreground">
             Probleme? support@agency-ads.de

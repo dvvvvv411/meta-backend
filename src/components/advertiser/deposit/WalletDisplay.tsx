@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Copy, Check, Maximize2, AlertTriangle } from 'lucide-react';
+import { Copy, Check, Maximize2, AlertTriangle, HelpCircle, ChevronDown } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { useToast } from '@/hooks/use-toast';
 import { getCoinBySymbol } from '@/lib/crypto-config';
 
@@ -18,10 +24,21 @@ interface WalletDisplayProps {
   selectedCoin: string;
   onPaymentInitiated: () => void;
   isValid: boolean;
+  showConfirmations?: boolean;
+  confirmations?: number;
+  requiredConfirmations?: number;
 }
 
-export function WalletDisplay({ selectedCoin, onPaymentInitiated, isValid }: WalletDisplayProps) {
+export function WalletDisplay({ 
+  selectedCoin, 
+  onPaymentInitiated, 
+  isValid,
+  showConfirmations = false,
+  confirmations = 0,
+  requiredConfirmations = 3
+}: WalletDisplayProps) {
   const [copied, setCopied] = useState(false);
+  const [howToOpen, setHowToOpen] = useState(false);
   const { toast } = useToast();
   
   const coinConfig = getCoinBySymbol(selectedCoin);
@@ -37,6 +54,8 @@ export function WalletDisplay({ selectedCoin, onPaymentInitiated, isValid }: Wal
     });
   };
 
+  const confirmationProgress = (confirmations / requiredConfirmations) * 100;
+
   return (
     <div className="space-y-4">
       <Label>3. Sende an diese Wallet-Adresse</Label>
@@ -46,7 +65,7 @@ export function WalletDisplay({ selectedCoin, onPaymentInitiated, isValid }: Wal
           <div className="flex flex-col md:flex-row gap-6 items-center">
             {/* QR Code */}
             <div className="shrink-0">
-              <div className="bg-white p-3 rounded-lg">
+              <div className="bg-white p-3 rounded-lg shadow-sm">
                 <QRCodeSVG 
                   value={coinConfig.address} 
                   size={120}
@@ -80,7 +99,7 @@ export function WalletDisplay({ selectedCoin, onPaymentInitiated, isValid }: Wal
                 >
                   {copied ? (
                     <>
-                      <Check className="h-4 w-4 mr-2 text-green-500" />
+                      <Check className="h-4 w-4 mr-2 text-success" />
                       Kopiert
                     </>
                   ) : (
@@ -103,7 +122,7 @@ export function WalletDisplay({ selectedCoin, onPaymentInitiated, isValid }: Wal
                       <DialogTitle>QR-Code für {selectedCoin}</DialogTitle>
                     </DialogHeader>
                     <div className="flex justify-center p-6">
-                      <div className="bg-white p-6 rounded-lg">
+                      <div className="bg-white p-6 rounded-lg shadow-sm">
                         <QRCodeSVG 
                           value={coinConfig.address} 
                           size={250}
@@ -121,6 +140,49 @@ export function WalletDisplay({ selectedCoin, onPaymentInitiated, isValid }: Wal
           </div>
         </CardContent>
       </Card>
+
+      {/* How-to Accordion */}
+      <Collapsible open={howToOpen} onOpenChange={setHowToOpen}>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" className="w-full justify-between h-auto py-3 px-4 bg-muted/30 hover:bg-muted/50">
+            <div className="flex items-center gap-2">
+              <HelpCircle className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">So funktioniert's</span>
+            </div>
+            <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${howToOpen ? 'rotate-180' : ''}`} />
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="px-4 pb-4 pt-2 bg-muted/30 rounded-b-lg -mt-1">
+          <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+            <li>Öffne deine Wallet-App (z.B. Trust Wallet, MetaMask)</li>
+            <li>Wähle <strong>{selectedCoin}</strong> zum Senden aus</li>
+            <li>Scanne den QR-Code oder kopiere die Adresse</li>
+            <li>Sende den exakten Betrag über das <strong>{coinConfig.network}</strong>-Netzwerk</li>
+            <li>Klicke auf "Zahlung prüfen" nachdem du gesendet hast</li>
+          </ol>
+        </CollapsibleContent>
+      </Collapsible>
+
+      {/* Confirmations Counter */}
+      {showConfirmations && (
+        <Card className="bg-primary/5 border-primary/20">
+          <CardContent className="pt-4 pb-3">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium">Netzwerk-Bestätigungen</p>
+              <span className="text-sm font-bold text-primary">{confirmations}/{requiredConfirmations}</span>
+            </div>
+            <Progress value={confirmationProgress} className="h-2" />
+            <p className="text-xs text-muted-foreground mt-2">
+              {confirmations === 0 
+                ? 'Warte auf erste Bestätigung...'
+                : confirmations < requiredConfirmations
+                  ? 'Transaktion wird bestätigt...'
+                  : 'Transaktion bestätigt!'
+              }
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Warning */}
       <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 flex gap-3">
