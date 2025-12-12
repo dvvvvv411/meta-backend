@@ -5,6 +5,7 @@ import { CheckoutModal } from '@/components/advertiser/checkout/CheckoutModal';
 import { OrderConfirmation } from '@/components/advertiser/checkout/OrderConfirmation';
 import { AccountList } from '@/components/advertiser/account/AccountList';
 import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
+import { useUserBalance } from '@/hooks/useUserBalance';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -30,20 +31,32 @@ export default function RentAccountPage() {
     accounts, 
     isLoading, 
     createAccount, 
+    payWithBalance,
     toggleAutoRenew 
   } = useAdvertiserAccounts();
+  const { balanceEur, invalidateBalance } = useUserBalance();
 
   const customerEmail = user?.email ?? '';
   const companyName = user?.user_metadata?.company_name;
   const customerName = companyName || customerEmail;
 
-  const handlePaymentConfirmed = async () => {
+  const handlePaymentSuccess = async (paymentMethod: 'balance' | 'crypto', transactionId?: string) => {
     try {
-      const account = await createAccount.mutateAsync({
-        pricePaid: 150,
-        paymentMethod: 'crypto',
-        currency: 'USDT',
-      });
+      let account;
+      
+      if (paymentMethod === 'balance') {
+        // Pay with balance
+        account = await payWithBalance.mutateAsync();
+        invalidateBalance();
+      } else {
+        // Crypto payment - account creation after NOWPayments confirms
+        account = await createAccount.mutateAsync({
+          pricePaid: 150,
+          paymentMethod: 'crypto',
+          currency: 'EUR',
+          transactionId,
+        });
+      }
 
       const startDate = new Date();
       const endDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000);
@@ -69,7 +82,7 @@ export default function RentAccountPage() {
     } catch (error) {
       toast({
         title: 'Fehler',
-        description: 'Es gab ein Problem bei der Aktivierung. Bitte kontaktiere den Support.',
+        description: error instanceof Error ? error.message : 'Es gab ein Problem bei der Aktivierung.',
         variant: 'destructive',
       });
     }
@@ -138,8 +151,9 @@ export default function RentAccountPage() {
       <CheckoutModal
         open={checkoutOpen}
         onOpenChange={setCheckoutOpen}
-        onPaymentConfirmed={handlePaymentConfirmed}
-        isProcessing={createAccount.isPending}
+        onPaymentSuccess={handlePaymentSuccess}
+        isProcessing={payWithBalance.isPending || createAccount.isPending}
+        balanceEur={balanceEur}
       />
 
       <OrderConfirmation
