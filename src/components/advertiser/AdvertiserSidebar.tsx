@@ -30,7 +30,7 @@ const navItems: NavItem[] = [
   { label: 'Übersicht', icon: LayoutDashboard, path: '/advertiser' },
   { label: 'Agency Account mieten', icon: Building2, path: '/advertiser/rent-account' },
   { label: 'Guthaben einzahlen', icon: Wallet, path: '/advertiser/deposit' },
-  { label: 'Kampagnen erstellen', icon: Megaphone, path: '/advertiser/campaigns', requiresAccount: true },
+  { label: 'Kampagne erstellen (Demo)', icon: Megaphone, path: '/advertiser/campaigns', requiresAccount: true },
   { label: 'Statistiken', icon: BarChart3, path: '/advertiser/statistics', requiresAccount: true },
   { label: 'Einstellungen', icon: Settings, path: '/advertiser/settings' },
   { label: 'Support / Tickets', icon: HelpCircle, path: '/advertiser/support' },
@@ -124,9 +124,9 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
                 <TooltipTrigger asChild>
                   {button}
                 </TooltipTrigger>
-                <TooltipContent side="right" className="font-medium">
+                <TooltipContent side="right" className="font-medium max-w-xs">
                   {isLocked 
-                    ? "Bitte miete zuerst ein Agency Account." 
+                    ? "Dieses Feature wird freigeschaltet, nachdem du mindestens ein Agency Account gemietet hast." 
                     : item.label
                   }
                 </TooltipContent>

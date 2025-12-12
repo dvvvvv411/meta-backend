@@ -119,7 +119,7 @@ export default function SupportPage() {
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Neues Ticket
+              Neues Ticket erstellen
             </Button>
           </DialogTrigger>
           <DialogContent>
@@ -212,7 +212,7 @@ export default function SupportPage() {
             </p>
             <Button onClick={() => setOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Erstes Ticket erstellen
+              Neues Ticket erstellen
             </Button>
           </CardContent>
         </Card>
