@@ -86,6 +86,27 @@ serve(async (req) => {
 
       console.log(`Creating payment: ${amount_eur} EUR in ${pay_currency} for user ${user.id}`);
 
+      // Check minimum amount for selected currency
+      const minAmountResponse = await fetch(
+        `https://api.nowpayments.io/v1/min-amount?currency_from=eur&currency_to=${pay_currency.toLowerCase()}&fiat_equivalent=eur`,
+        {
+          headers: { 'x-api-key': NOWPAYMENTS_API_KEY! },
+        }
+      );
+      
+      const minAmountData = await minAmountResponse.json();
+      console.log('Minimum amount data:', JSON.stringify(minAmountData));
+      
+      if (minAmountData.fiat_equivalent && amount_eur < minAmountData.fiat_equivalent) {
+        const minEur = Math.ceil(minAmountData.fiat_equivalent);
+        return new Response(JSON.stringify({ 
+          error: `Mindestbetrag für ${pay_currency.toUpperCase()} ist ${minEur}€` 
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       // Create payment with NOWPayments
       const paymentResponse = await fetch('https://api.nowpayments.io/v1/payment', {
         method: 'POST',
@@ -109,6 +130,15 @@ serve(async (req) => {
 
       if (!paymentResponse.ok || paymentData.error) {
         console.error('NOWPayments error:', paymentData);
+        // Better error message for minimum amount errors
+        if (paymentData.code === 'AMOUNT_MINIMAL_ERROR') {
+          return new Response(JSON.stringify({ 
+            error: `Betrag zu niedrig für ${pay_currency.toUpperCase()}. Bitte wähle einen höheren Betrag oder eine andere Währung.` 
+          }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
         return new Response(JSON.stringify({ error: paymentData.message || 'Zahlung konnte nicht erstellt werden' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
