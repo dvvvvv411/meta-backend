@@ -379,35 +379,59 @@ export type Database = {
         Row: {
           account_id: string | null
           amount: number
+          coin_type: string | null
+          confirmations: number | null
+          confirmations_required: number | null
           created_at: string | null
           currency: string | null
           description: string | null
+          fee_amount: number | null
+          gross_amount: number | null
           id: string
+          network: string | null
           status: string | null
+          tx_hash: string | null
           type: string
           user_id: string
+          wallet_address: string | null
         }
         Insert: {
           account_id?: string | null
           amount: number
+          coin_type?: string | null
+          confirmations?: number | null
+          confirmations_required?: number | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          fee_amount?: number | null
+          gross_amount?: number | null
           id?: string
+          network?: string | null
           status?: string | null
+          tx_hash?: string | null
           type?: string
           user_id: string
+          wallet_address?: string | null
         }
         Update: {
           account_id?: string | null
           amount?: number
+          coin_type?: string | null
+          confirmations?: number | null
+          confirmations_required?: number | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          fee_amount?: number | null
+          gross_amount?: number | null
           id?: string
+          network?: string | null
           status?: string | null
+          tx_hash?: string | null
           type?: string
           user_id?: string
+          wallet_address?: string | null
         }
         Relationships: [
           {
