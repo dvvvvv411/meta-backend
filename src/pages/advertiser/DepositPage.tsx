@@ -1,124 +1,139 @@
-import { useState } from 'react';
-import { Shield } from 'lucide-react';
+import { ArrowDownToLine, ArrowUpFromLine, Shield, Receipt, Calendar, TrendingUp } from 'lucide-react';
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
 import { useDeposits } from '@/hooks/useDeposits';
 import { BalanceOverview } from '@/components/advertiser/deposit/BalanceOverview';
-import { CoinSelector } from '@/components/advertiser/deposit/CoinSelector';
-import { AmountInput } from '@/components/advertiser/deposit/AmountInput';
-import { WalletDisplay } from '@/components/advertiser/deposit/WalletDisplay';
-import { PaymentStatus } from '@/components/advertiser/deposit/PaymentStatus';
 import { TransactionHistory } from '@/components/advertiser/deposit/TransactionHistory';
-import { MIN_DEPOSIT_EUR, MAX_DEPOSIT_EUR, EXCHANGE_RATES } from '@/lib/crypto-config';
 
 export default function DepositPage() {
-  const [selectedCoin, setSelectedCoin] = useState('USDT');
-  const [eurAmount, setEurAmount] = useState(0);
-  const [coinAmount, setCoinAmount] = useState(0);
-  
   const { toast } = useToast();
-  const { totalBalanceEur, totalBalanceUsdt } = useAdvertiserAccounts();
-  const { deposits, pendingDeposits, createDeposit } = useDeposits();
+  const { totalBalanceEur } = useAdvertiserAccounts();
+  const { deposits } = useDeposits();
 
-  const handleCoinChange = (coin: string) => {
-    setSelectedCoin(coin);
-    // Recalculate coin amount based on new exchange rate
-    const newRate = EXCHANGE_RATES[coin] || 1;
-    setCoinAmount(eurAmount * newRate);
+  const handleDeposit = () => {
+    toast({
+      title: 'Funktion in Entwicklung',
+      description: 'Die Einzahlungsfunktion wird bald verfügbar sein.',
+    });
   };
 
-  const isValidAmount = eurAmount >= MIN_DEPOSIT_EUR && eurAmount <= MAX_DEPOSIT_EUR;
-
-  const handlePaymentInitiated = async () => {
-    if (!isValidAmount) {
-      toast({
-        title: 'Ungültiger Betrag',
-        description: `Bitte gib einen Betrag zwischen ${MIN_DEPOSIT_EUR}€ und ${MAX_DEPOSIT_EUR.toLocaleString('de-DE')}€ ein.`,
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    try {
-      await createDeposit.mutateAsync({
-        coinType: selectedCoin,
-        grossAmount: coinAmount,
-        eurAmount: eurAmount,
-      });
-
-      toast({
-        title: 'Einzahlung wird geprüft',
-        description: `Wir prüfen deine ${selectedCoin}-Transaktion. Dies kann einige Minuten dauern.`,
-      });
-
-      // Reset form
-      setEurAmount(0);
-      setCoinAmount(0);
-    } catch (error) {
-      toast({
-        title: 'Fehler',
-        description: 'Die Einzahlung konnte nicht erstellt werden.',
-        variant: 'destructive',
-      });
-    }
+  const handleWithdraw = () => {
+    toast({
+      title: 'Funktion in Entwicklung',
+      description: 'Die Auszahlungsfunktion wird bald verfügbar sein.',
+    });
   };
+
+  // Calculate stats from deposits
+  const completedDeposits = deposits.filter(d => d.status === 'completed');
+  const lastDeposit = completedDeposits.length > 0 
+    ? format(new Date(completedDeposits[0].created_at), 'dd.MM.yyyy', { locale: de })
+    : '-';
+  const totalTransactions = deposits.length;
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Guthaben einzahlen</h1>
+        <h1 className="text-2xl font-bold text-foreground">Guthaben verwalten</h1>
         <p className="text-muted-foreground mt-1">
-          Lade dein Konto mit Kryptowährung auf.
+          Verwalte dein Kontoguthaben – Einzahlungen und Auszahlungen.
         </p>
       </div>
 
       {/* Current Balance */}
-      <BalanceOverview balanceEur={totalBalanceEur} balanceUsdt={totalBalanceUsdt} />
+      <BalanceOverview balanceEur={totalBalanceEur} />
 
-      {/* Pending Deposits */}
-      {pendingDeposits.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Ausstehende Einzahlungen</h2>
-          {pendingDeposits.map((deposit) => (
-            <PaymentStatus key={deposit.id} deposit={deposit} />
-          ))}
-        </div>
-      )}
+      {/* Action Buttons */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-primary/30" onClick={handleDeposit}>
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl gradient-bg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                <ArrowDownToLine className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-foreground text-lg">Guthaben einzahlen</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Lade dein Konto auf, um Kampagnen zu schalten und Services zu nutzen.
+                </p>
+                <Button className="mt-4 gradient-bg text-primary-foreground hover:opacity-90">
+                  Einzahlen
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-      <Separator />
+        <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-primary/30" onClick={handleWithdraw}>
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <ArrowUpFromLine className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-foreground text-lg">Guthaben auszahlen</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Zahle dein vorhandenes Guthaben auf dein Bankkonto aus.
+                </p>
+                <Button variant="outline" className="mt-4">
+                  Auszahlen
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* Deposit Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Neue Einzahlung</CardTitle>
-          <CardDescription>
-            Wähle eine Kryptowährung und den Betrag, den du einzahlen möchtest. 2% Top-Up Gebühr wird automatisch abgezogen.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <CoinSelector 
-            selectedCoin={selectedCoin} 
-            onCoinChange={handleCoinChange} 
-          />
+      {/* Quick Stats */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Letzte Einzahlung</p>
+                <p className="font-semibold text-foreground">{lastDeposit}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          <AmountInput
-            selectedCoin={selectedCoin}
-            eurAmount={eurAmount}
-            coinAmount={coinAmount}
-            onEurChange={setEurAmount}
-            onCoinChange={setCoinAmount}
-          />
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Letzte Auszahlung</p>
+                <p className="font-semibold text-foreground">-</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          <WalletDisplay
-            selectedCoin={selectedCoin}
-            onPaymentInitiated={handlePaymentInitiated}
-            isValid={isValidAmount && eurAmount > 0}
-          />
-        </CardContent>
-      </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Receipt className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Transaktionen gesamt</p>
+                <p className="font-semibold text-foreground">{totalTransactions}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <Separator />
 
@@ -133,7 +148,7 @@ export default function DepositPage() {
             <div className="text-sm text-muted-foreground">
               <p className="font-medium text-foreground">Sicherheitshinweis</p>
               <p className="mt-1">
-                Zahlungen sind final und nicht erstattbar. Bei Problemen oder Fragen 
+                Alle Transaktionen werden sicher verarbeitet. Bei Problemen oder Fragen 
                 kontaktiere unseren Support unter{' '}
                 <a href="mailto:support@example.com" className="text-primary hover:underline">
                   support@example.com

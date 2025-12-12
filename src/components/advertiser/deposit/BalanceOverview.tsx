@@ -1,43 +1,29 @@
-import { Wallet, Bitcoin } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Wallet } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface BalanceOverviewProps {
   balanceEur: number;
-  balanceUsdt: number;
 }
 
-export function BalanceOverview({ balanceEur, balanceUsdt }: BalanceOverviewProps) {
-  const formatCurrency = (amount: number, currency: string) => {
-    if (currency === 'EUR') {
-      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
-    }
-    return `${amount.toLocaleString('de-DE', { minimumFractionDigits: 2 })} USDT`;
+export function BalanceOverview({ balanceEur }: BalanceOverviewProps) {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Aktuelles EUR Guthaben
-          </CardTitle>
-          <Wallet className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(balanceEur, 'EUR')}</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Aktuelles USDT Guthaben
-          </CardTitle>
-          <Bitcoin className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(balanceUsdt, 'USDT')}</div>
-        </CardContent>
-      </Card>
-    </div>
+    <Card className="overflow-hidden">
+      <div className="h-1 gradient-bg" />
+      <CardContent className="pt-6">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-xl gradient-bg flex items-center justify-center shadow-lg">
+            <Wallet className="h-7 w-7 text-primary-foreground" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground font-medium">Aktuelles Guthaben</p>
+            <p className="text-3xl font-bold text-foreground">{formatCurrency(balanceEur)}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
