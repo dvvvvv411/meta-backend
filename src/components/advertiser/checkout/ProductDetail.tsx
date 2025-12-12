@@ -123,7 +123,7 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
                 </div>
 
                 {/* Additional trust points */}
-                <div className="flex flex-wrap gap-2">
+                <div className="hidden lg:flex flex-wrap gap-2">
                   {trustPoints.map((point, i) => (
                     <div key={i} className="flex items-center gap-1.5 text-xs bg-secondary/50 text-secondary-foreground px-2.5 py-1 rounded-full">
                       <Check className="h-3.5 w-3.5 text-primary" />
