@@ -18,6 +18,14 @@ import TicketDetailPage from "./pages/admin/TicketDetailPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
+import { AdvertiserLayout } from "./components/advertiser/AdvertiserLayout";
+import AdvertiserDashboard from "./pages/advertiser/AdvertiserDashboard";
+import RentAccountPage from "./pages/advertiser/RentAccountPage";
+import DepositPage from "./pages/advertiser/DepositPage";
+import CampaignsPage from "./pages/advertiser/CampaignsPage";
+import StatisticsPage from "./pages/advertiser/StatisticsPage";
+import SettingsPage from "./pages/advertiser/SettingsPage";
+import SupportPage from "./pages/advertiser/SupportPage";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +43,15 @@ const App = () => (
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/advertiser" element={<AdvertiserLayout />}>
+                <Route index element={<AdvertiserDashboard />} />
+                <Route path="rent-account" element={<RentAccountPage />} />
+                <Route path="deposit" element={<DepositPage />} />
+                <Route path="campaigns" element={<CampaignsPage />} />
+                <Route path="statistics" element={<StatisticsPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="support" element={<SupportPage />} />
+              </Route>
             </Route>
             <Route element={<AdminProtectedRoute />}>
               <Route path="/admin/brandings" element={<BrandingsPage />} />
