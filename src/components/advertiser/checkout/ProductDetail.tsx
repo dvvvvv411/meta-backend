@@ -24,24 +24,17 @@ interface ProductDetailProps {
 export function ProductDetail({ onRentClick }: ProductDetailProps) {
   return (
     <div className="relative">
-      {/* Animated glow background */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-primary rounded-3xl blur-xl opacity-20 animate-pulse" />
-      
-      {/* Main card with gradient border */}
-      <div className="relative bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 p-[2px] rounded-3xl">
-        <div className="relative bg-card rounded-3xl overflow-hidden">
+      {/* Main card with subtle border */}
+      <div className="relative border border-border rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <div className="relative bg-card rounded-2xl overflow-hidden">
           
-          {/* Popular ribbon */}
-          <div className="absolute top-6 -right-8 z-10">
-            <div className="bg-gradient-to-r from-primary to-accent text-primary-foreground px-12 py-1.5 text-sm font-semibold rotate-45 shadow-lg flex items-center gap-1">
-              <Sparkles className="h-3.5 w-3.5" />
-              BELIEBT
-            </div>
+          {/* Popular badge */}
+          <div className="absolute top-4 right-4 z-10">
+            <Badge className="bg-primary/10 text-primary border-primary/20 text-xs font-medium">
+              <Sparkles className="h-3 w-3 mr-1" />
+              Beliebt
+            </Badge>
           </div>
-
-          {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-          <div className="absolute bottom-0 right-0 w-64 h-64 bg-accent/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
           
           <div className="relative p-6 md:p-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
