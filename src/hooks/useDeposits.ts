@@ -20,6 +20,13 @@ export interface Deposit {
   wallet_address: string | null;
   tx_hash: string | null;
   created_at: string;
+  // NOWPayments fields
+  pay_address: string | null;
+  pay_amount: number | null;
+  pay_currency: string | null;
+  payment_status: string | null;
+  nowpayments_id: string | null;
+  expires_at: string | null;
 }
 
 export const useDeposits = () => {

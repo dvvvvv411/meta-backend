@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { CheckCircle2, Clock, XCircle, Receipt, Download } from 'lucide-react';
+import { CheckCircle2, Clock, XCircle, Receipt, Download, Eye } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,12 +15,20 @@ import {
 import { Badge } from '@/components/ui/badge';
 import type { Deposit } from '@/hooks/useDeposits';
 import { generateCSV, downloadCSV, formatDateForCSV } from '@/lib/csv-export';
+import { TransactionDetailModal } from './TransactionDetailModal';
 
 interface TransactionHistoryProps {
   deposits: Deposit[];
 }
 
 export function TransactionHistory({ deposits }: TransactionHistoryProps) {
+  const [selectedTransaction, setSelectedTransaction] = useState<Deposit | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+
+  const openDetails = (deposit: Deposit) => {
+    setSelectedTransaction(deposit);
+    setDetailModalOpen(true);
+  };
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
   };
@@ -125,6 +134,7 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
                   <TableHead className="text-right">Betrag</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="hidden sm:table-cell">Beschreibung</TableHead>
+                  <TableHead className="text-right">Aktionen</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -145,6 +155,18 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
                     <TableCell className="hidden sm:table-cell text-muted-foreground">
                       {deposit.description || '-'}
                     </TableCell>
+                    <TableCell className="text-right">
+                      {deposit.pay_address && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openDetails(deposit)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          Details
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -152,6 +174,12 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
           </div>
         )}
       </CardContent>
+
+      <TransactionDetailModal
+        transaction={selectedTransaction}
+        open={detailModalOpen}
+        onOpenChange={setDetailModalOpen}
+      />
     </Card>
   );
 }
