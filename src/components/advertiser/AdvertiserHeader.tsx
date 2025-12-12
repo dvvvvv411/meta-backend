@@ -3,11 +3,11 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAdvertiserAccount } from '@/hooks/useAdvertiserAccount';
+import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
 
 export const AdvertiserHeader = () => {
   const { user } = useAuth();
-  const { hasActiveAccount, balanceEur, balanceUsdt, isLoading } = useAdvertiserAccount();
+  const { hasActiveAccount, totalBalanceEur, totalBalanceUsdt, isLoading } = useAdvertiserAccounts();
 
   const companyName = user?.user_metadata?.company_name as string | undefined;
 
@@ -56,14 +56,14 @@ export const AdvertiserHeader = () => {
               <div className="text-right">
                 <p className="text-xs text-muted-foreground leading-none mb-0.5">EUR</p>
                 <p className="text-sm font-semibold text-foreground leading-none">
-                  {formatCurrency(balanceEur, 'EUR')}
+                  {formatCurrency(totalBalanceEur, 'EUR')}
                 </p>
               </div>
               <div className="h-8 w-px bg-border" />
               <div className="text-right">
                 <p className="text-xs text-muted-foreground leading-none mb-0.5">USDT</p>
                 <p className="text-sm font-semibold text-foreground leading-none">
-                  {formatCurrency(balanceUsdt, 'USDT')}
+                  {formatCurrency(totalBalanceUsdt, 'USDT')}
                 </p>
               </div>
             </div>

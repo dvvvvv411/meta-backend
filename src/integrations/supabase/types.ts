@@ -53,15 +53,18 @@ export type Database = {
         Row: {
           account_status: Database["public"]["Enums"]["account_status"] | null
           assigned_to: string | null
+          auto_renew: boolean | null
           balance_eur: number | null
           balance_usdt: number | null
           branding_id: string | null
           created_at: string | null
           expire_at: string | null
           id: string
+          invoice_number: string | null
           monthly_budget: number | null
           name: string
           platform: string
+          price_paid: number | null
           start_date: string | null
           status: string
           updated_at: string | null
@@ -71,15 +74,18 @@ export type Database = {
         Insert: {
           account_status?: Database["public"]["Enums"]["account_status"] | null
           assigned_to?: string | null
+          auto_renew?: boolean | null
           balance_eur?: number | null
           balance_usdt?: number | null
           branding_id?: string | null
           created_at?: string | null
           expire_at?: string | null
           id?: string
+          invoice_number?: string | null
           monthly_budget?: number | null
           name: string
           platform?: string
+          price_paid?: number | null
           start_date?: string | null
           status?: string
           updated_at?: string | null
@@ -89,15 +95,18 @@ export type Database = {
         Update: {
           account_status?: Database["public"]["Enums"]["account_status"] | null
           assigned_to?: string | null
+          auto_renew?: boolean | null
           balance_eur?: number | null
           balance_usdt?: number | null
           branding_id?: string | null
           created_at?: string | null
           expire_at?: string | null
           id?: string
+          invoice_number?: string | null
           monthly_budget?: number | null
           name?: string
           platform?: string
+          price_paid?: number | null
           start_date?: string | null
           status?: string
           updated_at?: string | null

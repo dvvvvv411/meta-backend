@@ -11,6 +11,9 @@ export interface AdvertiserAccount {
   account_status: 'active' | 'expired' | 'canceled' | 'suspended' | null;
   expire_at: string | null;
   start_date: string | null;
+  auto_renew: boolean;
+  price_paid: number;
+  invoice_number: string | null;
 }
 
 export const useAdvertiserAccount = () => {
@@ -26,6 +29,8 @@ export const useAdvertiserAccount = () => {
         .select('*')
         .eq('user_id', user.id)
         .eq('account_status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) throw error;
