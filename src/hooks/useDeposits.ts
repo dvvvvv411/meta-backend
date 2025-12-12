@@ -35,7 +35,7 @@ export const useDeposits = () => {
         .from('transactions')
         .select('*')
         .eq('user_id', user.id)
-        .eq('type', 'deposit')
+        .in('type', ['deposit', 'rental', 'withdrawal'])
         .order('created_at', { ascending: false });
 
       if (error) throw error;
