@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAdvertiserAccount } from '@/hooks/useAdvertiserAccount';
+import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
 
 interface NavItem {
   label: string;
@@ -41,7 +41,7 @@ export const AdvertiserSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
-  const { hasActiveAccount } = useAdvertiserAccount();
+  const { hasActiveAccount } = useAdvertiserAccounts();
 
   const handleNavigation = (item: NavItem) => {
     if (item.requiresAccount && !hasActiveAccount) {
