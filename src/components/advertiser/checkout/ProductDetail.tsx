@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 const benefits = [
-  { icon: Zap, text: 'Unbegrenzte Kampagnen', description: 'Keine Limits bei der Erstellung' },
-  { icon: BarChart3, text: 'Skalierbare Limits', description: 'Wächst mit deinem Business' },
-  { icon: Shield, text: 'Meta Agency Trust', description: 'Verifizierter Partner-Status' },
-  { icon: Clock, text: 'Sofortiger Zugriff', description: 'Direkt nach Zahlung aktiv' },
-  { icon: Headphones, text: 'Premium Support', description: 'Prioritäre Bearbeitung' },
-  { icon: Check, text: 'Keine versteckten Kosten', description: 'Transparente Preise' },
+  { icon: Zap, text: 'Keine Limits' },
+  { icon: BarChart3, text: 'Skalierbar' },
+  { icon: Shield, text: 'Meta Trust' },
+  { icon: Clock, text: 'Sofort aktiv' },
+  { icon: Headphones, text: '24/7 Support' },
+  { icon: Check, text: 'Transparent' },
 ];
 
 const trustPoints = [
@@ -98,28 +98,57 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
                 </div>
               </div>
 
-              {/* Right Column - Benefits */}
+              {/* Right Column - Benefits Flowchart */}
               <div className="order-1 lg:order-2 lg:border-l lg:border-border/50 lg:pl-10">
                 <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                   <span className="w-6 h-1 gradient-bg rounded-full" />
                   Deine Vorteile
                 </h3>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-                  {benefits.map((benefit, i) => (
-                    <div 
-                      key={i} 
-                      className="group flex items-start gap-3 p-3 rounded-xl bg-background/50 hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all duration-300"
-                    >
-                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 group-hover:gradient-bg flex items-center justify-center transition-all duration-300">
-                        <benefit.icon className="h-5 w-5 text-primary group-hover:text-primary-foreground transition-colors duration-300" />
+                {/* Flowchart Grid */}
+                <div className="relative p-4 rounded-xl border border-border/50 bg-background/30 mb-5">
+                  {/* Obere Reihe (3 Items) */}
+                  <div className="grid grid-cols-3 gap-2 relative">
+                    {benefits.slice(0, 3).map((benefit, i) => (
+                      <div key={i} className="group relative flex flex-col items-center text-center p-3">
+                        <div className="w-10 h-10 rounded-full gradient-bg flex items-center justify-center mb-2 transition-transform duration-300 group-hover:scale-110">
+                          <benefit.icon className="h-5 w-5 text-primary-foreground" />
+                        </div>
+                        <span className="text-xs font-medium text-foreground">{benefit.text}</span>
+                        
+                        {/* Horizontale Verbindungslinie (nicht beim letzten) */}
+                        {i < 2 && (
+                          <div className="absolute right-0 top-5 w-[calc(50%-20px)] h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-primary/30" />
+                        )}
                       </div>
-                      <div>
-                        <span className="font-medium text-sm text-foreground block">{benefit.text}</span>
-                        <span className="text-xs text-muted-foreground">{benefit.description}</span>
+                    ))}
+                  </div>
+                  
+                  {/* Vertikale Verbindungslinien */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {[0, 1, 2].map((i) => (
+                      <div key={i} className="flex justify-center">
+                        <div className="w-0.5 h-4 bg-gradient-to-b from-primary/30 to-primary/20" />
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                  
+                  {/* Untere Reihe (3 Items) */}
+                  <div className="grid grid-cols-3 gap-2 relative">
+                    {benefits.slice(3, 6).map((benefit, i) => (
+                      <div key={i} className="group relative flex flex-col items-center text-center p-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 group-hover:gradient-bg flex items-center justify-center mb-2 transition-all duration-300 group-hover:scale-110">
+                          <benefit.icon className="h-5 w-5 text-primary group-hover:text-primary-foreground transition-colors duration-300" />
+                        </div>
+                        <span className="text-xs font-medium text-foreground">{benefit.text}</span>
+                        
+                        {/* Horizontale Verbindungslinie (nicht beim letzten) */}
+                        {i < 2 && (
+                          <div className="absolute right-0 top-5 w-[calc(50%-20px)] h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-primary/20" />
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Additional trust points */}
