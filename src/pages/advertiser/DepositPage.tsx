@@ -95,7 +95,7 @@ export default function DepositPage() {
         <CardHeader>
           <CardTitle>Neue Einzahlung</CardTitle>
           <CardDescription>
-            Wähle eine Kryptowährung und den Betrag, den du einzahlen möchtest.
+            Wähle eine Kryptowährung und den Betrag, den du einzahlen möchtest. 2% Top-Up Gebühr wird automatisch abgezogen.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
