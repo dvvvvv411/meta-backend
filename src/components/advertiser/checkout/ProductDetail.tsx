@@ -54,7 +54,7 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
                   {/* Title */}
                   <div>
                     <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-1">
-                      META Agency Account
+                      Agency Account
                     </h2>
                     <p className="text-sm text-muted-foreground">
                       Dein Schlüssel zu professionellem Advertising
