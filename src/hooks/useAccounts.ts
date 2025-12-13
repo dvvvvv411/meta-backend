@@ -278,34 +278,28 @@ export function useRefundAccount() {
 
   return useMutation({
     mutationFn: async ({ 
-      accountId, 
+      userId, 
       amount, 
-      currency, 
       reason 
     }: { 
-      accountId: string; 
+      userId: string; 
       amount: number; 
-      currency: 'EUR' | 'USDT'; 
       reason: string 
     }) => {
-      // Get current account
-      const { data: account, error: fetchError } = await supabase
-        .from('accounts')
-        .select('balance_eur, balance_usdt, user_id')
-        .eq('id', accountId)
+      // Get current user balance
+      const { data: profile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('balance_eur')
+        .eq('id', userId)
         .single();
 
       if (fetchError) throw fetchError;
 
-      // Update balance
-      const updateData = currency === 'EUR' 
-        ? { balance_eur: (account.balance_eur || 0) - amount, updated_by: user?.id }
-        : { balance_usdt: (account.balance_usdt || 0) - amount, updated_by: user?.id };
-
+      // Update user balance (add refund amount)
       const { error: updateError } = await supabase
-        .from('accounts')
-        .update(updateData)
-        .eq('id', accountId);
+        .from('profiles')
+        .update({ balance_eur: (profile.balance_eur || 0) + amount })
+        .eq('id', userId);
 
       if (updateError) throw updateError;
 
@@ -313,35 +307,22 @@ export function useRefundAccount() {
       const { error: transactionError } = await supabase
         .from('transactions')
         .insert({
-          user_id: account.user_id || user?.id,
-          account_id: accountId,
-          amount: -amount,
-          currency,
+          user_id: userId,
+          amount: amount,
+          currency: 'EUR',
           type: 'refund',
           status: 'completed',
           description: `Refund: ${reason}`,
         });
 
       if (transactionError) throw transactionError;
-
-      // Create audit log
-      const { error: auditError } = await supabase
-        .from('account_audit_logs')
-        .insert({
-          account_id: accountId,
-          user_id: user?.id,
-          action: 'refund',
-          details: { amount, currency, reason },
-        });
-
-      if (auditError) throw auditError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
       queryClient.invalidateQueries({ queryKey: ['account'] });
       queryClient.invalidateQueries({ queryKey: ['account-transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['account-audit-logs'] });
-      toast({ title: 'Refund durchgeführt', description: 'Der Betrag wurde erfolgreich erstattet.' });
+      queryClient.invalidateQueries({ queryKey: ['user-balance'] });
+      toast({ title: 'Refund durchgeführt', description: 'Der Betrag wurde dem Nutzer-Guthaben gutgeschrieben.' });
     },
     onError: () => {
       toast({ title: 'Fehler', description: 'Refund konnte nicht durchgeführt werden.', variant: 'destructive' });
