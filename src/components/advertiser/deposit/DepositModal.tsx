@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, Copy, Check, Wallet } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Copy, Check, Wallet, Timer } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   Dialog,
@@ -48,6 +48,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
   const [paymentStatus, setPaymentStatus] = useState<string>('waiting');
   const [copied, setCopied] = useState<'amount' | 'address' | null>(null);
   const [isPolling, setIsPolling] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<string>('');
 
   // Reset state when modal closes
   useEffect(() => {
@@ -88,6 +89,39 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
 
     return () => clearInterval(interval);
   }, [paymentData?.payment_id, isPolling, checkPaymentStatus, toast, paymentData?.net_amount]);
+
+  // Countdown Timer
+  useEffect(() => {
+    if (!paymentData?.expires_at || step !== 'payment') return;
+    
+    const calculateTimeLeft = () => {
+      const now = new Date().getTime();
+      const expiry = new Date(paymentData.expires_at).getTime();
+      const difference = expiry - now;
+      
+      if (difference <= 0) {
+        setTimeLeft('Abgelaufen');
+        setPaymentStatus('expired');
+        setIsPolling(false);
+        return;
+      }
+      
+      const hours = Math.floor(difference / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+      
+      if (hours > 0) {
+        setTimeLeft(`${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      } else {
+        setTimeLeft(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+      }
+    };
+    
+    calculateTimeLeft();
+    const interval = setInterval(calculateTimeLeft, 1000);
+    
+    return () => clearInterval(interval);
+  }, [paymentData?.expires_at, step]);
 
   const numAmount = parseFloat(amount) || 0;
 
@@ -262,6 +296,22 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                     level="H"
                     includeMargin
                   />
+                </div>
+                
+                {/* Countdown Timer */}
+                <div className={cn(
+                  "flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-mono text-base font-semibold mt-3",
+                  timeLeft === 'Abgelaufen' 
+                    ? "bg-destructive/10 text-destructive border border-destructive/20"
+                    : "bg-orange-500/10 text-orange-600 border border-orange-500/20"
+                )}>
+                  <Timer className="h-4 w-4" />
+                  <span>
+                    {timeLeft === 'Abgelaufen' 
+                      ? 'Adresse abgelaufen' 
+                      : `Gültig für: ${timeLeft}`
+                    }
+                  </span>
                 </div>
               </div>
               
