@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Wallet } from 'lucide-react';
 import { ProductDetail } from '@/components/advertiser/checkout/ProductDetail';
 import { CheckoutModal } from '@/components/advertiser/checkout/CheckoutModal';
 import { OrderConfirmation } from '@/components/advertiser/checkout/OrderConfirmation';
@@ -9,6 +10,7 @@ import { useUserBalance } from '@/hooks/useUserBalance';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function RentAccountPage() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -137,6 +139,29 @@ export default function RentAccountPage() {
       </div>
 
       <ProductDetail onRentClick={() => setCheckoutOpen(true)} />
+
+      {accounts && accounts.length > 0 && (
+        <Card className="bg-muted/30 border-dashed">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Wallet className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium">Geteiltes Guthaben</p>
+                  <p className="text-sm text-muted-foreground">
+                    Alle deine Agency Accounts nutzen dieses Guthaben
+                  </p>
+                </div>
+              </div>
+              <p className="text-2xl font-bold">
+                {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(balanceEur)}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <AccountList
         accounts={accounts}

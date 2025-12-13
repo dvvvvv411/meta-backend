@@ -104,12 +104,14 @@ export function AccountCard({
             </p>
           </div>
           <div>
-            <p className="text-muted-foreground">Balance EUR</p>
-            <p className="font-medium">{formatCurrency(account.balance_eur ?? 0)}</p>
+            <p className="text-muted-foreground">Startdatum</p>
+            <p className="font-medium">
+              {startDate ? format(startDate, 'dd.MM.yyyy', { locale: de }) : '-'}
+            </p>
           </div>
           <div>
-            <p className="text-muted-foreground">Balance USDT</p>
-            <p className="font-medium">{(account.balance_usdt ?? 0).toFixed(2)} USDT</p>
+            <p className="text-muted-foreground">Plattform</p>
+            <p className="font-medium capitalize">{account.platform}</p>
           </div>
         </div>
 

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { ArrowLeft, Clock, Ban, RefreshCw, UserCheck, CreditCard } from 'lucide-react';
+import { ArrowLeft, Clock, Ban, RefreshCw, UserCheck, CreditCard, Info } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +15,7 @@ import { AccountExtendModal } from '@/components/admin/accounts/AccountExtendMod
 import { AccountSuspendModal } from '@/components/admin/accounts/AccountSuspendModal';
 import { AccountRefundModal } from '@/components/admin/accounts/AccountRefundModal';
 import { useAccount, useReactivateAccount, AccountStatus } from '@/hooks/useAccounts';
+import { supabase } from '@/integrations/supabase/client';
 
 const statusConfig: Record<AccountStatus, { label: string; variant: 'default' | 'destructive' | 'outline' | 'secondary' }> = {
   active: { label: 'Aktiv', variant: 'default' },
@@ -31,6 +33,22 @@ export default function AccountDetailPage() {
   const [extendModalOpen, setExtendModalOpen] = useState(false);
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [refundModalOpen, setRefundModalOpen] = useState(false);
+
+  // Fetch central user balance
+  const { data: userBalance } = useQuery({
+    queryKey: ['user-balance', account?.user_id],
+    queryFn: async () => {
+      if (!account?.user_id) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('balance_eur')
+        .eq('id', account.user_id)
+        .maybeSingle();
+      if (error) throw error;
+      return data?.balance_eur ?? 0;
+    },
+    enabled: !!account?.user_id,
+  });
 
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat('de-DE', {
@@ -166,18 +184,16 @@ export default function AccountDetailPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Guthaben</CardTitle>
+              <CardTitle className="text-lg">Nutzer-Guthaben (Zentral)</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="text-center p-4 rounded-lg bg-muted">
-                  <p className="text-sm text-muted-foreground mb-1">EUR</p>
-                  <p className="text-2xl font-bold">{formatCurrency(account.balance_eur, 'EUR')}</p>
-                </div>
-                <div className="text-center p-4 rounded-lg bg-muted">
-                  <p className="text-sm text-muted-foreground mb-1">USDT</p>
-                  <p className="text-2xl font-bold">{formatCurrency(account.balance_usdt, 'USD')}</p>
-                </div>
+            <CardContent className="space-y-4">
+              <div className="text-center p-6 rounded-lg bg-muted">
+                <p className="text-sm text-muted-foreground mb-2">EUR Guthaben</p>
+                <p className="text-3xl font-bold">{formatCurrency(userBalance ?? 0, 'EUR')}</p>
+              </div>
+              <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                <Info className="h-4 w-4 mt-0.5 shrink-0" />
+                <p>Alle Accounts dieses Nutzers teilen dieses Guthaben.</p>
               </div>
             </CardContent>
           </Card>

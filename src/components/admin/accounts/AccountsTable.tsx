@@ -72,7 +72,6 @@ export function AccountsTable({ accounts, isLoading }: AccountsTableProps) {
               <TableHead>Account</TableHead>
               <TableHead>Zeitraum</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Guthaben</TableHead>
               <TableHead className="w-[50px]" />
             </TableRow>
           </TableHeader>
@@ -83,7 +82,6 @@ export function AccountsTable({ accounts, isLoading }: AccountsTableProps) {
                 <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-40" /></TableCell>
                 <TableCell><Skeleton className="h-6 w-20" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-28" /></TableCell>
                 <TableCell><Skeleton className="h-8 w-8" /></TableCell>
               </TableRow>
             ))}
@@ -111,7 +109,6 @@ export function AccountsTable({ accounts, isLoading }: AccountsTableProps) {
               <TableHead>Account</TableHead>
               <TableHead>Zeitraum</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Guthaben</TableHead>
               <TableHead className="w-[50px]" />
             </TableRow>
           </TableHeader>
@@ -146,12 +143,6 @@ export function AccountsTable({ accounts, isLoading }: AccountsTableProps) {
                   </TableCell>
                   <TableCell>
                     <Badge variant={status.variant}>{status.label}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      <p>{formatCurrency(account.balance_eur, 'EUR')}</p>
-                      <p className="text-muted-foreground">{formatCurrency(account.balance_usdt, 'USD')}</p>
-                    </div>
                   </TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
