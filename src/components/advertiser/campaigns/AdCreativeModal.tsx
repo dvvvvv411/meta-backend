@@ -511,7 +511,7 @@ export function AdCreativeModal({ open, onOpenChange, creativeType, onComplete }
                 {/* Primary Text */}
                 <div className="space-y-3">
                   <Label className="text-sm font-medium">
-                    Primary text ({primaryTexts.length} of 5)
+                    Primary text{primaryTexts.some(t => t.trim()) && ` (${primaryTexts.filter(t => t.trim()).length} of 5)`}
                   </Label>
                   {primaryTexts.map((text, index) => (
                     <div key={index} className="flex gap-2">
@@ -532,12 +532,12 @@ export function AdCreativeModal({ open, onOpenChange, creativeType, onComplete }
                       )}
                     </div>
                   ))}
-                  {primaryTexts.length < 5 && (
+                  {primaryTexts.length < 5 && primaryTexts[primaryTexts.length - 1]?.trim() && (
                     <Button 
                       variant="outline" 
                       size="sm" 
                       onClick={addPrimaryText}
-                      className="gap-2"
+                      className="gap-2 text-blue-600 border-blue-300 hover:bg-blue-50 hover:text-blue-700"
                     >
                       <Plus className="h-4 w-4" />
                       Add text option
@@ -548,7 +548,7 @@ export function AdCreativeModal({ open, onOpenChange, creativeType, onComplete }
                 {/* Headlines */}
                 <div className="space-y-3">
                   <Label className="text-sm font-medium">
-                    Headline ({headlines.length} of 5)
+                    Headline{headlines.some(t => t.trim()) && ` (${headlines.filter(t => t.trim()).length} of 5)`}
                   </Label>
                   {headlines.map((headline, index) => (
                     <div key={index} className="flex gap-2">
@@ -569,12 +569,12 @@ export function AdCreativeModal({ open, onOpenChange, creativeType, onComplete }
                       )}
                     </div>
                   ))}
-                  {headlines.length < 5 && (
+                  {headlines.length < 5 && headlines[headlines.length - 1]?.trim() && (
                     <Button 
                       variant="outline" 
                       size="sm" 
                       onClick={addHeadline}
-                      className="gap-2"
+                      className="gap-2 text-blue-600 border-blue-300 hover:bg-blue-50 hover:text-blue-700"
                     >
                       <Plus className="h-4 w-4" />
                       Add headline
@@ -612,7 +612,7 @@ export function AdCreativeModal({ open, onOpenChange, creativeType, onComplete }
               </div>
 
               <div className="flex justify-between pt-4">
-                <Button variant="outline" onClick={() => setStep('media')} className="gap-2">
+                <Button variant="outline" onClick={() => setStep('media')} className="gap-2 text-blue-600 border-blue-300 hover:bg-blue-50 hover:text-blue-700">
                   <ArrowLeft className="h-4 w-4" />
                   Back
                 </Button>
