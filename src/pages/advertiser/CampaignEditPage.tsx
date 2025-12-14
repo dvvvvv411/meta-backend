@@ -511,7 +511,7 @@ export default function CampaignEditPage() {
                     </p>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full justify-between font-normal">
+                        <Button variant="outline" className="w-full justify-between font-normal hover:bg-blue-50">
                           <span className={specialCategories.length === 0 ? 'text-muted-foreground' : ''}>
                             {getCategoryLabel(specialCategories.length)}
                           </span>
