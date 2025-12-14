@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { CAMPAIGN_OBJECTIVES } from '@/components/advertiser/campaigns/ObjectiveSelector';
@@ -1655,71 +1656,116 @@ export default function CampaignEditPage() {
                       </div>
 
                       {/* Editable Fields */}
-                      <div className="space-y-4">
-                        {/* Primary Text */}
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">Primary text</Label>
-                          {adCreativeData.primaryTexts.map((text, index) => (
+                      <TooltipProvider>
+                        <div className="space-y-5">
+                          {/* Primary Text */}
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <Label className="text-sm font-normal text-foreground">Primary text</Label>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs">
+                                  <p>Add up to 5 texts.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            {adCreativeData.primaryTexts.map((text, index) => (
+                              <Input
+                                key={index}
+                                value={text}
+                                onChange={(e) => {
+                                  const newTexts = [...adCreativeData.primaryTexts];
+                                  newTexts[index] = e.target.value;
+                                  setAdCreativeData({ ...adCreativeData, primaryTexts: newTexts });
+                                }}
+                                placeholder="Enter primary text..."
+                                className="border-gray-200 bg-white focus:border-blue-400 focus:ring-0 shadow-none"
+                              />
+                            ))}
+                          </div>
+
+                          {/* Headline */}
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <Label className="text-sm font-normal text-foreground">Headline</Label>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs">
+                                  <p>Add up to 5 brief headlines to let people know what your ad is about. Each headline can have a maximum up to 255 characters.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            {adCreativeData.headlines.map((headline, index) => (
+                              <Input
+                                key={index}
+                                value={headline}
+                                onChange={(e) => {
+                                  const newHeadlines = [...adCreativeData.headlines];
+                                  newHeadlines[index] = e.target.value;
+                                  setAdCreativeData({ ...adCreativeData, headlines: newHeadlines });
+                                }}
+                                placeholder="Enter headline..."
+                                className="border-gray-200 bg-white focus:border-blue-400 focus:ring-0 shadow-none"
+                              />
+                            ))}
+                          </div>
+
+                          {/* Description */}
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <Label className="text-sm font-normal text-foreground">Description</Label>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs">
+                                  <p>The description is additional text that appears in some placements. Its position on the ad varies by placement.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
                             <Input
-                              key={index}
-                              value={text}
-                              onChange={(e) => {
-                                const newTexts = [...adCreativeData.primaryTexts];
-                                newTexts[index] = e.target.value;
-                                setAdCreativeData({ ...adCreativeData, primaryTexts: newTexts });
-                              }}
-                              placeholder="Enter primary text..."
+                              value={adCreativeData.description}
+                              onChange={(e) => setAdCreativeData({ ...adCreativeData, description: e.target.value })}
+                              placeholder="Enter description..."
+                              className="border-gray-200 bg-white focus:border-blue-400 focus:ring-0 shadow-none"
                             />
-                          ))}
-                        </div>
+                          </div>
 
-                        {/* Headline */}
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">Headline</Label>
-                          {adCreativeData.headlines.map((headline, index) => (
-                            <Input
-                              key={index}
-                              value={headline}
-                              onChange={(e) => {
-                                const newHeadlines = [...adCreativeData.headlines];
-                                newHeadlines[index] = e.target.value;
-                                setAdCreativeData({ ...adCreativeData, headlines: newHeadlines });
-                              }}
-                              placeholder="Enter headline..."
-                            />
-                          ))}
+                          {/* Call to Action */}
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <Label className="text-sm font-normal text-foreground">Call to action</Label>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs">
+                                  <p>Show a button or a link on your ad that represents the action you want people to take.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <Select 
+                              value={adCreativeData.callToAction} 
+                              onValueChange={(val) => setAdCreativeData({ ...adCreativeData, callToAction: val })}
+                            >
+                              <SelectTrigger className="border-gray-200 bg-white focus:border-blue-400 focus:ring-0 shadow-none">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {CALL_TO_ACTION_OPTIONS.map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
-
-                        {/* Description */}
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">Description</Label>
-                          <Input
-                            value={adCreativeData.description}
-                            onChange={(e) => setAdCreativeData({ ...adCreativeData, description: e.target.value })}
-                            placeholder="Enter description..."
-                          />
-                        </div>
-
-                        {/* Call to Action */}
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">Call to action</Label>
-                          <Select 
-                            value={adCreativeData.callToAction} 
-                            onValueChange={(val) => setAdCreativeData({ ...adCreativeData, callToAction: val })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {CALL_TO_ACTION_OPTIONS.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
+                      </TooltipProvider>
                     </div>
                   )}
                 </CardContent>
