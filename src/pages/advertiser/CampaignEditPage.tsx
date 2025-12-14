@@ -520,7 +520,7 @@ export default function CampaignEditPage() {
                       </PopoverTrigger>
                       <PopoverContent className="w-[500px] p-0" align="start">
                         <div 
-                          className="flex items-start gap-3 p-3 hover:bg-muted cursor-pointer border-b"
+                          className="flex items-start gap-3 p-3 hover:bg-blue-50 cursor-pointer border-b"
                           onClick={() => handleCategoryToggle('financial', !specialCategories.includes('financial'))}
                         >
                           <Checkbox 
@@ -537,7 +537,7 @@ export default function CampaignEditPage() {
                           </div>
                         </div>
                         <div 
-                          className="flex items-start gap-3 p-3 hover:bg-muted cursor-pointer border-b"
+                          className="flex items-start gap-3 p-3 hover:bg-blue-50 cursor-pointer border-b"
                           onClick={() => handleCategoryToggle('employment', !specialCategories.includes('employment'))}
                         >
                           <Checkbox 
@@ -554,7 +554,7 @@ export default function CampaignEditPage() {
                           </div>
                         </div>
                         <div 
-                          className="flex items-start gap-3 p-3 hover:bg-muted cursor-pointer border-b"
+                          className="flex items-start gap-3 p-3 hover:bg-blue-50 cursor-pointer border-b"
                           onClick={() => handleCategoryToggle('housing', !specialCategories.includes('housing'))}
                         >
                           <Checkbox 
@@ -571,7 +571,7 @@ export default function CampaignEditPage() {
                           </div>
                         </div>
                         <div 
-                          className="flex items-start gap-3 p-3 hover:bg-muted cursor-pointer"
+                          className="flex items-start gap-3 p-3 hover:bg-blue-50 cursor-pointer"
                           onClick={() => handleCategoryToggle('social_politics', !specialCategories.includes('social_politics'))}
                         >
                           <Checkbox 
