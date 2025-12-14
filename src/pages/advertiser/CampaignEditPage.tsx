@@ -172,6 +172,7 @@ export default function CampaignEditPage() {
   const [adSetEndDate, setAdSetEndDate] = useState<Date | undefined>(undefined);
   const [selectedLocations, setSelectedLocations] = useState<string[]>(['DE']);
   const [locationSearchQuery, setLocationSearchQuery] = useState('');
+  const [beneficiary, setBeneficiary] = useState('');
 
   const filteredCountries = COUNTRIES.filter(country =>
     country.name.toLowerCase().includes(locationSearchQuery.toLowerCase()) ||
@@ -996,6 +997,32 @@ export default function CampaignEditPage() {
                         </PopoverContent>
                       </Popover>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Beneficiary and payer */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Beneficiary and payer</CardTitle>
+                  <CardDescription>
+                    Beneficiary and payer information is required for ad sets with audiences in the European Union and is saved in Advertising settings. This information will be publicly available in the Meta Ad Library for a year but not shown on any ads.{' '}
+                    <span className="text-primary cursor-pointer hover:underline">Learn more</span>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">
+                      Beneficiary <span className="text-destructive">*</span>
+                    </Label>
+                    <Input 
+                      placeholder="Enter a person or organization"
+                      value={beneficiary}
+                      onChange={(e) => setBeneficiary(e.target.value)}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Enter the person or organization benefiting from the ads in this ad set.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
