@@ -548,8 +548,22 @@ export default function CampaignEditPage() {
               </div>
             </div>
           </div>
-          <Button disabled>
-            Save Draft
+          <Button 
+            onClick={handleSaveDraft} 
+            disabled={isSaving}
+            className="gap-2"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Save Draft
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -607,7 +621,7 @@ export default function CampaignEditPage() {
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  This page is still in development. Campaigns cannot be saved yet.
+                  This campaign is a draft. Click "Save Draft" to save your progress.
                 </AlertDescription>
               </Alert>
 
