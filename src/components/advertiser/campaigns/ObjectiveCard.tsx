@@ -37,7 +37,7 @@ export function ObjectiveCard({ objective }: ObjectiveCardProps) {
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           Good for:
         </p>
-        <div className="flex flex-wrap gap-1.5 max-h-[100px] overflow-y-auto">
+        <div className="flex flex-wrap gap-1.5">
           {objective.goodFor.map((item, index) => (
             <span 
               key={index} 
