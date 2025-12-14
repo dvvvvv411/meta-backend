@@ -85,8 +85,8 @@ export function ObjectiveSelector({ buyingType, selectedObjective, onSelectObjec
   const selectedConfig = CAMPAIGN_OBJECTIVES.find(obj => obj.id === selectedObjective);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-xl p-4 bg-muted/30 h-[450px]">
-      {/* Left side - Radio options */}
+    <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 border rounded-xl p-4 bg-muted/30 lg:h-[450px]">
+      {/* Radio options - passt sich auf Mobile an Inhalt an */}
       <div className="space-y-1">
         <RadioGroup value={selectedObjective} onValueChange={(v) => onSelectObjective(v as CampaignObjective)}>
           {availableObjectives.map((obj) => (
@@ -111,7 +111,7 @@ export function ObjectiveSelector({ buyingType, selectedObjective, onSelectObjec
         </RadioGroup>
       </div>
 
-      {/* Right side - Details card */}
+      {/* Details card - auf Mobile unterhalb der Liste */}
       <div className="flex items-stretch">
         {selectedConfig && (
           <ObjectiveCard objective={selectedConfig} />
