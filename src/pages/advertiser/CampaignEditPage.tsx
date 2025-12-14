@@ -1,5 +1,5 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Folder, LayoutGrid, Square, AlertCircle, ChevronDown, CreditCard, Briefcase, Home, Megaphone, Palette, Users, MapPin, Settings, Globe, Smartphone, MessageCircle, Instagram, Phone, CalendarIcon, Search, Check, Info, ChevronsUpDown } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Folder, LayoutGrid, Square, AlertCircle, ChevronDown, CreditCard, Briefcase, Home, Megaphone, Palette, Users, MapPin, Settings, Globe, Smartphone, MessageCircle, Instagram, Phone, CalendarIcon, Search, Check, Info, ChevronsUpDown, Image as ImageIcon, Video, Pencil } from 'lucide-react';
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { CAMPAIGN_OBJECTIVES } from '@/components/advertiser/campaigns/ObjectiveSelector';
+import { AdCreativeModal, AdCreativeData, CALL_TO_ACTION_OPTIONS } from '@/components/advertiser/campaigns/AdCreativeModal';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -323,6 +324,11 @@ export default function CampaignEditPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [countryCodeOpen, setCountryCodeOpen] = useState(false);
   const [countryCodeSearch, setCountryCodeSearch] = useState('');
+
+  // Ad Creative state
+  const [creativeType, setCreativeType] = useState<'image' | 'video' | null>(null);
+  const [creativeModalOpen, setCreativeModalOpen] = useState(false);
+  const [adCreativeData, setAdCreativeData] = useState<AdCreativeData | null>(null);
 
   const filteredCountryCodes = COUNTRY_CODES.filter(item => {
     const searchTerm = countryCodeSearch.toLowerCase().replace('+', '');
@@ -1583,6 +1589,123 @@ export default function CampaignEditPage() {
                   </RadioGroup>
                 </CardContent>
               </Card>
+
+              {/* Ad creative */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Ad creative</CardTitle>
+                  <CardDescription>
+                    Select and optimize your ad text, media and enhancements.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Creative Type Dropdown */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Set up creative</Label>
+                    <Select 
+                      value={creativeType || ''} 
+                      onValueChange={(val) => {
+                        setCreativeType(val as 'image' | 'video');
+                        setCreativeModalOpen(true);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose creative type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="image">
+                          <div className="flex items-center gap-2">
+                            <ImageIcon className="h-4 w-4" />
+                            Image ad
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="video">
+                          <div className="flex items-center gap-2">
+                            <Video className="h-4 w-4" />
+                            Video ad
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Creative Summary (shown after Done) */}
+                  {adCreativeData && (
+                    <div className="border rounded-lg p-4 space-y-4">
+                      <div className="flex items-start gap-4">
+                        {/* Thumbnail */}
+                        <div className="w-20 h-20 bg-muted rounded-lg overflow-hidden flex-shrink-0">
+                          {adCreativeData.type === 'video' && adCreativeData.videoThumbnailUrl ? (
+                            <img 
+                              src={adCreativeData.videoThumbnailUrl} 
+                              alt="Video thumbnail" 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <img 
+                              src={adCreativeData.mediaUrl} 
+                              alt="Ad preview" 
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                        </div>
+
+                        {/* Creative Details */}
+                        <div className="flex-1 space-y-2 min-w-0">
+                          {adCreativeData.primaryTexts.length > 0 && (
+                            <div>
+                              <span className="text-xs text-muted-foreground">Primary text:</span>
+                              <p className="text-sm truncate">{adCreativeData.primaryTexts[0]}</p>
+                            </div>
+                          )}
+                          {adCreativeData.headlines.length > 0 && (
+                            <div>
+                              <span className="text-xs text-muted-foreground">Headline:</span>
+                              <p className="text-sm font-medium truncate">{adCreativeData.headlines[0]}</p>
+                            </div>
+                          )}
+                          {adCreativeData.description && (
+                            <div>
+                              <span className="text-xs text-muted-foreground">Description:</span>
+                              <p className="text-sm truncate">{adCreativeData.description}</p>
+                            </div>
+                          )}
+                          <div>
+                            <span className="text-xs text-muted-foreground">Call to action:</span>
+                            <p className="text-sm">
+                              {CALL_TO_ACTION_OPTIONS.find(o => o.value === adCreativeData.callToAction)?.label || adCreativeData.callToAction}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Edit Button */}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setCreativeModalOpen(true)}
+                          className="gap-2 flex-shrink-0"
+                        >
+                          <Pencil className="h-3 w-3" />
+                          Edit
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Ad Creative Modal */}
+              {creativeType && (
+                <AdCreativeModal
+                  open={creativeModalOpen}
+                  onOpenChange={setCreativeModalOpen}
+                  creativeType={creativeType}
+                  onComplete={(data) => {
+                    setAdCreativeData(data);
+                    setCreativeModalOpen(false);
+                  }}
+                />
+              )}
 
               {/* Navigation Buttons */}
               <div className="flex justify-between pt-4">
