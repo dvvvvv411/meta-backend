@@ -73,6 +73,7 @@ const PERFORMANCE_GOALS = [
 ];
 
 const COUNTRIES = [
+  { code: 'WORLDWIDE', name: 'Worldwide' },
   { code: 'DE', name: 'Germany' },
   { code: 'AT', name: 'Austria' },
   { code: 'CH', name: 'Switzerland' },
@@ -938,9 +939,18 @@ export default function CampaignEditPage() {
                 <CardContent>
                   <div>
                     <Label className="text-sm font-medium mb-2 block">Locations</Label>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-start gap-2">
                       <div className="flex-1 px-3 py-2 border rounded-md text-sm">
-                        {getLocationLabel()}
+                        {selectedLocations.length === 0 ? (
+                          <span className="text-muted-foreground">Select locations</span>
+                        ) : (
+                          <div className="flex flex-col gap-1">
+                            {selectedLocations.map((code) => {
+                              const country = COUNTRIES.find(c => c.code === code);
+                              return <span key={code}>{country?.name || code}</span>;
+                            })}
+                          </div>
+                        )}
                       </div>
                       <Popover>
                         <PopoverTrigger asChild>
