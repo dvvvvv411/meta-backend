@@ -381,8 +381,8 @@ export default function CampaignEditPage() {
                       <div>
                         <Label className="text-sm font-medium mb-2 block">What do you want to test?</Label>
                         <Select value={abTestType} onValueChange={(v) => setAbTestType(v as ABTestType)}>
-                          <SelectTrigger className="justify-start">
-                            <SelectValue>
+                          <SelectTrigger>
+                            <SelectValue className="text-left">
                               {abTestType === 'creative' && 'Creative'}
                               {abTestType === 'audience' && 'Audience'}
                               {abTestType === 'placement' && 'Placement'}
