@@ -202,6 +202,51 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_drafts: {
+        Row: {
+          account_id: string
+          ad_data: Json
+          adset_data: Json
+          buying_type: string
+          campaign_data: Json
+          created_at: string | null
+          id: string
+          name: string
+          objective: string
+          setup: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          ad_data?: Json
+          adset_data?: Json
+          buying_type?: string
+          campaign_data?: Json
+          created_at?: string | null
+          id?: string
+          name?: string
+          objective?: string
+          setup?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          ad_data?: Json
+          adset_data?: Json
+          buying_type?: string
+          campaign_data?: Json
+          created_at?: string | null
+          id?: string
+          name?: string
+          objective?: string
+          setup?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           balance_eur: number | null
