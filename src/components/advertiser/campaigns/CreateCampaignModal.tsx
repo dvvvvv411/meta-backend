@@ -70,8 +70,8 @@ export function CreateCampaignModal({ open, onOpenChange }: CreateCampaignModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto lg:rounded-none">
+          <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {step === 2 && (
               <Button variant="ghost" size="icon" onClick={handleBack} className="h-8 w-8">
@@ -207,7 +207,10 @@ export function CreateCampaignModal({ open, onOpenChange }: CreateCampaignModalP
           </div>
         )}
 
-        <div className="flex justify-end pt-4 border-t">
+        <div className="flex justify-end gap-2 pt-4 border-t">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
           <Button onClick={handleContinue} disabled={!canContinue}>
             Continue
           </Button>

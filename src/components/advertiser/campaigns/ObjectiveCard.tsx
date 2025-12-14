@@ -1,4 +1,4 @@
-import { LucideIcon, Check } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 import { CampaignObjective } from './CreateCampaignModal';
 
 interface ObjectiveConfig {
@@ -19,32 +19,34 @@ export function ObjectiveCard({ objective }: ObjectiveCardProps) {
 
   return (
     <div className="bg-background rounded-xl p-4 border w-full">
-      {/* Circular icon */}
-      <div className="flex flex-col items-center mb-4">
-        <div className={`h-16 w-16 rounded-full ${objective.color} flex items-center justify-center mb-3 shadow-lg`}>
-          <Icon className="h-8 w-8 text-white" />
+      {/* Square icon with rounded corners */}
+      <div className="flex flex-col items-start mb-4">
+        <div className="h-14 w-14 rounded-lg bg-muted flex items-center justify-center mb-3">
+          <Icon className="h-7 w-7 text-foreground" />
         </div>
-        <h3 className="font-semibold text-lg text-foreground">{objective.label}</h3>
+        <h3 className="font-medium text-lg text-foreground">{objective.label}</h3>
       </div>
 
       {/* Description */}
-      <p className="text-sm text-muted-foreground text-center mb-4">
+      <p className="text-sm text-muted-foreground text-left mb-4">
         {objective.description}
       </p>
 
-      {/* Good for list */}
-      <div className="space-y-1.5">
+      {/* Good for list as keyword tags */}
+      <div className="space-y-2">
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           Good for:
         </p>
-        <ul className="space-y-1">
+        <div className="flex flex-wrap gap-1.5">
           {objective.goodFor.map((item, index) => (
-            <li key={index} className="flex items-center gap-2 text-sm text-foreground">
-              <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span 
+              key={index} 
+              className="bg-muted text-foreground text-xs px-2 py-1 rounded-md"
+            >
               {item}
-            </li>
+            </span>
           ))}
-        </ul>
+        </div>
       </div>
     </div>
   );
