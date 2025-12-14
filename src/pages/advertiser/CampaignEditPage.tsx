@@ -1121,11 +1121,11 @@ export default function CampaignEditPage() {
                   >
                     <div className="flex items-start gap-3">
                       <div className={cn(
-                        "mt-0.5 h-4 w-4 rounded-full border-2 flex items-center justify-center",
+                        "mt-0.5 h-5 w-5 shrink-0 rounded-full border-2 flex items-center justify-center",
                         placementType === 'advantage' ? 'border-primary' : 'border-muted-foreground'
                       )}>
                         {placementType === 'advantage' && (
-                          <div className="h-2 w-2 rounded-full bg-primary" />
+                          <div className="h-2.5 w-2.5 rounded-full bg-primary" />
                         )}
                       </div>
                       <div>
@@ -1147,11 +1147,11 @@ export default function CampaignEditPage() {
                   >
                     <div className="flex items-start gap-3">
                       <div className={cn(
-                        "mt-0.5 h-4 w-4 rounded-full border-2 flex items-center justify-center",
+                        "mt-0.5 h-5 w-5 shrink-0 rounded-full border-2 flex items-center justify-center",
                         placementType === 'manual' ? 'border-primary' : 'border-muted-foreground'
                       )}>
                         {placementType === 'manual' && (
-                          <div className="h-2 w-2 rounded-full bg-primary" />
+                          <div className="h-2.5 w-2.5 rounded-full bg-primary" />
                         )}
                       </div>
                       <div>
