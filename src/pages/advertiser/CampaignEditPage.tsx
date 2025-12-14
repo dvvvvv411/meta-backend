@@ -863,10 +863,10 @@ export default function CampaignEditPage() {
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className={cn(
-                            "w-[280px] justify-start text-left font-normal hover:bg-blue-50",
-                            !adSetStartDate && "text-muted-foreground"
-                          )}
+                        className={cn(
+                          "w-[280px] justify-start text-left font-normal hover:bg-blue-50 hover:text-foreground",
+                          !adSetStartDate && "text-muted-foreground"
+                        )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {adSetStartDate ? format(adSetStartDate, "PPP") : <span>Pick a date</span>}
