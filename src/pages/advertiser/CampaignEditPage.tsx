@@ -1,5 +1,5 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Folder, LayoutGrid, Square, AlertCircle, ChevronDown, CreditCard, Briefcase, Home, Megaphone, Palette, Users, MapPin, Settings } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Folder, LayoutGrid, Square, AlertCircle, ChevronDown, CreditCard, Briefcase, Home, Megaphone, Palette, Users, MapPin, Settings, Globe, Smartphone, MessageCircle, Instagram, Phone, CalendarIcon, Search, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,11 +7,14 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Calendar } from '@/components/ui/calendar';
 import { CAMPAIGN_OBJECTIVES } from '@/components/advertiser/campaigns/ObjectiveSelector';
 import { useState } from 'react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 type EditorLevel = 'campaign' | 'adset' | 'ad';
 type BudgetType = 'campaign' | 'adset';
@@ -51,6 +54,83 @@ const COST_PER_RESULT_OPTIONS = [
   { value: 'tutorial', label: 'Cost per tutorial completed' },
 ];
 
+type ConversionLocation = 'website' | 'app' | 'messages' | 'instagram_facebook' | 'calls';
+
+const CONVERSION_LOCATIONS = [
+  { value: 'website' as ConversionLocation, label: 'Website', description: 'Send traffic to your website.', icon: Globe, disabled: false },
+  { value: 'app' as ConversionLocation, label: 'App', description: 'Send traffic to your app.', icon: Smartphone, disabled: true },
+  { value: 'messages' as ConversionLocation, label: 'Message destinations', description: 'Send traffic to Messenger, Instagram and WhatsApp.', icon: MessageCircle, disabled: false },
+  { value: 'instagram_facebook' as ConversionLocation, label: 'Instagram or Facebook', description: 'Send traffic to an Instagram profile, Facebook Page or both.', icon: Instagram, disabled: false },
+  { value: 'calls' as ConversionLocation, label: 'Calls', description: 'Get people to call your phone number, Messenger or WhatsApp.', icon: Phone, disabled: false },
+];
+
+const PERFORMANCE_GOALS = [
+  { value: 'landing_page_views', label: 'Maximize number of landing page views', description: "We'll try to show your ads to the people most likely to open the app or website linked in your ad.", group: 'main' },
+  { value: 'link_clicks', label: 'Maximize number of link clicks', description: "We'll try to show your ads to the people most likely to click on them.", group: 'main' },
+  { value: 'daily_unique_reach', label: 'Maximize daily unique reach', description: "We'll try to show your ads to people up to once per day.", group: 'other' },
+  { value: 'conversations', label: 'Maximize number of conversations', description: "We'll try to show your ads to people most likely to have a conversation with you through messaging.", group: 'other' },
+  { value: 'impressions', label: 'Maximize number of impressions', description: "We'll try to show your ads to people as many times as possible.", group: 'other' },
+];
+
+const COUNTRIES = [
+  { code: 'DE', name: 'Germany' },
+  { code: 'AT', name: 'Austria' },
+  { code: 'CH', name: 'Switzerland' },
+  { code: 'US', name: 'United States' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'FR', name: 'France' },
+  { code: 'ES', name: 'Spain' },
+  { code: 'IT', name: 'Italy' },
+  { code: 'NL', name: 'Netherlands' },
+  { code: 'BE', name: 'Belgium' },
+  { code: 'PL', name: 'Poland' },
+  { code: 'PT', name: 'Portugal' },
+  { code: 'SE', name: 'Sweden' },
+  { code: 'NO', name: 'Norway' },
+  { code: 'DK', name: 'Denmark' },
+  { code: 'FI', name: 'Finland' },
+  { code: 'IE', name: 'Ireland' },
+  { code: 'CZ', name: 'Czech Republic' },
+  { code: 'GR', name: 'Greece' },
+  { code: 'HU', name: 'Hungary' },
+  { code: 'RO', name: 'Romania' },
+  { code: 'BG', name: 'Bulgaria' },
+  { code: 'HR', name: 'Croatia' },
+  { code: 'SK', name: 'Slovakia' },
+  { code: 'SI', name: 'Slovenia' },
+  { code: 'LT', name: 'Lithuania' },
+  { code: 'LV', name: 'Latvia' },
+  { code: 'EE', name: 'Estonia' },
+  { code: 'LU', name: 'Luxembourg' },
+  { code: 'MT', name: 'Malta' },
+  { code: 'CY', name: 'Cyprus' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'NZ', name: 'New Zealand' },
+  { code: 'JP', name: 'Japan' },
+  { code: 'KR', name: 'South Korea' },
+  { code: 'SG', name: 'Singapore' },
+  { code: 'HK', name: 'Hong Kong' },
+  { code: 'IN', name: 'India' },
+  { code: 'BR', name: 'Brazil' },
+  { code: 'MX', name: 'Mexico' },
+  { code: 'AR', name: 'Argentina' },
+  { code: 'ZA', name: 'South Africa' },
+  { code: 'AE', name: 'United Arab Emirates' },
+  { code: 'SA', name: 'Saudi Arabia' },
+  { code: 'TR', name: 'Turkey' },
+  { code: 'RU', name: 'Russia' },
+  { code: 'UA', name: 'Ukraine' },
+  { code: 'IL', name: 'Israel' },
+  { code: 'TH', name: 'Thailand' },
+  { code: 'MY', name: 'Malaysia' },
+  { code: 'PH', name: 'Philippines' },
+  { code: 'ID', name: 'Indonesia' },
+  { code: 'VN', name: 'Vietnam' },
+  { code: 'CN', name: 'China' },
+  { code: 'TW', name: 'Taiwan' },
+];
+
 export default function CampaignEditPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -82,6 +162,37 @@ export default function CampaignEditPage() {
   
   // Special Ad Categories
   const [specialCategories, setSpecialCategories] = useState<string[]>([]);
+
+  // Ad Set specific state
+  const [conversionLocation, setConversionLocation] = useState<ConversionLocation>('website');
+  const [performanceGoal, setPerformanceGoal] = useState('landing_page_views');
+  const [adSetStartDate, setAdSetStartDate] = useState<Date>(new Date());
+  const [adSetEndDateEnabled, setAdSetEndDateEnabled] = useState(false);
+  const [adSetEndDate, setAdSetEndDate] = useState<Date | undefined>(undefined);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>(['DE']);
+  const [locationSearchQuery, setLocationSearchQuery] = useState('');
+
+  const filteredCountries = COUNTRIES.filter(country =>
+    country.name.toLowerCase().includes(locationSearchQuery.toLowerCase()) ||
+    country.code.toLowerCase().includes(locationSearchQuery.toLowerCase())
+  );
+
+  const handleLocationToggle = (code: string, checked: boolean) => {
+    if (checked) {
+      setSelectedLocations([...selectedLocations, code]);
+    } else {
+      setSelectedLocations(selectedLocations.filter(c => c !== code));
+    }
+  };
+
+  const getLocationLabel = () => {
+    if (selectedLocations.length === 0) return 'Select locations';
+    if (selectedLocations.length === 1) {
+      const country = COUNTRIES.find(c => c.code === selectedLocations[0]);
+      return country?.name || selectedLocations[0];
+    }
+    return `${selectedLocations.length} locations selected`;
+  };
 
   const handleCategoryToggle = (category: string, checked: boolean) => {
     if (checked) {
@@ -595,18 +706,28 @@ export default function CampaignEditPage() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Next Button */}
+              <div className="flex justify-end pt-4">
+                <Button onClick={() => setActiveLevel('adset')} className="gap-2">
+                  Next
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           )}
 
           {activeLevel === 'adset' && (
             <div className="space-y-6">
+              {/* Development Notice */}
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Ad set settings are not yet available.
+                  This page is still in development. Ad sets cannot be saved yet.
                 </AlertDescription>
               </Alert>
 
+              {/* Ad set name */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Ad set name</CardTitle>
@@ -615,19 +736,271 @@ export default function CampaignEditPage() {
                   <Input 
                     value={adSetName}
                     onChange={(e) => setAdSetName(e.target.value)}
-                    placeholder="Enter a name for your ad set"
+                    placeholder="New Traffic Ad Set"
                   />
                 </CardContent>
               </Card>
 
+              {/* Conversion */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Ad Set</CardTitle>
+                  <CardTitle className="text-lg">Conversion</CardTitle>
                 </CardHeader>
-                <CardContent className="text-muted-foreground">
-                  Targeting, budget and schedule will be configured here.
+                <CardContent className="space-y-6">
+                  {/* Conversion location */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Label className="text-sm font-medium">Conversion location</Label>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Choose where you want to drive traffic. <span className="text-primary cursor-pointer hover:underline">About conversion locations</span>
+                    </p>
+                    <RadioGroup 
+                      value={conversionLocation} 
+                      onValueChange={(v) => setConversionLocation(v as ConversionLocation)}
+                      className="space-y-2"
+                    >
+                      {CONVERSION_LOCATIONS.map((location) => {
+                        const IconComponent = location.icon;
+                        return (
+                          <div 
+                            key={location.value}
+                            className={cn(
+                              "flex items-start space-x-3 p-3 rounded-lg border cursor-pointer transition-colors",
+                              location.disabled 
+                                ? "opacity-50 cursor-not-allowed bg-muted/30" 
+                                : "hover:bg-blue-50",
+                              conversionLocation === location.value && !location.disabled && "border-primary bg-blue-50"
+                            )}
+                            onClick={() => !location.disabled && setConversionLocation(location.value)}
+                          >
+                            <RadioGroupItem 
+                              value={location.value} 
+                              id={location.value} 
+                              className="mt-0.5" 
+                              disabled={location.disabled}
+                            />
+                            <IconComponent className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                            <div className="flex-1">
+                              <Label 
+                                htmlFor={location.value} 
+                                className={cn(
+                                  "font-medium cursor-pointer",
+                                  location.disabled && "cursor-not-allowed"
+                                )}
+                              >
+                                {location.label}
+                              </Label>
+                              <p className="text-sm text-muted-foreground">{location.description}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </RadioGroup>
+                  </div>
+
+                  {/* Performance goal */}
+                  <div className="pt-4 border-t">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Label className="text-sm font-medium">Performance goal</Label>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      How you measure success for your ads. <span className="text-primary cursor-pointer hover:underline">About performance goals</span>
+                    </p>
+                    <Select value={performanceGoal} onValueChange={setPerformanceGoal}>
+                      <SelectTrigger className="hover:bg-blue-50">
+                        <SelectValue>
+                          {PERFORMANCE_GOALS.find(g => g.value === performanceGoal)?.label}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {PERFORMANCE_GOALS.filter(g => g.group === 'main').map((goal) => (
+                            <SelectItem key={goal.value} value={goal.value} className="hover:bg-blue-50">
+                              <div className="py-1">
+                                <div className="font-medium">{goal.label}</div>
+                                <div className="text-xs text-muted-foreground">{goal.description}</div>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                        <SelectGroup>
+                          <SelectLabel className="text-xs text-muted-foreground">Other goals</SelectLabel>
+                          {PERFORMANCE_GOALS.filter(g => g.group === 'other').map((goal) => (
+                            <SelectItem key={goal.value} value={goal.value} className="hover:bg-blue-50">
+                              <div className="py-1">
+                                <div className="font-medium">{goal.label}</div>
+                                <div className="text-xs text-muted-foreground">{goal.description}</div>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </CardContent>
               </Card>
+
+              {/* Budget & schedule */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Budget & schedule</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Budget info */}
+                  <div>
+                    <Label className="text-sm font-medium">Budget</Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      You set a daily Advantage+ campaign budget of €{budgetAmount.toFixed(2)}.
+                    </p>
+                  </div>
+
+                  {/* Start date */}
+                  <div className="pt-4 border-t">
+                    <Label className="text-sm font-medium mb-2 block">Start date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-[280px] justify-start text-left font-normal hover:bg-blue-50",
+                            !adSetStartDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {adSetStartDate ? format(adSetStartDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={adSetStartDate}
+                          onSelect={(date) => date && setAdSetStartDate(date)}
+                          initialFocus
+                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* End date */}
+                  <div className="pt-4 border-t">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Checkbox
+                        id="end-date-toggle"
+                        checked={adSetEndDateEnabled}
+                        onCheckedChange={(checked) => setAdSetEndDateEnabled(!!checked)}
+                      />
+                      <Label htmlFor="end-date-toggle" className="text-sm font-medium cursor-pointer">
+                        Set an end date
+                      </Label>
+                    </div>
+                    
+                    {adSetEndDateEnabled && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-[280px] justify-start text-left font-normal hover:bg-blue-50",
+                              !adSetEndDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {adSetEndDate ? format(adSetEndDate, "PPP") : <span>Pick an end date</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={adSetEndDate}
+                            onSelect={setAdSetEndDate}
+                            initialFocus
+                            disabled={(date) => date <= adSetStartDate}
+                            className="pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Audience controls */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Audience controls</CardTitle>
+                  <CardDescription>
+                    Set criteria for where ads for this campaign can be delivered. <span className="text-primary cursor-pointer hover:underline">Learn more</span>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Locations</Label>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 px-3 py-2 border rounded-md text-sm">
+                        {getLocationLabel()}
+                      </div>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="hover:bg-blue-50">
+                            Edit
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[350px] p-0" align="end">
+                          <div className="p-3 border-b">
+                            <div className="relative">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                placeholder="Search locations..."
+                                value={locationSearchQuery}
+                                onChange={(e) => setLocationSearchQuery(e.target.value)}
+                                className="pl-9"
+                              />
+                            </div>
+                          </div>
+                          <div className="max-h-[300px] overflow-y-auto p-2">
+                            {filteredCountries.map((country) => (
+                              <div
+                                key={country.code}
+                                className="flex items-center gap-3 px-3 py-2 hover:bg-blue-50 cursor-pointer rounded-md"
+                                onClick={() => handleLocationToggle(country.code, !selectedLocations.includes(country.code))}
+                              >
+                                <Checkbox
+                                  checked={selectedLocations.includes(country.code)}
+                                  onCheckedChange={(checked) => handleLocationToggle(country.code, !!checked)}
+                                />
+                                <span className="text-sm">{country.name}</span>
+                                {selectedLocations.includes(country.code) && (
+                                  <Check className="h-4 w-4 text-primary ml-auto" />
+                                )}
+                              </div>
+                            ))}
+                            {filteredCountries.length === 0 && (
+                              <p className="text-sm text-muted-foreground text-center py-4">
+                                No locations found
+                              </p>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Next Button to Ad */}
+              <div className="flex justify-between pt-4">
+                <Button variant="outline" onClick={() => setActiveLevel('campaign')} className="gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </Button>
+                <Button onClick={() => setActiveLevel('ad')} className="gap-2">
+                  Next
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           )}
 
