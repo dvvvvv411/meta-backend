@@ -199,6 +199,71 @@ const COUNTRIES = [
   { code: 'TW', name: 'Taiwan' },
 ];
 
+const AD_SETUP_OPTIONS = [
+  { value: 'create_ad', label: 'Create ad', disabled: false },
+  { value: 'use_existing_post', label: 'Use existing post', disabled: true },
+  { value: 'use_creative_hub', label: 'Use Creative Hub mockup', disabled: true },
+];
+
+const COUNTRY_CODES = [
+  { code: '+1', country: 'United States' },
+  { code: '+1', country: 'Canada' },
+  { code: '+44', country: 'United Kingdom' },
+  { code: '+49', country: 'Germany' },
+  { code: '+43', country: 'Austria' },
+  { code: '+41', country: 'Switzerland' },
+  { code: '+33', country: 'France' },
+  { code: '+34', country: 'Spain' },
+  { code: '+39', country: 'Italy' },
+  { code: '+31', country: 'Netherlands' },
+  { code: '+32', country: 'Belgium' },
+  { code: '+48', country: 'Poland' },
+  { code: '+351', country: 'Portugal' },
+  { code: '+46', country: 'Sweden' },
+  { code: '+47', country: 'Norway' },
+  { code: '+45', country: 'Denmark' },
+  { code: '+358', country: 'Finland' },
+  { code: '+353', country: 'Ireland' },
+  { code: '+420', country: 'Czech Republic' },
+  { code: '+30', country: 'Greece' },
+  { code: '+36', country: 'Hungary' },
+  { code: '+40', country: 'Romania' },
+  { code: '+359', country: 'Bulgaria' },
+  { code: '+385', country: 'Croatia' },
+  { code: '+421', country: 'Slovakia' },
+  { code: '+386', country: 'Slovenia' },
+  { code: '+370', country: 'Lithuania' },
+  { code: '+371', country: 'Latvia' },
+  { code: '+372', country: 'Estonia' },
+  { code: '+352', country: 'Luxembourg' },
+  { code: '+356', country: 'Malta' },
+  { code: '+357', country: 'Cyprus' },
+  { code: '+61', country: 'Australia' },
+  { code: '+64', country: 'New Zealand' },
+  { code: '+81', country: 'Japan' },
+  { code: '+82', country: 'South Korea' },
+  { code: '+65', country: 'Singapore' },
+  { code: '+852', country: 'Hong Kong' },
+  { code: '+91', country: 'India' },
+  { code: '+55', country: 'Brazil' },
+  { code: '+52', country: 'Mexico' },
+  { code: '+54', country: 'Argentina' },
+  { code: '+27', country: 'South Africa' },
+  { code: '+971', country: 'United Arab Emirates' },
+  { code: '+966', country: 'Saudi Arabia' },
+  { code: '+90', country: 'Turkey' },
+  { code: '+7', country: 'Russia' },
+  { code: '+380', country: 'Ukraine' },
+  { code: '+972', country: 'Israel' },
+  { code: '+66', country: 'Thailand' },
+  { code: '+60', country: 'Malaysia' },
+  { code: '+63', country: 'Philippines' },
+  { code: '+62', country: 'Indonesia' },
+  { code: '+84', country: 'Vietnam' },
+  { code: '+86', country: 'China' },
+  { code: '+886', country: 'Taiwan' },
+];
+
 export default function CampaignEditPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -245,6 +310,16 @@ export default function CampaignEditPage() {
   const [placementType, setPlacementType] = useState<'advantage' | 'manual'>('advantage');
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['facebook', 'instagram', 'audience_network', 'messenger', 'threads']);
   const [selectedPlacements, setSelectedPlacements] = useState<string[]>(ALL_PLACEMENTS);
+
+  // Ad level state
+  const [adSetup, setAdSetup] = useState('create_ad');
+  const [creativeSource, setCreativeSource] = useState('manual_upload');
+  const [adFormat, setAdFormat] = useState('single');
+  const [adDestination, setAdDestination] = useState<'website' | 'phone'>('website');
+  const [websiteUrl, setWebsiteUrl] = useState('http://www.example.com/page');
+  const [displayLink, setDisplayLink] = useState('');
+  const [phoneCountryCode, setPhoneCountryCode] = useState('+49');
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   const filteredCountries = COUNTRIES.filter(country =>
     country.name.toLowerCase().includes(locationSearchQuery.toLowerCase()) ||
@@ -1278,13 +1353,7 @@ export default function CampaignEditPage() {
 
           {activeLevel === 'ad' && (
             <div className="space-y-6">
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Ad settings are not yet available.
-                </AlertDescription>
-              </Alert>
-
+              {/* Ad name */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Ad name</CardTitle>
@@ -1298,14 +1367,198 @@ export default function CampaignEditPage() {
                 </CardContent>
               </Card>
 
+              {/* Ad setup */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Ad</CardTitle>
+                  <CardTitle className="text-lg">Ad setup</CardTitle>
                 </CardHeader>
-                <CardContent className="text-muted-foreground">
-                  Creatives, copy and call-to-actions will be configured here.
+                <CardContent className="space-y-6">
+                  {/* Ad setup dropdown */}
+                  <Select value={adSetup} onValueChange={setAdSetup}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {AD_SETUP_OPTIONS.map((option) => (
+                        <SelectItem 
+                          key={option.value} 
+                          value={option.value}
+                          disabled={option.disabled}
+                          className={option.disabled ? 'opacity-50' : ''}
+                        >
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Creative source */}
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="text-sm font-medium">Creative source</Label>
+                      <p className="text-sm text-muted-foreground">Choose how you'd like to provide the media for your ad.</p>
+                    </div>
+                    <RadioGroup value={creativeSource} onValueChange={setCreativeSource} className="space-y-2">
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem value="manual_upload" id="creative-manual" className="h-5 w-5 shrink-0" />
+                        <Label htmlFor="creative-manual" className="cursor-pointer">Manual upload</Label>
+                      </div>
+                      <div className="flex items-start space-x-3 opacity-50">
+                        <RadioGroupItem value="catalog" id="creative-catalog" className="h-5 w-5 shrink-0 mt-0.5" disabled />
+                        <div>
+                          <Label htmlFor="creative-catalog" className="cursor-not-allowed">Advantage+ catalog ads</Label>
+                          <p className="text-sm text-muted-foreground">Achieve your goals using product information by showing relevant product media from your catalog</p>
+                        </div>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  {/* Format */}
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="text-sm font-medium">Format</Label>
+                      <p className="text-sm text-muted-foreground">Choose an ad creative layout.</p>
+                    </div>
+                    <RadioGroup value={adFormat} onValueChange={setAdFormat} className="space-y-2">
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem value="single" id="format-single" className="h-5 w-5 shrink-0" />
+                        <Label htmlFor="format-single" className="cursor-pointer">Single image or video</Label>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem value="carousel" id="format-carousel" className="h-5 w-5 shrink-0" />
+                        <Label htmlFor="format-carousel" className="cursor-pointer">Carousel</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
                 </CardContent>
               </Card>
+
+              {/* Destination */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Destination</CardTitle>
+                  <CardDescription>
+                    Tell us where to send people immediately after they tap or click your ad.{' '}
+                    <button className="text-primary hover:underline">Learn more</button>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <RadioGroup value={adDestination} onValueChange={(val) => setAdDestination(val as 'website' | 'phone')} className="space-y-4">
+                    {/* Website option */}
+                    <div className="space-y-4">
+                      <div className="flex items-start space-x-3">
+                        <RadioGroupItem value="website" id="dest-website" className="h-5 w-5 shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <Globe className="h-4 w-4 text-muted-foreground" />
+                            <Label htmlFor="dest-website" className="cursor-pointer font-medium">Website</Label>
+                          </div>
+                          <p className="text-sm text-muted-foreground">Send people to your website.</p>
+                        </div>
+                      </div>
+                      
+                      {adDestination === 'website' && (
+                        <div className="ml-8 space-y-4 border-l-2 border-muted pl-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm">
+                              Website URL <span className="text-destructive">*</span>
+                            </Label>
+                            <Input 
+                              value={websiteUrl}
+                              onChange={(e) => setWebsiteUrl(e.target.value)}
+                              placeholder="http://www.example.com/page"
+                            />
+                            <p className="text-sm text-muted-foreground">
+                              URL parameters have been moved to Tracking so you can manage them in one place.
+                            </p>
+                            <button className="text-sm text-primary hover:underline">Go to Tracking</button>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm">Display link</Label>
+                            <Input 
+                              value={displayLink}
+                              onChange={(e) => setDisplayLink(e.target.value)}
+                              placeholder="Enter the link you want to show on your ad"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Phone call option */}
+                    <div className="space-y-4">
+                      <div className="flex items-start space-x-3">
+                        <RadioGroupItem value="phone" id="dest-phone" className="h-5 w-5 shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-muted-foreground" />
+                            <Label htmlFor="dest-phone" className="cursor-pointer font-medium">Phone call</Label>
+                          </div>
+                          <p className="text-sm text-muted-foreground">Let people call you directly.</p>
+                        </div>
+                      </div>
+                      
+                      {adDestination === 'phone' && (
+                        <div className="ml-8 space-y-4 border-l-2 border-muted pl-4">
+                          <div className="flex gap-3">
+                            <div className="w-36">
+                              <Label className="text-sm mb-2 block">Country Code</Label>
+                              <Select value={phoneCountryCode} onValueChange={setPhoneCountryCode}>
+                                <SelectTrigger className="h-14">
+                                  <SelectValue>
+                                    <div className="flex flex-col items-start">
+                                      <span className="font-medium">{phoneCountryCode}</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {COUNTRY_CODES.find(c => c.code === phoneCountryCode)?.country || 'Select'}
+                                      </span>
+                                    </div>
+                                  </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent className="max-h-64">
+                                  {COUNTRY_CODES.map((item, index) => (
+                                    <SelectItem key={`${item.code}-${item.country}-${index}`} value={item.code}>
+                                      <div className="flex flex-col">
+                                        <span className="font-medium">{item.code}</span>
+                                        <span className="text-xs text-muted-foreground">{item.country}</span>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="flex-1">
+                              <Label className="text-sm mb-2 block">Phone number</Label>
+                              <Input 
+                                type="tel"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                value={phoneNumber}
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/[^0-9]/g, '');
+                                  setPhoneNumber(value);
+                                }}
+                                placeholder="123456789"
+                                className="h-14"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </RadioGroup>
+                </CardContent>
+              </Card>
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between pt-4">
+                <Button variant="outline" onClick={() => setActiveLevel('adset')} className="gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </Button>
+                <Button disabled className="gap-2 opacity-50 cursor-not-allowed">
+                  Finish
+                </Button>
+              </div>
             </div>
           )}
         </div>
