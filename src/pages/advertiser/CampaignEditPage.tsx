@@ -1632,9 +1632,9 @@ export default function CampaignEditPage() {
                   {/* Creative Summary (shown after Done) */}
                   {adCreativeData && (
                     <div className="border rounded-lg p-4 space-y-4">
-                      <div className="flex items-start gap-4">
-                        {/* Thumbnail */}
-                        <div className="w-20 h-20 bg-muted rounded-lg overflow-hidden flex-shrink-0">
+                      {/* Image Preview Row */}
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                           {adCreativeData.type === 'video' && adCreativeData.videoThumbnailUrl ? (
                             <img 
                               src={adCreativeData.videoThumbnailUrl} 
@@ -1649,45 +1649,76 @@ export default function CampaignEditPage() {
                             />
                           )}
                         </div>
+                        <span className="text-sm text-muted-foreground">
+                          {adCreativeData.type === 'video' ? 'added video...' : 'added images...'}
+                        </span>
+                      </div>
 
-                        {/* Creative Details */}
-                        <div className="flex-1 space-y-2 min-w-0">
-                          {adCreativeData.primaryTexts.length > 0 && (
-                            <div>
-                              <span className="text-xs text-muted-foreground">Primary text:</span>
-                              <p className="text-sm truncate">{adCreativeData.primaryTexts[0]}</p>
-                            </div>
-                          )}
-                          {adCreativeData.headlines.length > 0 && (
-                            <div>
-                              <span className="text-xs text-muted-foreground">Headline:</span>
-                              <p className="text-sm font-medium truncate">{adCreativeData.headlines[0]}</p>
-                            </div>
-                          )}
-                          {adCreativeData.description && (
-                            <div>
-                              <span className="text-xs text-muted-foreground">Description:</span>
-                              <p className="text-sm truncate">{adCreativeData.description}</p>
-                            </div>
-                          )}
-                          <div>
-                            <span className="text-xs text-muted-foreground">Call to action:</span>
-                            <p className="text-sm">
-                              {CALL_TO_ACTION_OPTIONS.find(o => o.value === adCreativeData.callToAction)?.label || adCreativeData.callToAction}
-                            </p>
-                          </div>
+                      {/* Editable Fields */}
+                      <div className="space-y-4">
+                        {/* Primary Text */}
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Primary text</Label>
+                          {adCreativeData.primaryTexts.map((text, index) => (
+                            <Input
+                              key={index}
+                              value={text}
+                              onChange={(e) => {
+                                const newTexts = [...adCreativeData.primaryTexts];
+                                newTexts[index] = e.target.value;
+                                setAdCreativeData({ ...adCreativeData, primaryTexts: newTexts });
+                              }}
+                              placeholder="Enter primary text..."
+                            />
+                          ))}
                         </div>
 
-                        {/* Edit Button */}
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => setCreativeModalOpen(true)}
-                          className="gap-2 flex-shrink-0"
-                        >
-                          <Pencil className="h-3 w-3" />
-                          Edit
-                        </Button>
+                        {/* Headline */}
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Headline</Label>
+                          {adCreativeData.headlines.map((headline, index) => (
+                            <Input
+                              key={index}
+                              value={headline}
+                              onChange={(e) => {
+                                const newHeadlines = [...adCreativeData.headlines];
+                                newHeadlines[index] = e.target.value;
+                                setAdCreativeData({ ...adCreativeData, headlines: newHeadlines });
+                              }}
+                              placeholder="Enter headline..."
+                            />
+                          ))}
+                        </div>
+
+                        {/* Description */}
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Description</Label>
+                          <Input
+                            value={adCreativeData.description}
+                            onChange={(e) => setAdCreativeData({ ...adCreativeData, description: e.target.value })}
+                            placeholder="Enter description..."
+                          />
+                        </div>
+
+                        {/* Call to Action */}
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Call to action</Label>
+                          <Select 
+                            value={adCreativeData.callToAction} 
+                            onValueChange={(val) => setAdCreativeData({ ...adCreativeData, callToAction: val })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CALL_TO_ACTION_OPTIONS.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     </div>
                   )}
