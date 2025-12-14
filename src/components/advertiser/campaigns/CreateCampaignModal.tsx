@@ -70,7 +70,7 @@ export function CreateCampaignModal({ open, onOpenChange }: CreateCampaignModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="lg:max-w-4xl lg:h-[700px] overflow-y-auto">
+        <DialogContent className="lg:max-w-2xl lg:h-[700px] overflow-y-auto">
           <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {step === 2 && (
