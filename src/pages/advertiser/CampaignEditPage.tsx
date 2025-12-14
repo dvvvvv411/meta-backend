@@ -8,6 +8,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
 import { CAMPAIGN_OBJECTIVES } from '@/components/advertiser/campaigns/ObjectiveSelector';
 import { useState } from 'react';
 
@@ -79,7 +81,27 @@ export default function CampaignEditPage() {
   const [abTestMetric, setAbTestMetric] = useState('cpc');
   
   // Special Ad Categories
-  const [specialCategory, setSpecialCategory] = useState<string>('');
+  const [specialCategories, setSpecialCategories] = useState<string[]>([]);
+
+  const handleCategoryToggle = (category: string, checked: boolean) => {
+    if (checked) {
+      setSpecialCategories([...specialCategories, category]);
+    } else {
+      setSpecialCategories(specialCategories.filter(c => c !== category));
+    }
+  };
+
+  const getCategoryLabel = (count: number) => {
+    if (count === 0) return 'Declare category if applicable';
+    if (count === 1) {
+      const cat = specialCategories[0];
+      if (cat === 'financial') return 'Financial products and services';
+      if (cat === 'employment') return 'Employment';
+      if (cat === 'housing') return 'Housing';
+      if (cat === 'social_politics') return 'Social issues, elections or politics';
+    }
+    return `${count} categories selected`;
+  };
 
   const objectiveConfig = CAMPAIGN_OBJECTIVES.find(obj => obj.id === objective);
   const ObjectiveIcon = objectiveConfig?.icon;
@@ -487,57 +509,86 @@ export default function CampaignEditPage() {
                     <p className="text-sm text-muted-foreground mb-3">
                       Select the categories that best describe what this campaign will advertise.
                     </p>
-                    <Select value={specialCategory} onValueChange={setSpecialCategory}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="financial">
-                          <div className="flex items-center gap-3 py-1">
-                            <CreditCard className="h-4 w-4 text-muted-foreground shrink-0" />
-                            <div>
-                              <div className="font-medium">Financial products and services</div>
-                              <div className="text-xs text-muted-foreground max-w-md">
-                                Ads for credit cards, long-term financing, checking and savings accounts, investment services, insurance services, or other related financial opportunities.
-                              </div>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-between font-normal">
+                          <span className={specialCategories.length === 0 ? 'text-muted-foreground' : ''}>
+                            {getCategoryLabel(specialCategories.length)}
+                          </span>
+                          <ChevronDown className="h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[500px] p-0" align="start">
+                        <div 
+                          className="flex items-start gap-3 p-3 hover:bg-muted cursor-pointer border-b"
+                          onClick={() => handleCategoryToggle('financial', !specialCategories.includes('financial'))}
+                        >
+                          <Checkbox 
+                            checked={specialCategories.includes('financial')}
+                            onCheckedChange={(checked) => handleCategoryToggle('financial', !!checked)}
+                            className="mt-1"
+                          />
+                          <CreditCard className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
+                          <div>
+                            <div className="font-medium">Financial products and services</div>
+                            <div className="text-xs text-muted-foreground">
+                              Ads for credit cards, long-term financing, checking and savings accounts, investment services, insurance services, or other related financial opportunities.
                             </div>
                           </div>
-                        </SelectItem>
-                        <SelectItem value="employment">
-                          <div className="flex items-center gap-3 py-1">
-                            <Briefcase className="h-4 w-4 text-muted-foreground shrink-0" />
-                            <div>
-                              <div className="font-medium">Employment</div>
-                              <div className="text-xs text-muted-foreground max-w-md">
-                                Ads for job offers, internships, professional certification programs or other related opportunities.
-                              </div>
+                        </div>
+                        <div 
+                          className="flex items-start gap-3 p-3 hover:bg-muted cursor-pointer border-b"
+                          onClick={() => handleCategoryToggle('employment', !specialCategories.includes('employment'))}
+                        >
+                          <Checkbox 
+                            checked={specialCategories.includes('employment')}
+                            onCheckedChange={(checked) => handleCategoryToggle('employment', !!checked)}
+                            className="mt-1"
+                          />
+                          <Briefcase className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
+                          <div>
+                            <div className="font-medium">Employment</div>
+                            <div className="text-xs text-muted-foreground">
+                              Ads for job offers, internships, professional certification programs or other related opportunities.
                             </div>
                           </div>
-                        </SelectItem>
-                        <SelectItem value="housing">
-                          <div className="flex items-center gap-3 py-1">
-                            <Home className="h-4 w-4 text-muted-foreground shrink-0" />
-                            <div>
-                              <div className="font-medium">Housing</div>
-                              <div className="text-xs text-muted-foreground max-w-md">
-                                Ads for real estate listings, homeowners insurance, mortgage loans or other related opportunities.
-                              </div>
+                        </div>
+                        <div 
+                          className="flex items-start gap-3 p-3 hover:bg-muted cursor-pointer border-b"
+                          onClick={() => handleCategoryToggle('housing', !specialCategories.includes('housing'))}
+                        >
+                          <Checkbox 
+                            checked={specialCategories.includes('housing')}
+                            onCheckedChange={(checked) => handleCategoryToggle('housing', !!checked)}
+                            className="mt-1"
+                          />
+                          <Home className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
+                          <div>
+                            <div className="font-medium">Housing</div>
+                            <div className="text-xs text-muted-foreground">
+                              Ads for real estate listings, homeowners insurance, mortgage loans or other related opportunities.
                             </div>
                           </div>
-                        </SelectItem>
-                        <SelectItem value="social_politics">
-                          <div className="flex items-center gap-3 py-1">
-                            <Megaphone className="h-4 w-4 text-muted-foreground shrink-0" />
-                            <div>
-                              <div className="font-medium">Social issues, elections or politics</div>
-                              <div className="text-xs text-muted-foreground max-w-md">
-                                Ads about social issues (such as the economy, or civil and social rights), elections, or political figures or campaigns.
-                              </div>
+                        </div>
+                        <div 
+                          className="flex items-start gap-3 p-3 hover:bg-muted cursor-pointer"
+                          onClick={() => handleCategoryToggle('social_politics', !specialCategories.includes('social_politics'))}
+                        >
+                          <Checkbox 
+                            checked={specialCategories.includes('social_politics')}
+                            onCheckedChange={(checked) => handleCategoryToggle('social_politics', !!checked)}
+                            className="mt-1"
+                          />
+                          <Megaphone className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
+                          <div>
+                            <div className="font-medium">Social issues, elections or politics</div>
+                            <div className="text-xs text-muted-foreground">
+                              Ads about social issues (such as the economy, or civil and social rights), elections, or political figures or campaigns.
                             </div>
                           </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                     <p className="text-xs text-muted-foreground mt-2">
                       If none of the categories apply to your ad, you may not need to select a Special Ad Category.
                     </p>
