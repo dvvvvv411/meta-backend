@@ -72,6 +72,73 @@ const PERFORMANCE_GOALS = [
   { value: 'impressions', label: 'Maximize number of impressions', description: "We'll try to show your ads to people as many times as possible.", group: 'other' },
 ];
 
+const PLATFORMS = [
+  { value: 'facebook', label: 'Facebook', disabled: false },
+  { value: 'instagram', label: 'Instagram', disabled: false },
+  { value: 'audience_network', label: 'Audience Network', disabled: false },
+  { value: 'messenger', label: 'Messenger', disabled: false },
+  { value: 'whatsapp', label: 'WhatsApp', disabled: true },
+  { value: 'threads', label: 'Threads', disabled: false },
+];
+
+const PLACEMENT_GROUPS = [
+  {
+    title: 'Feeds',
+    description: 'Get high visibility for your business with ads in feeds',
+    placements: [
+      { value: 'fb_feed', label: 'Facebook Feed' },
+      { value: 'fb_profile_feed', label: 'Facebook profile feed' },
+      { value: 'ig_feed', label: 'Instagram feed' },
+      { value: 'ig_profile_feed', label: 'Instagram profile feed' },
+      { value: 'fb_marketplace', label: 'Facebook Marketplace' },
+      { value: 'fb_right_column', label: 'Facebook right column' },
+      { value: 'ig_explore', label: 'Instagram Explore' },
+      { value: 'ig_explore_home', label: 'Instagram Explore home' },
+      { value: 'fb_business_explore', label: 'Facebook Business Explore' },
+      { value: 'threads_feed', label: 'Threads feed' },
+      { value: 'fb_notifications', label: 'Facebook Notifications' },
+    ]
+  },
+  {
+    title: 'Stories, Status, Reels',
+    description: 'Tell a rich, visual story with immersive, fullscreen vertical ads',
+    placements: [
+      { value: 'ig_stories', label: 'Instagram Stories' },
+      { value: 'fb_stories', label: 'Facebook Stories' },
+      { value: 'messenger_stories', label: 'Messenger Stories' },
+      { value: 'ig_reels', label: 'Instagram Reels' },
+      { value: 'fb_reels', label: 'Facebook Reels' },
+      { value: 'whatsapp_status', label: 'WhatsApp Status' },
+    ]
+  },
+  {
+    title: 'In-stream ads for reels',
+    description: 'Reach people before, during or after they watch a reel',
+    placements: [
+      { value: 'fb_instream_reels', label: 'Facebook in-stream reels' },
+      { value: 'fb_reels_ads', label: 'Ads on Facebook Reels' },
+    ]
+  },
+  {
+    title: 'Search results',
+    description: 'Get visibility for your business as people search',
+    placements: [
+      { value: 'fb_search', label: 'Facebook search results' },
+      { value: 'ig_search', label: 'Instagram search results' },
+    ]
+  },
+  {
+    title: 'Apps and sites',
+    description: 'Expand your reach with ads in external apps and websites',
+    placements: [
+      { value: 'an_native', label: 'Audience Network native, banner and interstitial' },
+      { value: 'an_rewarded', label: 'Audience Network rewarded videos' },
+    ]
+  },
+];
+
+const ALL_PLACEMENTS = PLACEMENT_GROUPS.flatMap(group => group.placements.map(p => p.value));
+
 const COUNTRIES = [
   { code: 'WORLDWIDE', name: 'Worldwide' },
   { code: 'DE', name: 'Germany' },
@@ -173,6 +240,11 @@ export default function CampaignEditPage() {
   const [selectedLocations, setSelectedLocations] = useState<string[]>(['DE']);
   const [locationSearchQuery, setLocationSearchQuery] = useState('');
   const [beneficiary, setBeneficiary] = useState('');
+  
+  // Placements
+  const [placementType, setPlacementType] = useState<'advantage' | 'manual'>('advantage');
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['facebook', 'instagram', 'audience_network', 'messenger', 'threads']);
+  const [selectedPlacements, setSelectedPlacements] = useState<string[]>(ALL_PLACEMENTS);
 
   const filteredCountries = COUNTRIES.filter(country =>
     country.name.toLowerCase().includes(locationSearchQuery.toLowerCase()) ||
@@ -1024,6 +1096,169 @@ export default function CampaignEditPage() {
                       Enter the person or organization benefiting from the ads in this ad set.
                     </p>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Placements */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Placements</CardTitle>
+                  <CardDescription>
+                    Choose where your ad appears across Meta technologies.{' '}
+                    <span className="text-primary cursor-pointer hover:underline">Learn more</span>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Label className="text-sm font-medium">Placement selection</Label>
+                  
+                  {/* Advantage+ Option */}
+                  <div 
+                    className={cn(
+                      "p-4 border rounded-lg cursor-pointer transition-colors",
+                      placementType === 'advantage' ? 'border-primary bg-blue-50' : 'hover:bg-blue-50'
+                    )}
+                    onClick={() => setPlacementType('advantage')}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={cn(
+                        "mt-0.5 h-4 w-4 rounded-full border-2 flex items-center justify-center",
+                        placementType === 'advantage' ? 'border-primary' : 'border-muted-foreground'
+                      )}>
+                        {placementType === 'advantage' && (
+                          <div className="h-2 w-2 rounded-full bg-primary" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium">Advantage+ placements (recommended)</p>
+                        <p className="text-sm text-muted-foreground">
+                          Use Advantage+ placements to maximize your budget and help show your ads to more people. Facebook's delivery system will allocate your ad set's budget across multiple placements based on where they're likely to perform best.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Manual Option */}
+                  <div 
+                    className={cn(
+                      "p-4 border rounded-lg cursor-pointer transition-colors",
+                      placementType === 'manual' ? 'border-primary bg-blue-50' : 'hover:bg-blue-50'
+                    )}
+                    onClick={() => setPlacementType('manual')}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={cn(
+                        "mt-0.5 h-4 w-4 rounded-full border-2 flex items-center justify-center",
+                        placementType === 'manual' ? 'border-primary' : 'border-muted-foreground'
+                      )}>
+                        {placementType === 'manual' && (
+                          <div className="h-2 w-2 rounded-full bg-primary" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium">Manual placements</p>
+                        <p className="text-sm text-muted-foreground">
+                          Manually choose the places to show your ad. The more placements you select, the more opportunities you'll have to reach your target audience and achieve your business goals.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Manual Placements Details */}
+                  {placementType === 'manual' && (
+                    <div className="space-y-6 pt-4 border-t">
+                      {/* Devices */}
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <Label className="font-medium">Devices</Label>
+                          <p className="text-sm text-muted-foreground">All devices</p>
+                        </div>
+                        <Button variant="ghost" size="sm">Edit</Button>
+                      </div>
+                      
+                      {/* Platforms */}
+                      <div className="space-y-3">
+                        <Label className="font-medium">Platforms</Label>
+                        <div className="space-y-2">
+                          {PLATFORMS.map(platform => (
+                            <div key={platform.value} className="flex items-center gap-2">
+                              <Checkbox 
+                                id={`platform-${platform.value}`}
+                                checked={selectedPlatforms.includes(platform.value)}
+                                disabled={platform.disabled}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setSelectedPlatforms([...selectedPlatforms, platform.value]);
+                                  } else {
+                                    setSelectedPlatforms(selectedPlatforms.filter(p => p !== platform.value));
+                                  }
+                                }}
+                              />
+                              <label 
+                                htmlFor={`platform-${platform.value}`}
+                                className={cn("text-sm cursor-pointer", platform.disabled && 'opacity-50')}
+                              >
+                                {platform.label}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Asset customization */}
+                      <div>
+                        <Label className="font-medium">Asset customization</Label>
+                        <p className="text-sm text-muted-foreground">
+                          {selectedPlacements.length} / 21 placements that support asset customization
+                        </p>
+                      </div>
+                      
+                      {/* Placements header */}
+                      <div>
+                        <Label className="font-medium">Placements</Label>
+                      </div>
+                      
+                      {/* Warning Banner */}
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                          The Facebook video feeds placement is no longer available. Please use the Facebook Reels placement instead.
+                        </AlertDescription>
+                      </Alert>
+                      
+                      {/* Placement Groups */}
+                      {PLACEMENT_GROUPS.map(group => (
+                        <div key={group.title} className="space-y-3">
+                          <div>
+                            <Label className="font-medium">{group.title}</Label>
+                            <p className="text-xs text-muted-foreground">{group.description}</p>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-4">
+                            {group.placements.map(placement => (
+                              <div key={placement.value} className="flex items-center gap-2">
+                                <Checkbox 
+                                  id={`placement-${placement.value}`}
+                                  checked={selectedPlacements.includes(placement.value)}
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
+                                      setSelectedPlacements([...selectedPlacements, placement.value]);
+                                    } else {
+                                      setSelectedPlacements(selectedPlacements.filter(p => p !== placement.value));
+                                    }
+                                  }}
+                                />
+                                <label 
+                                  htmlFor={`placement-${placement.value}`}
+                                  className="text-sm cursor-pointer"
+                                >
+                                  {placement.label}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
