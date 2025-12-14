@@ -1,13 +1,38 @@
 import { useState } from 'react';
-import { Megaphone, Plus, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Megaphone, Plus, AlertCircle, FileText, Trash2, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAdvertiserAccount } from '@/hooks/useAdvertiserAccount';
 import { CreateCampaignModal } from '@/components/advertiser/campaigns/CreateCampaignModal';
+import { useCampaignDrafts } from '@/hooks/useCampaignDrafts';
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
 
 export default function CampaignsPage() {
+  const navigate = useNavigate();
   const { hasActiveAccount } = useAdvertiserAccount();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const { drafts, isLoading, deleteDraft, isDeleting } = useCampaignDrafts();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDeleteDraft = (draftId: string) => {
+    setDeletingId(draftId);
+    deleteDraft(draftId, {
+      onSettled: () => setDeletingId(null),
+    });
+  };
+
+  const handleContinueDraft = (draft: typeof drafts[0]) => {
+    const params = new URLSearchParams({
+      account: draft.account_id,
+      buyingType: draft.buying_type,
+      objective: draft.objective,
+      setup: draft.setup,
+      draftId: draft.id || '',
+    });
+    navigate(`/advertiser/campaigns/edit/new?${params.toString()}`);
+  };
 
   if (!hasActiveAccount) {
     return (
@@ -49,6 +74,59 @@ export default function CampaignsPage() {
           Neue Kampagne
         </Button>
       </div>
+
+      {/* Drafts Section */}
+      {!isLoading && drafts.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Entwürfe
+            </CardTitle>
+            <CardDescription>
+              Setze deine gespeicherten Kampagnen-Entwürfe fort.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {drafts.map((draft) => (
+                <div 
+                  key={draft.id}
+                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                >
+                  <div>
+                    <p className="font-medium">{draft.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Zuletzt bearbeitet: {draft.updated_at ? format(new Date(draft.updated_at), 'dd.MM.yyyy HH:mm', { locale: de }) : '-'}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleContinueDraft(draft)}
+                    >
+                      Fortsetzen
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => draft.id && handleDeleteDraft(draft.id)}
+                      disabled={isDeleting && deletingId === draft.id}
+                    >
+                      {isDeleting && deletingId === draft.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Empty state */}
       <Card>

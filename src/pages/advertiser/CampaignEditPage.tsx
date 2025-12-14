@@ -1,5 +1,5 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Folder, LayoutGrid, Square, AlertCircle, ChevronDown, CreditCard, Briefcase, Home, Megaphone, Palette, Users, MapPin, Settings, Globe, Smartphone, MessageCircle, Instagram, Phone, CalendarIcon, Search, Check, Info, ChevronsUpDown, Image as ImageIcon, Video, Pencil } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Folder, LayoutGrid, Square, AlertCircle, ChevronDown, CreditCard, Briefcase, Home, Megaphone, Palette, Users, MapPin, Settings, Globe, Smartphone, MessageCircle, Instagram, Phone, CalendarIcon, Search, Check, Info, ChevronsUpDown, Image as ImageIcon, Video, Pencil, Save, Loader2 } from 'lucide-react';
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -15,10 +15,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { CAMPAIGN_OBJECTIVES } from '@/components/advertiser/campaigns/ObjectiveSelector';
 import { AdCreativeModal, AdCreativeData, CALL_TO_ACTION_OPTIONS } from '@/components/advertiser/campaigns/AdCreativeModal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-
+import { useCampaignDrafts, CampaignDraft } from '@/hooks/useCampaignDrafts';
+import { useAuth } from '@/contexts/AuthContext';
 type EditorLevel = 'campaign' | 'adset' | 'ad';
 type BudgetType = 'campaign' | 'adset';
 type BudgetSchedule = 'daily' | 'lifetime';
@@ -270,10 +271,14 @@ const COUNTRY_CODES = [
 export default function CampaignEditPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { saveDraftAsync, isSaving, loadDraft } = useCampaignDrafts();
   
   const objective = searchParams.get('objective') || 'traffic';
   const buyingType = searchParams.get('buyingType') || 'auction';
   const setup = searchParams.get('setup') || 'recommended';
+  const accountId = searchParams.get('account') || '';
+  const draftId = searchParams.get('draftId') || null;
 
   const [activeLevel, setActiveLevel] = useState<EditorLevel>('campaign');
   
@@ -330,6 +335,119 @@ export default function CampaignEditPage() {
   const [creativeType, setCreativeType] = useState<'image' | 'video' | null>(null);
   const [creativeModalOpen, setCreativeModalOpen] = useState(false);
   const [adCreativeData, setAdCreativeData] = useState<AdCreativeData | null>(null);
+
+  // Load draft if draftId is present
+  useEffect(() => {
+    const loadDraftData = async () => {
+      if (!draftId) return;
+      
+      const draft = await loadDraft(draftId);
+      if (!draft) return;
+
+      // Campaign data
+      setCampaignName(draft.campaign_data.campaignName || 'New Traffic Campaign');
+      setBudgetType((draft.campaign_data.budgetType as BudgetType) || 'campaign');
+      setBudgetSchedule((draft.campaign_data.budgetSchedule as BudgetSchedule) || 'daily');
+      setBudgetAmount(draft.campaign_data.budgetAmount || 20);
+      setBidStrategy((draft.campaign_data.bidStrategy as BidStrategy) || 'highest_volume');
+      setCostPerResultGoal(draft.campaign_data.costPerResultGoal || 'cpc');
+      setAbTestEnabled(draft.campaign_data.abTestEnabled || false);
+      setAbTestType((draft.campaign_data.abTestType as ABTestType) || 'creative');
+      setAbTestDuration(draft.campaign_data.abTestDuration || 7);
+      setAbTestMetric(draft.campaign_data.abTestMetric || 'cpc');
+      setSpecialCategories(draft.campaign_data.specialCategories || []);
+
+      // AdSet data
+      setAdSetName(draft.adset_data.adSetName || 'New Traffic Ad Set');
+      setConversionLocation((draft.adset_data.conversionLocation as ConversionLocation) || 'website');
+      setPerformanceGoal(draft.adset_data.performanceGoal || 'landing_page_views');
+      if (draft.adset_data.adSetStartDate) {
+        setAdSetStartDate(new Date(draft.adset_data.adSetStartDate));
+      }
+      setAdSetEndDateEnabled(draft.adset_data.adSetEndDateEnabled || false);
+      if (draft.adset_data.adSetEndDate) {
+        setAdSetEndDate(new Date(draft.adset_data.adSetEndDate));
+      }
+      setSelectedLocations(draft.adset_data.selectedLocations || ['DE']);
+      setBeneficiary(draft.adset_data.beneficiary || '');
+      setPlacementType((draft.adset_data.placementType as 'advantage' | 'manual') || 'advantage');
+      setSelectedPlatforms(draft.adset_data.selectedPlatforms || ['facebook', 'instagram', 'audience_network', 'messenger', 'threads']);
+      setSelectedPlacements(draft.adset_data.selectedPlacements || ALL_PLACEMENTS);
+
+      // Ad data
+      setAdName(draft.ad_data.adName || 'New Traffic Ad');
+      setAdSetup(draft.ad_data.adSetup || 'create_ad');
+      setCreativeSource(draft.ad_data.creativeSource || 'manual_upload');
+      setAdFormat(draft.ad_data.adFormat || 'single');
+      setAdDestination((draft.ad_data.adDestination as 'website' | 'phone') || 'website');
+      setWebsiteUrl(draft.ad_data.websiteUrl || 'http://www.example.com/page');
+      setDisplayLink(draft.ad_data.displayLink || '');
+      setPhoneCountryCode(draft.ad_data.phoneCountryCode || '+49');
+      setPhoneNumber(draft.ad_data.phoneNumber || '');
+      setCreativeType((draft.ad_data.creativeType as 'image' | 'video' | null) || null);
+      if (draft.ad_data.adCreativeData) {
+        setAdCreativeData(draft.ad_data.adCreativeData as unknown as AdCreativeData);
+      }
+    };
+
+    loadDraftData();
+  }, [draftId]);
+
+  const handleSaveDraft = async () => {
+    if (!user?.id || !accountId) return;
+
+    const draft: Omit<CampaignDraft, 'created_at' | 'updated_at'> = {
+      id: draftId || undefined,
+      user_id: user.id,
+      account_id: accountId,
+      name: campaignName,
+      buying_type: buyingType,
+      objective,
+      setup,
+      campaign_data: {
+        campaignName,
+        budgetType,
+        budgetSchedule,
+        budgetAmount,
+        bidStrategy,
+        costPerResultGoal,
+        abTestEnabled,
+        abTestType,
+        abTestDuration,
+        abTestMetric,
+        specialCategories,
+      },
+      adset_data: {
+        adSetName,
+        conversionLocation,
+        performanceGoal,
+        adSetStartDate: adSetStartDate.toISOString(),
+        adSetEndDateEnabled,
+        adSetEndDate: adSetEndDate?.toISOString() || null,
+        selectedLocations,
+        beneficiary,
+        placementType,
+        selectedPlatforms,
+        selectedPlacements,
+      },
+      ad_data: {
+        adName,
+        adSetup,
+        creativeSource,
+        adFormat,
+        adDestination,
+        websiteUrl,
+        displayLink,
+        phoneCountryCode,
+        phoneNumber,
+        creativeType: creativeType || '',
+        adCreativeData: adCreativeData as unknown as Record<string, unknown> || {},
+      },
+    };
+
+    await saveDraftAsync(draft);
+    navigate('/advertiser/campaigns');
+  };
 
   const filteredCountryCodes = COUNTRY_CODES.filter(item => {
     const searchTerm = countryCodeSearch.toLowerCase().replace('+', '');
@@ -1790,8 +1908,22 @@ export default function CampaignEditPage() {
                   <ArrowLeft className="h-4 w-4" />
                   Back
                 </Button>
-                <Button disabled className="gap-2 opacity-50 cursor-not-allowed">
-                  Finish
+                <Button 
+                  onClick={handleSaveDraft} 
+                  disabled={isSaving}
+                  className="gap-2"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4" />
+                      Save Draft
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
