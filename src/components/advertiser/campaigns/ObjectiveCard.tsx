@@ -18,7 +18,7 @@ export function ObjectiveCard({ objective }: ObjectiveCardProps) {
   const Icon = objective.icon;
 
   return (
-    <div className="bg-background rounded-xl p-4 border w-full h-full flex flex-col">
+    <div className="bg-background rounded-xl p-4 border w-full h-full flex flex-col overflow-y-auto">
       {/* Square icon with rounded corners */}
       <div className="flex flex-col items-start mb-4">
         <div className="h-14 w-14 rounded-lg bg-muted flex items-center justify-center mb-3">
