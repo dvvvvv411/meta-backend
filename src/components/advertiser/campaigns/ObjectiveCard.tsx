@@ -18,7 +18,7 @@ export function ObjectiveCard({ objective }: ObjectiveCardProps) {
   const Icon = objective.icon;
 
   return (
-    <div className="bg-background rounded-xl p-4 border w-full">
+    <div className="bg-background rounded-xl p-4 border w-full h-full flex flex-col">
       {/* Square icon with rounded corners */}
       <div className="flex flex-col items-start mb-4">
         <div className="h-14 w-14 rounded-lg bg-muted flex items-center justify-center mb-3">
@@ -33,11 +33,11 @@ export function ObjectiveCard({ objective }: ObjectiveCardProps) {
       </p>
 
       {/* Good for list as keyword tags */}
-      <div className="space-y-2">
+      <div className="flex-1 space-y-2">
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           Good for:
         </p>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5 max-h-[100px] overflow-y-auto">
           {objective.goodFor.map((item, index) => (
             <span 
               key={index} 
