@@ -1,5 +1,5 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Folder, LayoutGrid, Square, AlertCircle, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Folder, LayoutGrid, Square, AlertCircle, ChevronDown, CreditCard, Briefcase, Home, Megaphone, Palette, Users, MapPin, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,39 @@ type EditorLevel = 'campaign' | 'adset' | 'ad';
 type BudgetType = 'campaign' | 'adset';
 type BudgetSchedule = 'daily' | 'lifetime';
 type BidStrategy = 'highest_volume' | 'cost_per_result' | 'bid_cap';
+type ABTestType = 'creative' | 'audience' | 'placement' | 'custom';
+
+const COST_PER_RESULT_OPTIONS = [
+  { value: 'cpc', label: 'CPC (cost per link click)', recommended: true },
+  { value: 'cpm_accounts', label: 'Cost per 1,000 Accounts Center accounts reached' },
+  { value: 'purchase', label: 'Cost per purchase' },
+  { value: '3s_video', label: 'Cost per 3-second video play' },
+  { value: 'achievement', label: 'Cost per achievement unlocked' },
+  { value: 'payment_info', label: 'Cost per add of payment info' },
+  { value: 'add_to_cart', label: 'Cost per add to cart' },
+  { value: 'add_to_wishlist', label: 'Cost per add to wishlist' },
+  { value: 'app_activation', label: 'Cost per app activation' },
+  { value: 'app_install', label: 'Cost per app install' },
+  { value: 'checkout_initiated', label: 'Cost per checkout initiated' },
+  { value: 'content_view', label: 'Cost per content view' },
+  { value: 'credit_spend', label: 'Cost per credit spend' },
+  { value: 'custom_event', label: 'Cost per custom event' },
+  { value: 'ad_recall_lift', label: 'Cost per estimated ad recall lift (people)' },
+  { value: 'event_response', label: 'Cost per event response' },
+  { value: 'landing_page_view', label: 'Cost per landing page view' },
+  { value: 'lead', label: 'Cost per lead' },
+  { value: 'level_achieved', label: 'Cost per level achieved' },
+  { value: 'like', label: 'Cost per like' },
+  { value: 'd2_retention', label: 'Cost per mobile app D2 retention' },
+  { value: 'd7_retention', label: 'Cost per mobile app D7 retention' },
+  { value: 'messaging_contact', label: 'Cost per new messaging contact' },
+  { value: 'offline_conversion', label: 'Cost per offline other conversion' },
+  { value: 'post_engagement', label: 'Cost per post engagement' },
+  { value: 'rating', label: 'Cost per rating submitted' },
+  { value: 'registration', label: 'Cost per registration completed' },
+  { value: 'search', label: 'Cost per search' },
+  { value: 'tutorial', label: 'Cost per tutorial completed' },
+];
 
 export default function CampaignEditPage() {
   const [searchParams] = useSearchParams();
@@ -37,9 +70,13 @@ export default function CampaignEditPage() {
   const [budgetAmount, setBudgetAmount] = useState(20);
   const [bidStrategy, setBidStrategy] = useState<BidStrategy>('highest_volume');
   const [showBidStrategyEdit, setShowBidStrategyEdit] = useState(false);
+  const [costPerResultGoal, setCostPerResultGoal] = useState('cpc');
   
   // A/B Test
   const [abTestEnabled, setAbTestEnabled] = useState(false);
+  const [abTestType, setAbTestType] = useState<ABTestType>('creative');
+  const [abTestDuration, setAbTestDuration] = useState(7);
+  const [abTestMetric, setAbTestMetric] = useState('cpc');
   
   // Special Ad Categories
   const [specialCategory, setSpecialCategory] = useState<string>('');
@@ -293,6 +330,30 @@ export default function CampaignEditPage() {
                         </div>
                       </RadioGroup>
                     )}
+
+                    {/* Cost per result dropdown when that strategy is selected */}
+                    {bidStrategy === 'cost_per_result' && (
+                      <div className="mt-4 pt-4 border-t">
+                        <Label className="text-sm font-medium mb-2 block">Cost per result</Label>
+                        <Select value={costPerResultGoal} onValueChange={setCostPerResultGoal}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {COST_PER_RESULT_OPTIONS.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                <div className="flex items-center gap-2">
+                                  <span>{option.label}</span>
+                                  {option.recommended && (
+                                    <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">Recommended</span>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -312,6 +373,98 @@ export default function CampaignEditPage() {
                       onCheckedChange={setAbTestEnabled}
                     />
                   </div>
+
+                  {/* A/B Test Options when enabled */}
+                  {abTestEnabled && (
+                    <div className="mt-6 pt-4 border-t space-y-6">
+                      {/* What do you want to test? */}
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">What do you want to test?</Label>
+                        <Select value={abTestType} onValueChange={(v) => setAbTestType(v as ABTestType)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="creative">
+                              <div className="flex items-center gap-3 py-1">
+                                <Palette className="h-4 w-4 text-muted-foreground" />
+                                <div>
+                                  <div className="font-medium">Creative</div>
+                                  <div className="text-xs text-muted-foreground">Find out which images, videos or ad text work best.</div>
+                                </div>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="audience">
+                              <div className="flex items-center gap-3 py-1">
+                                <Users className="h-4 w-4 text-muted-foreground" />
+                                <div>
+                                  <div className="font-medium">Audience</div>
+                                  <div className="text-xs text-muted-foreground">See how targeting a new audience can impact performance.</div>
+                                </div>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="placement">
+                              <div className="flex items-center gap-3 py-1">
+                                <MapPin className="h-4 w-4 text-muted-foreground" />
+                                <div>
+                                  <div className="font-medium">Placement</div>
+                                  <div className="text-xs text-muted-foreground">Discover the most effective places to show your ads.</div>
+                                </div>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="custom">
+                              <div className="flex items-center gap-3 py-1">
+                                <Settings className="h-4 w-4 text-muted-foreground" />
+                                <div>
+                                  <div className="font-medium">Custom</div>
+                                  <div className="text-xs text-muted-foreground">Learn how changing multiple variables can affect results.</div>
+                                </div>
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* How long should the test run? */}
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">How long should the test run?</Label>
+                        <p className="text-xs text-muted-foreground mb-2">Test duration</p>
+                        <div className="flex items-center gap-2">
+                          <Input 
+                            type="number"
+                            value={abTestDuration}
+                            onChange={(e) => setAbTestDuration(Number(e.target.value))}
+                            className="w-24"
+                            min={1}
+                            max={30}
+                          />
+                          <span className="text-sm text-muted-foreground">days</span>
+                        </div>
+                      </div>
+
+                      {/* How do you want to compare performance? */}
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">How do you want to compare performance?</Label>
+                        <Select value={abTestMetric} onValueChange={setAbTestMetric}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {COST_PER_RESULT_OPTIONS.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                <div className="flex items-center gap-2">
+                                  <span>{option.label}</span>
+                                  {option.recommended && (
+                                    <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">Recommended</span>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -331,38 +484,50 @@ export default function CampaignEditPage() {
                     </p>
                     <Select value={specialCategory} onValueChange={setSpecialCategory}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a category (optional)" />
+                        <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="financial">
-                          <div className="py-1">
-                            <div className="font-medium">Financial products and services</div>
-                            <div className="text-xs text-muted-foreground max-w-md">
-                              Ads for credit cards, long-term financing, checking and savings accounts, investment services, insurance services, or other related financial opportunities.
+                          <div className="flex items-center gap-3 py-1">
+                            <CreditCard className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <div>
+                              <div className="font-medium">Financial products and services</div>
+                              <div className="text-xs text-muted-foreground max-w-md">
+                                Ads for credit cards, long-term financing, checking and savings accounts, investment services, insurance services, or other related financial opportunities.
+                              </div>
                             </div>
                           </div>
                         </SelectItem>
                         <SelectItem value="employment">
-                          <div className="py-1">
-                            <div className="font-medium">Employment</div>
-                            <div className="text-xs text-muted-foreground max-w-md">
-                              Ads for job offers, internships, professional certification programs or other related opportunities.
+                          <div className="flex items-center gap-3 py-1">
+                            <Briefcase className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <div>
+                              <div className="font-medium">Employment</div>
+                              <div className="text-xs text-muted-foreground max-w-md">
+                                Ads for job offers, internships, professional certification programs or other related opportunities.
+                              </div>
                             </div>
                           </div>
                         </SelectItem>
                         <SelectItem value="housing">
-                          <div className="py-1">
-                            <div className="font-medium">Housing</div>
-                            <div className="text-xs text-muted-foreground max-w-md">
-                              Ads for real estate listings, homeowners insurance, mortgage loans or other related opportunities.
+                          <div className="flex items-center gap-3 py-1">
+                            <Home className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <div>
+                              <div className="font-medium">Housing</div>
+                              <div className="text-xs text-muted-foreground max-w-md">
+                                Ads for real estate listings, homeowners insurance, mortgage loans or other related opportunities.
+                              </div>
                             </div>
                           </div>
                         </SelectItem>
                         <SelectItem value="social_politics">
-                          <div className="py-1">
-                            <div className="font-medium">Social issues, elections or politics</div>
-                            <div className="text-xs text-muted-foreground max-w-md">
-                              Ads about social issues (such as the economy, or civil and social rights), elections, or political figures or campaigns.
+                          <div className="flex items-center gap-3 py-1">
+                            <Megaphone className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <div>
+                              <div className="font-medium">Social issues, elections or politics</div>
+                              <div className="text-xs text-muted-foreground max-w-md">
+                                Ads about social issues (such as the economy, or civil and social rights), elections, or political figures or campaigns.
+                              </div>
                             </div>
                           </div>
                         </SelectItem>
