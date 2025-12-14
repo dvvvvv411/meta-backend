@@ -59,8 +59,8 @@ type ConversionLocation = 'website' | 'app' | 'messages' | 'instagram_facebook' 
 const CONVERSION_LOCATIONS = [
   { value: 'website' as ConversionLocation, label: 'Website', description: 'Send traffic to your website.', icon: Globe, disabled: false },
   { value: 'app' as ConversionLocation, label: 'App', description: 'Send traffic to your app.', icon: Smartphone, disabled: true },
-  { value: 'messages' as ConversionLocation, label: 'Message destinations', description: 'Send traffic to Messenger, Instagram and WhatsApp.', icon: MessageCircle, disabled: false },
-  { value: 'instagram_facebook' as ConversionLocation, label: 'Instagram or Facebook', description: 'Send traffic to an Instagram profile, Facebook Page or both.', icon: Instagram, disabled: false },
+  { value: 'messages' as ConversionLocation, label: 'Message destinations', description: 'Send traffic to Messenger, Instagram and WhatsApp.', icon: MessageCircle, disabled: true },
+  { value: 'instagram_facebook' as ConversionLocation, label: 'Instagram or Facebook', description: 'Send traffic to an Instagram profile, Facebook Page or both.', icon: Instagram, disabled: true },
   { value: 'calls' as ConversionLocation, label: 'Calls', description: 'Get people to call your phone number, Messenger or WhatsApp.', icon: Phone, disabled: false },
 ];
 
