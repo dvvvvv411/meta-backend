@@ -1,5 +1,6 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Folder, LayoutGrid, Square, AlertCircle, ChevronDown, CreditCard, Briefcase, Home, Megaphone, Palette, Users, MapPin, Settings, Globe, Smartphone, MessageCircle, Instagram, Phone, CalendarIcon, Search, Check, Info } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Folder, LayoutGrid, Square, AlertCircle, ChevronDown, CreditCard, Briefcase, Home, Megaphone, Palette, Users, MapPin, Settings, Globe, Smartphone, MessageCircle, Instagram, Phone, CalendarIcon, Search, Check, Info, ChevronsUpDown } from 'lucide-react';
+import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -320,6 +321,16 @@ export default function CampaignEditPage() {
   const [displayLink, setDisplayLink] = useState('');
   const [phoneCountryCode, setPhoneCountryCode] = useState('+49');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [countryCodeOpen, setCountryCodeOpen] = useState(false);
+  const [countryCodeSearch, setCountryCodeSearch] = useState('');
+
+  const filteredCountryCodes = COUNTRY_CODES.filter(item => {
+    const searchTerm = countryCodeSearch.toLowerCase().replace('+', '');
+    return (
+      item.country.toLowerCase().includes(searchTerm) ||
+      item.code.replace('+', '').includes(searchTerm)
+    );
+  });
 
   const filteredCountries = COUNTRIES.filter(country =>
     country.name.toLowerCase().includes(locationSearchQuery.toLowerCase()) ||
@@ -1468,10 +1479,6 @@ export default function CampaignEditPage() {
                               onChange={(e) => setWebsiteUrl(e.target.value)}
                               placeholder="http://www.example.com/page"
                             />
-                            <p className="text-sm text-muted-foreground">
-                              URL parameters have been moved to Tracking so you can manage them in one place.
-                            </p>
-                            <button className="text-sm text-primary hover:underline">Go to Tracking</button>
                           </div>
                           <div className="space-y-2">
                             <Label className="text-sm">Display link</Label>
@@ -1501,30 +1508,58 @@ export default function CampaignEditPage() {
                       {adDestination === 'phone' && (
                         <div className="ml-8 space-y-4 border-l-2 border-muted pl-4">
                           <div className="flex gap-3">
-                            <div className="w-36">
+                            <div className="w-40">
                               <Label className="text-sm mb-2 block">Country Code</Label>
-                              <Select value={phoneCountryCode} onValueChange={setPhoneCountryCode}>
-                                <SelectTrigger className="h-14">
-                                  <SelectValue>
+                              <Popover open={countryCodeOpen} onOpenChange={setCountryCodeOpen}>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={countryCodeOpen}
+                                    className="w-full h-14 justify-between"
+                                  >
                                     <div className="flex flex-col items-start">
                                       <span className="font-medium">{phoneCountryCode}</span>
                                       <span className="text-xs text-muted-foreground">
                                         {COUNTRY_CODES.find(c => c.code === phoneCountryCode)?.country || 'Select'}
                                       </span>
                                     </div>
-                                  </SelectValue>
-                                </SelectTrigger>
-                                <SelectContent className="max-h-64">
-                                  {COUNTRY_CODES.map((item, index) => (
-                                    <SelectItem key={`${item.code}-${item.country}-${index}`} value={item.code}>
-                                      <div className="flex flex-col">
-                                        <span className="font-medium">{item.code}</span>
-                                        <span className="text-xs text-muted-foreground">{item.country}</span>
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-56 p-0" align="start">
+                                  <Command>
+                                    <CommandInput 
+                                      placeholder="Search country or code..." 
+                                      value={countryCodeSearch}
+                                      onValueChange={setCountryCodeSearch}
+                                    />
+                                    <CommandList className="max-h-64">
+                                      <CommandEmpty>No country found.</CommandEmpty>
+                                      {filteredCountryCodes.map((item, index) => (
+                                        <CommandItem
+                                          key={`${item.code}-${item.country}-${index}`}
+                                          value={`${item.code} ${item.country}`}
+                                          onSelect={() => {
+                                            setPhoneCountryCode(item.code);
+                                            setCountryCodeOpen(false);
+                                            setCountryCodeSearch('');
+                                          }}
+                                          className="flex items-center justify-between"
+                                        >
+                                          <div className="flex flex-col">
+                                            <span className="font-medium">{item.code}</span>
+                                            <span className="text-xs text-muted-foreground">{item.country}</span>
+                                          </div>
+                                          {phoneCountryCode === item.code && (
+                                            <Check className="h-4 w-4" />
+                                          )}
+                                        </CommandItem>
+                                      ))}
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
                             </div>
                             <div className="flex-1">
                               <Label className="text-sm mb-2 block">Phone number</Label>
