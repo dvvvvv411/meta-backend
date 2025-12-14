@@ -25,6 +25,7 @@ import AdvertiserDashboard from "./pages/advertiser/AdvertiserDashboard";
 import RentAccountPage from "./pages/advertiser/RentAccountPage";
 import DepositPage from "./pages/advertiser/DepositPage";
 import CampaignsPage from "./pages/advertiser/CampaignsPage";
+import CampaignEditPage from "./pages/advertiser/CampaignEditPage";
 import StatisticsPage from "./pages/advertiser/StatisticsPage";
 import SettingsPage from "./pages/advertiser/SettingsPage";
 import SupportPage from "./pages/advertiser/SupportPage";
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="rent-account" element={<RentAccountPage />} />
                 <Route path="deposit" element={<DepositPage />} />
                 <Route path="campaigns" element={<CampaignsPage />} />
+                <Route path="campaigns/edit/:id" element={<CampaignEditPage />} />
                 <Route path="statistics" element={<StatisticsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="support" element={<SupportPage />} />
