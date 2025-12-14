@@ -94,15 +94,15 @@ export function ObjectiveSelector({ buyingType, selectedObjective, onSelectObjec
               key={obj.id}
               className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors ${
                 selectedObjective === obj.id
-                  ? 'bg-primary/10'
+                  ? 'bg-blue-50'
                   : 'hover:bg-muted'
               }`}
               onClick={() => onSelectObjective(obj.id)}
             >
               <RadioGroupItem value={obj.id} id={obj.id} />
-              <Label htmlFor={obj.id} className="flex items-center gap-2 cursor-pointer font-medium">
-                <div className={`h-6 w-6 rounded-full ${obj.color} flex items-center justify-center`}>
-                  <obj.icon className="h-3.5 w-3.5 text-white" />
+              <Label htmlFor={obj.id} className="flex items-center gap-2 cursor-pointer">
+                <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center">
+                  <obj.icon className="h-4 w-4 text-foreground" />
                 </div>
                 {obj.label}
               </Label>
