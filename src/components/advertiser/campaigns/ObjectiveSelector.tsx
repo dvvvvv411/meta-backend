@@ -85,7 +85,7 @@ export function ObjectiveSelector({ buyingType, selectedObjective, onSelectObjec
   const selectedConfig = CAMPAIGN_OBJECTIVES.find(obj => obj.id === selectedObjective);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-xl p-4 bg-muted/30 h-[400px]">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-xl p-4 bg-muted/30 h-[450px]">
       {/* Left side - Radio options */}
       <div className="space-y-1">
         <RadioGroup value={selectedObjective} onValueChange={(v) => onSelectObjective(v as CampaignObjective)}>
