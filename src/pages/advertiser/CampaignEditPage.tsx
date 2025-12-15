@@ -22,6 +22,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useCampaignDrafts, CampaignDraft } from '@/hooks/useCampaignDrafts';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 type EditorLevel = 'campaign' | 'adset' | 'ad';
 type BudgetType = 'campaign' | 'adset';
 type BudgetSchedule = 'daily' | 'lifetime';
@@ -276,6 +277,7 @@ export default function CampaignEditPage() {
   const { user } = useAuth();
   const { saveDraftAsync, isSaving, loadDraft } = useCampaignDrafts();
   const { balanceEur } = useUserBalance();
+  const isMobile = useIsMobile();
   
   const MINIMUM_PUBLISH_BALANCE = 1000;
   
@@ -607,8 +609,8 @@ export default function CampaignEditPage() {
                 </div>
               )}
               <div>
-                <h1 className="font-semibold text-foreground">New Campaign - {objectiveConfig?.label}</h1>
-                <p className="text-xs text-muted-foreground capitalize">{buyingType} • {setup === 'recommended' ? 'Recommended Settings' : 'Manual'}</p>
+                <h1 className="font-semibold text-foreground text-sm md:text-base">New Campaign - {objectiveConfig?.label}</h1>
+                <p className="text-xs text-muted-foreground capitalize hidden sm:block">{buyingType} • {setup === 'recommended' ? 'Recommended Settings' : 'Manual'}</p>
               </div>
             </div>
           </div>
@@ -616,25 +618,61 @@ export default function CampaignEditPage() {
             onClick={handleSaveDraft} 
             disabled={isSaving}
             className="gap-2"
+            size={isMobile ? 'sm' : 'default'}
           >
             {isSaving ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
+                <span className="hidden sm:inline">Saving...</span>
               </>
             ) : (
               <>
                 <Save className="h-4 w-4" />
-                Save Draft
+                <span className="hidden sm:inline">Save Draft</span>
               </>
             )}
           </Button>
         </div>
       </div>
 
+      {/* Mobile Level Navigation */}
+      <div className="md:hidden border-b bg-card/50 px-4 py-3">
+        <div className="flex items-center justify-between gap-2">
+          <button
+            onClick={() => setActiveLevel('campaign')}
+            className={`flex-1 flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
+              activeLevel === 'campaign' ? 'bg-primary/10 text-primary' : 'text-muted-foreground'
+            }`}
+          >
+            <Folder className="h-4 w-4" />
+            <span className="text-xs font-medium">Campaign</span>
+          </button>
+          
+          <button
+            onClick={() => setActiveLevel('adset')}
+            className={`flex-1 flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
+              activeLevel === 'adset' ? 'bg-primary/10 text-primary' : 'text-muted-foreground'
+            }`}
+          >
+            <LayoutGrid className="h-4 w-4" />
+            <span className="text-xs font-medium">Ad Set</span>
+          </button>
+          
+          <button
+            onClick={() => setActiveLevel('ad')}
+            className={`flex-1 flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
+              activeLevel === 'ad' ? 'bg-primary/10 text-primary' : 'text-muted-foreground'
+            }`}
+          >
+            <Square className="h-4 w-4" />
+            <span className="text-xs font-medium">Ad</span>
+          </button>
+        </div>
+      </div>
+
       <div className="flex">
-        {/* Left Sidebar - Hierarchical Navigation (Meta Ads Manager Style) */}
-        <div className="w-72 border-r bg-card/30 p-4 min-h-[calc(100vh-57px)]">
+        {/* Left Sidebar - Hierarchical Navigation (Meta Ads Manager Style) - Hidden on Mobile */}
+        <div className="hidden md:block w-72 border-r bg-card/30 p-4 min-h-[calc(100vh-57px)]">
           <div className="space-y-0.5">
             {/* Campaign Level */}
             <button
@@ -682,7 +720,7 @@ export default function CampaignEditPage() {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 p-6 max-w-3xl">
+        <div className="flex-1 p-4 md:p-6 max-w-3xl mx-auto">
           {activeLevel === 'campaign' && (
             <div className="space-y-6">
               {/* Development Notice */}
@@ -1985,7 +2023,7 @@ export default function CampaignEditPage() {
               )}
 
               {/* Navigation Buttons */}
-              <div className="flex justify-between pt-4">
+              <div className="flex flex-col sm:flex-row justify-between gap-3 pt-4">
                 <Button variant="outline" onClick={() => setActiveLevel('adset')} className="gap-2">
                   <ArrowLeft className="h-4 w-4" />
                   Back
