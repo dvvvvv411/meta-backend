@@ -1,4 +1,3 @@
-import { Eye, MousePointer, Percent, DollarSign, Target, BarChart3, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
@@ -11,104 +10,88 @@ interface KPIData {
 
 interface StatsOverviewProps {
   data: KPIData;
-  previousData?: KPIData;
   isEmpty?: boolean;
 }
 
 interface StatCardProps {
   title: string;
   value: string;
-  icon: React.ReactNode;
+  subtitle: string;
+  accentColor: string;
   delay: number;
   isEmpty?: boolean;
 }
 
-function StatCard({ title, value, icon, delay, isEmpty }: StatCardProps) {
+function StatCard({ title, value, subtitle, accentColor, delay, isEmpty }: StatCardProps) {
   return (
     <Card 
       className={cn(
-        "animate-fade-in transition-all duration-300",
-        isEmpty ? "opacity-60" : "hover:shadow-lg hover:-translate-y-1"
+        "relative overflow-hidden border-0 shadow-sm animate-fade-in transition-all duration-300",
+        isEmpty ? "opacity-70" : "hover:shadow-md hover:-translate-y-0.5"
       )}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className={cn(
-              "text-2xl font-bold",
-              isEmpty ? "text-muted-foreground" : "text-foreground"
-            )}>
-              {value}
-            </p>
-          </div>
-          <div className={cn(
-            "rounded-xl p-3",
-            isEmpty ? "bg-muted" : "bg-primary/10"
-          )}>
-            <div className={isEmpty ? "text-muted-foreground" : "text-primary"}>
-              {icon}
-            </div>
-          </div>
-        </div>
+      {/* Farbiger Akzent-Balken links */}
+      <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b", accentColor)} />
+      
+      <CardContent className="p-5 pl-4">
+        <p className="text-sm font-medium text-muted-foreground mb-2">
+          {title}
+        </p>
+        <p className={cn(
+          "text-3xl font-bold tracking-tight",
+          isEmpty ? "text-muted-foreground" : "text-foreground"
+        )}>
+          {value}
+        </p>
+        <p className="text-xs text-muted-foreground mt-1.5">
+          {subtitle}
+        </p>
       </CardContent>
     </Card>
   );
 }
 
 export function StatsOverview({ data, isEmpty }: StatsOverviewProps) {
-  const ctr = data.impressions > 0 ? (data.clicks / data.impressions) * 100 : 0;
   const cpc = data.clicks > 0 ? data.spend / data.clicks : 0;
-  const roas = data.spend > 0 ? ((data.conversions * 50) / data.spend) * 100 : 0;
 
   const stats = [
     {
       title: 'Ausgaben',
-      value: isEmpty ? '0,00 €' : `${data.spend.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`,
-      icon: <DollarSign className="h-5 w-5" />,
+      value: isEmpty ? '€0,00' : `€${data.spend.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      subtitle: 'Gesamtausgaben',
+      accentColor: 'from-blue-500 to-indigo-500',
     },
     {
-      title: 'Impressionen',
+      title: 'Reichweite',
       value: isEmpty ? '0' : data.impressions.toLocaleString('de-DE'),
-      icon: <Eye className="h-5 w-5" />,
+      subtitle: 'Impressionen',
+      accentColor: 'from-cyan-500 to-teal-500',
     },
     {
-      title: 'Klicks',
+      title: 'Ergebnisse',
       value: isEmpty ? '0' : data.clicks.toLocaleString('de-DE'),
-      icon: <MousePointer className="h-5 w-5" />,
+      subtitle: 'Klicks',
+      accentColor: 'from-green-500 to-emerald-500',
     },
     {
-      title: 'CTR',
-      value: isEmpty ? '--' : `${ctr.toFixed(2)}%`,
-      icon: <Percent className="h-5 w-5" />,
-    },
-    {
-      title: 'CPC',
-      value: isEmpty ? '--' : `${cpc.toFixed(2)} €`,
-      icon: <BarChart3 className="h-5 w-5" />,
-    },
-    {
-      title: 'Conversions',
-      value: isEmpty ? '0' : data.conversions.toLocaleString('de-DE'),
-      icon: <Target className="h-5 w-5" />,
-    },
-    {
-      title: 'ROAS',
-      value: isEmpty ? '--' : `${roas.toFixed(0)}%`,
-      icon: <TrendingUp className="h-5 w-5" />,
+      title: 'Kosten pro Ergebnis',
+      value: isEmpty ? '--' : `€${cpc.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      subtitle: 'pro Klick',
+      accentColor: 'from-violet-500 to-purple-500',
     },
   ];
 
   return (
-    <div className="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
+    <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, index) => (
         <StatCard
           key={stat.title}
           title={stat.title}
           value={stat.value}
-          icon={stat.icon}
-          delay={index * 50}
+          subtitle={stat.subtitle}
+          accentColor={stat.accentColor}
+          delay={index * 75}
           isEmpty={isEmpty}
         />
       ))}
