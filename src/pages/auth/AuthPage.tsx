@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
   Loader2, Mail, Lock, Eye, EyeOff, Building2, ArrowLeft, CheckCircle,
-  Shield, Check, Lock as LockIcon
+  Shield, Check, Lock as LockIcon, BadgeCheck, Zap, ShieldCheck, Target
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -418,54 +418,37 @@ const AuthPage: React.FC = () => {
             
             {/* Subline */}
             <p className="text-base text-[#606770] mb-8">
-              In nur 4 Schritten zu deiner ersten Kampagne
+              Deine Vorteile mit MetaNetwork
             </p>
             
-            {/* Flowchart */}
-            <div className="flex flex-col items-center gap-2 mb-8">
-              {/* Step 1 */}
-              <div className="flex items-center gap-4 bg-white rounded-xl px-5 py-3.5 shadow-sm border border-blue-100 w-full">
-                <div className="w-9 h-9 rounded-full bg-[#1877F2] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">1</div>
-                <div className="text-left">
-                  <div className="font-medium text-[#1c1e21]">Account wählen</div>
-                  <div className="text-sm text-[#606770]">Verifizierte Agency Accounts</div>
-                </div>
+            {/* Benefits Grid */}
+            <div className="grid grid-cols-2 gap-3 mb-8">
+              {/* Benefit 1 */}
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-blue-100 text-left">
+                <BadgeCheck className="h-6 w-6 text-[#1877F2] mb-2" />
+                <div className="font-medium text-[#1c1e21] text-sm">Verifizierte Accounts</div>
+                <div className="text-xs text-[#606770]">Geprüfte Agency Accounts</div>
               </div>
               
-              {/* Connector */}
-              <div className="w-0.5 h-3 bg-[#1877F2]/30" />
-              
-              {/* Step 2 */}
-              <div className="flex items-center gap-4 bg-white rounded-xl px-5 py-3.5 shadow-sm border border-blue-100 w-full">
-                <div className="w-9 h-9 rounded-full bg-[#1877F2] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">2</div>
-                <div className="text-left">
-                  <div className="font-medium text-[#1c1e21]">Sicher bezahlen</div>
-                  <div className="text-sm text-[#606770]">Mit Krypto oder Guthaben</div>
-                </div>
+              {/* Benefit 2 */}
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-blue-100 text-left">
+                <Zap className="h-6 w-6 text-[#1877F2] mb-2" />
+                <div className="font-medium text-[#1c1e21] text-sm">Sofortiger Zugang</div>
+                <div className="text-xs text-[#606770]">In Minuten startklar</div>
               </div>
               
-              {/* Connector */}
-              <div className="w-0.5 h-3 bg-[#1877F2]/30" />
-              
-              {/* Step 3 */}
-              <div className="flex items-center gap-4 bg-white rounded-xl px-5 py-3.5 shadow-sm border border-blue-100 w-full">
-                <div className="w-9 h-9 rounded-full bg-[#1877F2] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">3</div>
-                <div className="text-left">
-                  <div className="font-medium text-[#1c1e21]">Sofort Zugang</div>
-                  <div className="text-sm text-[#606770]">Zur Meta Business Suite</div>
-                </div>
+              {/* Benefit 3 */}
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-blue-100 text-left">
+                <ShieldCheck className="h-6 w-6 text-[#1877F2] mb-2" />
+                <div className="font-medium text-[#1c1e21] text-sm">Sichere Zahlungen</div>
+                <div className="text-xs text-[#606770]">Krypto mit Transparenz</div>
               </div>
               
-              {/* Connector */}
-              <div className="w-0.5 h-3 bg-[#1877F2]/30" />
-              
-              {/* Step 4 */}
-              <div className="flex items-center gap-4 bg-white rounded-xl px-5 py-3.5 shadow-sm border border-blue-100 w-full">
-                <div className="w-9 h-9 rounded-full bg-[#1877F2] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">4</div>
-                <div className="text-left">
-                  <div className="font-medium text-[#1c1e21]">Kampagnen starten</div>
-                  <div className="text-sm text-[#606770]">Professionelle Werbung schalten</div>
-                </div>
+              {/* Benefit 4 */}
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-blue-100 text-left">
+                <Target className="h-6 w-6 text-[#1877F2] mb-2" />
+                <div className="font-medium text-[#1c1e21] text-sm">Keine Sperrrisiken</div>
+                <div className="text-xs text-[#606770]">Professionell verwaltet</div>
               </div>
             </div>
             
