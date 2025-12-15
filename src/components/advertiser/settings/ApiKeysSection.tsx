@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Key, 
@@ -14,10 +13,12 @@ import {
   Shield, 
   Clock,
   Globe,
-  AlertTriangle
+  AlertTriangle,
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
+import { useApiKeys } from '@/hooks/useApiKeys';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,53 +39,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface ApiKey {
-  id: string;
-  name: string;
-  key: string;
-  createdAt: Date;
-  lastUsed: Date | null;
-}
-
-function generateApiKey(): string {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = 'mk_live_';
-  for (let i = 0; i < 32; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
-
-function maskApiKey(key: string): string {
-  if (key.length <= 12) return key;
-  return key.substring(0, 8) + '****' + key.substring(key.length - 8);
-}
-
 export function ApiKeysSection() {
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const { apiKeys, isLoading, createKey, revokeKey } = useApiKeys();
   const [newKeyName, setNewKeyName] = useState('');
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const handleGenerateKey = () => {
+  const handleGenerateKey = async () => {
     if (!newKeyName.trim()) {
       toast.error('Bitte geben Sie einen Namen für den API Key ein');
       return;
     }
 
-    const newKey = generateApiKey();
-    const apiKey: ApiKey = {
-      id: crypto.randomUUID(),
-      name: newKeyName.trim(),
-      key: newKey,
-      createdAt: new Date(),
-      lastUsed: null,
-    };
-
-    setApiKeys([...apiKeys, apiKey]);
-    setNewlyCreatedKey(newKey);
-    setNewKeyName('');
-    toast.success('API Key erfolgreich erstellt');
+    try {
+      const fullKey = await createKey.mutateAsync(newKeyName.trim());
+      setNewlyCreatedKey(fullKey);
+      setNewKeyName('');
+      toast.success('API Key erfolgreich erstellt');
+    } catch (error) {
+      toast.error('Fehler beim Erstellen des API Keys');
+    }
   };
 
   const handleCopyKey = async (key: string) => {
@@ -94,9 +68,13 @@ export function ApiKeysSection() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleRevokeKey = (id: string) => {
-    setApiKeys(apiKeys.filter(k => k.id !== id));
-    toast.success('API Key widerrufen');
+  const handleRevokeKey = async (id: string) => {
+    try {
+      await revokeKey.mutateAsync(id);
+      toast.success('API Key widerrufen');
+    } catch (error) {
+      toast.error('Fehler beim Widerrufen des API Keys');
+    }
   };
 
   const dismissNewKey = () => {
@@ -154,8 +132,16 @@ export function ApiKeysSection() {
               onChange={(e) => setNewKeyName(e.target.value)}
               className="flex-1"
             />
-            <Button onClick={handleGenerateKey} className="shrink-0">
-              <Key className="h-4 w-4 mr-2" />
+            <Button 
+              onClick={handleGenerateKey} 
+              className="shrink-0"
+              disabled={createKey.isPending}
+            >
+              {createKey.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Key className="h-4 w-4 mr-2" />
+              )}
               Generieren
             </Button>
           </div>
@@ -174,7 +160,12 @@ export function ApiKeysSection() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {apiKeys.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-8">
+              <Loader2 className="h-8 w-8 mx-auto animate-spin text-muted-foreground" />
+              <p className="text-sm text-muted-foreground mt-2">Lade API Keys...</p>
+            </div>
+          ) : apiKeys.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Key className="h-12 w-12 mx-auto mb-3 opacity-50" />
               <p>Noch keine API Keys erstellt</p>
@@ -196,11 +187,11 @@ export function ApiKeysSection() {
                     <TableCell className="font-medium">{apiKey.name}</TableCell>
                     <TableCell>
                       <code className="text-sm bg-muted px-2 py-1 rounded">
-                        {maskApiKey(apiKey.key)}
+                        {apiKey.key_prefix}
                       </code>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {apiKey.createdAt.toLocaleDateString('de-DE')}
+                      {new Date(apiKey.created_at).toLocaleDateString('de-DE')}
                     </TableCell>
                     <TableCell className="text-right">
                       <AlertDialog>
