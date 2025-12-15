@@ -632,30 +632,34 @@ export default function CampaignEditPage() {
             </button>
 
             {/* Ad Set Level - Indented */}
-            <button
-              onClick={() => setActiveLevel('adset')}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ml-4 ${
-                activeLevel === 'adset'
-                  ? 'bg-primary/10 text-primary'
-                  : 'hover:bg-muted text-muted-foreground'
-              }`}
-            >
-              <LayoutGrid className="h-4 w-4 shrink-0" />
-              <span className="text-sm font-medium truncate">{adSetName}</span>
-            </button>
+            <div className="pl-4">
+              <button
+                onClick={() => setActiveLevel('adset')}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
+                  activeLevel === 'adset'
+                    ? 'bg-primary/10 text-primary'
+                    : 'hover:bg-muted text-muted-foreground'
+                }`}
+              >
+                <LayoutGrid className="h-4 w-4 shrink-0" />
+                <span className="text-sm font-medium truncate">{adSetName}</span>
+              </button>
+            </div>
 
             {/* Ad Level - Further Indented */}
-            <button
-              onClick={() => setActiveLevel('ad')}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ml-8 ${
-                activeLevel === 'ad'
-                  ? 'bg-primary/10 text-primary'
-                  : 'hover:bg-muted text-muted-foreground'
-              }`}
-            >
-              <Square className="h-4 w-4 shrink-0" />
-              <span className="text-sm font-medium truncate">{adName}</span>
-            </button>
+            <div className="pl-8">
+              <button
+                onClick={() => setActiveLevel('ad')}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
+                  activeLevel === 'ad'
+                    ? 'bg-primary/10 text-primary'
+                    : 'hover:bg-muted text-muted-foreground'
+                }`}
+              >
+                <Square className="h-4 w-4 shrink-0" />
+                <span className="text-sm font-medium truncate">{adName}</span>
+              </button>
+            </div>
           </div>
         </div>
 
