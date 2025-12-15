@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Search, Loader2, Star, TrendingUp, Coins } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { getCryptoIcon } from '@/lib/crypto-icons';
+import { getCryptoIcon, getNetworkIcon } from '@/lib/crypto-icons';
 import { cn } from '@/lib/utils';
 
 export interface CurrencyOption {
@@ -76,6 +76,9 @@ export function CurrencySearchSelector({
 
   const renderCurrencyItem = (currency: CurrencyOption, isPopular = false) => {
     const CryptoIcon = getCryptoIcon(currency.id);
+    const NetworkIcon = (currency.symbol === 'USDT' || currency.symbol === 'USDC') 
+      ? getNetworkIcon(currency.id) 
+      : null;
     const isBelowMin = amount < currency.minEur;
     const isCurrentLoading = isLoading && loadingCurrencyId === currency.id;
     
@@ -93,12 +96,19 @@ export function CurrencySearchSelector({
           isCurrentLoading && "border-primary bg-primary/10"
         )}
       >
-        {/* Icon */}
-        <div className={cn(
-          "rounded-full flex items-center justify-center overflow-hidden transition-transform group-hover:scale-110",
-          isPopular ? "w-10 h-10" : "w-9 h-9"
-        )}>
-          <CryptoIcon size={isPopular ? 40 : 36} />
+        {/* Icon with Network Badge */}
+        <div className="relative">
+          <div className={cn(
+            "rounded-full flex items-center justify-center overflow-hidden transition-transform group-hover:scale-110",
+            isPopular ? "w-10 h-10" : "w-9 h-9"
+          )}>
+            <CryptoIcon size={isPopular ? 40 : 36} />
+          </div>
+          {NetworkIcon && (
+            <div className="absolute -bottom-0.5 -right-0.5 rounded-full bg-background p-0.5 shadow-sm">
+              <NetworkIcon size={14} />
+            </div>
+          )}
         </div>
         
         {/* Info */}
