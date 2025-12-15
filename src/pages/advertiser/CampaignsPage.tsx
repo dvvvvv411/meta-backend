@@ -3,14 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { Megaphone, Plus, AlertCircle, FileText, Trash2, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAdvertiserAccount } from '@/hooks/useAdvertiserAccount';
 import { CreateCampaignModal } from '@/components/advertiser/campaigns/CreateCampaignModal';
 import { useCampaignDrafts } from '@/hooks/useCampaignDrafts';
+import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
 export default function CampaignsPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { hasActiveAccount, isLoading: isAccountLoading } = useAdvertiserAccount();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { drafts, isLoading: isDraftsLoading, deleteDraft, isDeleting } = useCampaignDrafts();
@@ -41,6 +44,11 @@ export default function CampaignsPage() {
   };
 
   const handleContinueDraft = (draft: typeof drafts[0]) => {
+    // Prefetch draft data into cache for instant load on edit page
+    if (draft.id) {
+      queryClient.setQueryData(['campaign-draft', draft.id], draft);
+    }
+    
     const params = new URLSearchParams({
       account: draft.account_id,
       buyingType: draft.buying_type,
@@ -93,7 +101,35 @@ export default function CampaignsPage() {
       </div>
 
       {/* Drafts Section */}
-      {!isDraftsLoading && drafts.length > 0 && (
+      {isDraftsLoading ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Entwürfe
+            </CardTitle>
+            <CardDescription>
+              Setze deine gespeicherten Kampagnen-Entwürfe fort.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {[1, 2].map((i) => (
+                <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Skeleton className="h-8 w-20" />
+                    <Skeleton className="h-8 w-8" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ) : drafts.length > 0 ? (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -143,7 +179,7 @@ export default function CampaignsPage() {
             </div>
           </CardContent>
         </Card>
-      )}
+      ) : null}
 
       {/* Empty state */}
       <Card>
