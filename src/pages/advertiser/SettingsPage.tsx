@@ -1,7 +1,6 @@
-import { User, CreditCard, Bell, Key, AlertTriangle } from 'lucide-react';
+import { User, Bell, Key, AlertTriangle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProfileSection } from '@/components/advertiser/settings/ProfileSection';
-import { BillingSection } from '@/components/advertiser/settings/BillingSection';
 import { NotificationsSection } from '@/components/advertiser/settings/NotificationsSection';
 import { ApiKeysSection } from '@/components/advertiser/settings/ApiKeysSection';
 import { DangerZoneSection } from '@/components/advertiser/settings/DangerZoneSection';
@@ -22,10 +21,6 @@ export default function SettingsPage() {
             <User className="h-4 w-4" />
             <span className="hidden sm:inline">Profil</span>
           </TabsTrigger>
-          <TabsTrigger value="billing" className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4" />
-            <span className="hidden sm:inline">Zahlungen</span>
-          </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-2">
             <Bell className="h-4 w-4" />
             <span className="hidden sm:inline">Benachrichtigungen</span>
@@ -45,10 +40,6 @@ export default function SettingsPage() {
 
         <TabsContent value="profile" className="mt-6">
           <ProfileSection />
-        </TabsContent>
-
-        <TabsContent value="billing" className="mt-6">
-          <BillingSection />
         </TabsContent>
 
         <TabsContent value="notifications" className="mt-6">

@@ -7,41 +7,17 @@ import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { User, Lock, Mail, Building2 } from 'lucide-react';
+import { Lock, Mail } from 'lucide-react';
 
 export function ProfileSection() {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
-  
-  const [profile, setProfile] = useState({
-    firstName: '',
-    lastName: '',
-    companyName: '',
-  });
   
   const [passwords, setPasswords] = useState({
     current: '',
     new: '',
     confirm: '',
   });
-
-  const handleProfileSave = async () => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ company_name: profile.companyName })
-        .eq('id', user?.id);
-      
-      if (error) throw error;
-      toast.success('Profil erfolgreich aktualisiert');
-    } catch (error) {
-      toast.error('Fehler beim Speichern des Profils');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handlePasswordChange = async () => {
     if (passwords.new !== passwords.confirm) {
@@ -77,53 +53,16 @@ export function ProfileSection() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Persönliche Informationen
+            <Mail className="h-5 w-5" />
+            E-Mail-Adresse
           </CardTitle>
           <CardDescription>
-            Verwalten Sie Ihre persönlichen Daten und Kontoinformationen
+            Ihre registrierte E-Mail-Adresse
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">Vorname</Label>
-              <Input
-                id="firstName"
-                placeholder="Max"
-                value={profile.firstName}
-                onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Nachname</Label>
-              <Input
-                id="lastName"
-                placeholder="Mustermann"
-                value={profile.lastName}
-                onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
-              />
-            </div>
-          </div>
-          
+        <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="company" className="flex items-center gap-2">
-              <Building2 className="h-4 w-4" />
-              Firmenname
-            </Label>
-            <Input
-              id="company"
-              placeholder="Meine Firma GmbH"
-              value={profile.companyName}
-              onChange={(e) => setProfile({ ...profile, companyName: e.target.value })}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="email" className="flex items-center gap-2">
-              <Mail className="h-4 w-4" />
-              E-Mail-Adresse
-            </Label>
+            <Label htmlFor="email">E-Mail</Label>
             <Input
               id="email"
               type="email"
@@ -135,10 +74,6 @@ export function ProfileSection() {
               Die E-Mail-Adresse kann nicht geändert werden
             </p>
           </div>
-          
-          <Button onClick={handleProfileSave} disabled={isLoading}>
-            {isLoading ? 'Speichern...' : 'Änderungen speichern'}
-          </Button>
         </CardContent>
       </Card>
 

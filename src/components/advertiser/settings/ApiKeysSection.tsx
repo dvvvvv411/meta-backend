@@ -1,69 +1,302 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Key, Zap, BarChart3, Webhook } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  Key, 
+  Plus, 
+  Copy, 
+  Check, 
+  Trash2, 
+  ExternalLink, 
+  Shield, 
+  Clock,
+  Globe,
+  AlertTriangle
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+interface ApiKey {
+  id: string;
+  name: string;
+  key: string;
+  createdAt: Date;
+  lastUsed: Date | null;
+}
+
+function generateApiKey(): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = 'mk_live_';
+  for (let i = 0; i < 32; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+function maskApiKey(key: string): string {
+  if (key.length <= 12) return key;
+  return key.substring(0, 8) + '****' + key.substring(key.length - 8);
+}
 
 export function ApiKeysSection() {
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const [newKeyName, setNewKeyName] = useState('');
+  const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleGenerateKey = () => {
+    if (!newKeyName.trim()) {
+      toast.error('Bitte geben Sie einen Namen für den API Key ein');
+      return;
+    }
+
+    const newKey = generateApiKey();
+    const apiKey: ApiKey = {
+      id: crypto.randomUUID(),
+      name: newKeyName.trim(),
+      key: newKey,
+      createdAt: new Date(),
+      lastUsed: null,
+    };
+
+    setApiKeys([...apiKeys, apiKey]);
+    setNewlyCreatedKey(newKey);
+    setNewKeyName('');
+    toast.success('API Key erfolgreich erstellt');
+  };
+
+  const handleCopyKey = async (key: string) => {
+    await navigator.clipboard.writeText(key);
+    setCopied(true);
+    toast.success('API Key kopiert');
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleRevokeKey = (id: string) => {
+    setApiKeys(apiKeys.filter(k => k.id !== id));
+    toast.success('API Key widerrufen');
+  };
+
+  const dismissNewKey = () => {
+    setNewlyCreatedKey(null);
+  };
+
   return (
     <div className="space-y-6">
+      {/* New Key Alert */}
+      {newlyCreatedKey && (
+        <Alert className="bg-green-50 border-green-200">
+          <Shield className="h-4 w-4 text-green-600" />
+          <AlertDescription className="text-green-800">
+            <div className="space-y-3">
+              <p className="font-medium">
+                Ihr neuer API Key wurde erstellt. Kopieren Sie ihn jetzt – er wird nur einmal angezeigt.
+              </p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 bg-green-100 px-3 py-2 rounded text-sm font-mono break-all">
+                  {newlyCreatedKey}
+                </code>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleCopyKey(newlyCreatedKey)}
+                  className="shrink-0"
+                >
+                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+              <Button size="sm" variant="ghost" onClick={dismissNewKey}>
+                Verstanden, Key gesichert
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Generate New Key */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Key className="h-5 w-5" />
-                API Keys
-              </CardTitle>
-              <CardDescription>
-                Programmatischer Zugriff auf Ihre Kampagnen und Statistiken
-              </CardDescription>
-            </div>
-            <Badge variant="secondary" className="text-xs">
-              Coming Soon
-            </Badge>
-          </div>
+          <CardTitle className="flex items-center gap-2">
+            <Plus className="h-5 w-5" />
+            Neuen API Key erstellen
+          </CardTitle>
+          <CardDescription>
+            Erstellen Sie einen neuen API Key für den programmatischen Zugriff
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border border-dashed border-muted-foreground/25 p-8 text-center">
-            <Key className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-            <h3 className="font-medium mb-2">API-Zugang in Entwicklung</h3>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Bald können Sie über unsere REST API programmatisch auf Ihre Kampagnen-Daten zugreifen, 
-              Statistiken abrufen und Berichte automatisieren.
-            </p>
+          <div className="flex gap-3">
+            <Input
+              placeholder="Key-Name (z.B. Production, Development)"
+              value={newKeyName}
+              onChange={(e) => setNewKeyName(e.target.value)}
+              className="flex-1"
+            />
+            <Button onClick={handleGenerateKey} className="shrink-0">
+              <Key className="h-4 w-4 mr-2" />
+              Generieren
+            </Button>
           </div>
         </CardContent>
       </Card>
 
+      {/* API Keys Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Geplante Features</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Key className="h-5 w-5" />
+            Ihre API Keys
+          </CardTitle>
+          <CardDescription>
+            Verwalten Sie Ihre aktiven API Keys
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="p-4 rounded-lg bg-muted/50">
-              <Zap className="h-8 w-8 mb-3 text-primary" />
-              <h4 className="font-medium mb-1">REST API</h4>
-              <p className="text-sm text-muted-foreground">
-                Vollständiger API-Zugang für Kampagnen, Statistiken und Account-Daten
-              </p>
+          {apiKeys.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Key className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>Noch keine API Keys erstellt</p>
+              <p className="text-sm">Erstellen Sie Ihren ersten Key oben</p>
             </div>
-            <div className="p-4 rounded-lg bg-muted/50">
-              <BarChart3 className="h-8 w-8 mb-3 text-primary" />
-              <h4 className="font-medium mb-1">Reporting API</h4>
-              <p className="text-sm text-muted-foreground">
-                Automatisierte Berichte und Daten-Exports für Ihre Analyse-Tools
-              </p>
-            </div>
-            <div className="p-4 rounded-lg bg-muted/50">
-              <Webhook className="h-8 w-8 mb-3 text-primary" />
-              <h4 className="font-medium mb-1">Webhooks</h4>
-              <p className="text-sm text-muted-foreground">
-                Echtzeit-Benachrichtigungen für wichtige Events in Ihrem Account
-              </p>
-            </div>
-          </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Key</TableHead>
+                  <TableHead>Erstellt am</TableHead>
+                  <TableHead className="text-right">Aktionen</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {apiKeys.map((apiKey) => (
+                  <TableRow key={apiKey.id}>
+                    <TableCell className="font-medium">{apiKey.name}</TableCell>
+                    <TableCell>
+                      <code className="text-sm bg-muted px-2 py-1 rounded">
+                        {maskApiKey(apiKey.key)}
+                      </code>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {apiKey.createdAt.toLocaleDateString('de-DE')}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>API Key widerrufen?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Der Key "{apiKey.name}" wird sofort ungültig. 
+                              Alle Anwendungen, die diesen Key verwenden, verlieren den Zugriff.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => handleRevokeKey(apiKey.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Widerrufen
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
+
+      {/* Info Cards */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Globe className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h4 className="font-medium mb-1">Base URL</h4>
+                <code className="text-xs bg-muted px-2 py-1 rounded block mt-1">
+                  https://api.metanetwork.agency/v1
+                </code>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Clock className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h4 className="font-medium mb-1">Rate Limits</h4>
+                <p className="text-sm text-muted-foreground">120 Requests / Minute</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <ExternalLink className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h4 className="font-medium mb-1">Dokumentation</h4>
+                <Link 
+                  to="/advertiser/api" 
+                  className="text-sm text-primary hover:underline"
+                >
+                  API Docs öffnen →
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Security Warning */}
+      <Alert className="border-amber-200 bg-amber-50">
+        <AlertTriangle className="h-4 w-4 text-amber-600" />
+        <AlertDescription className="text-amber-800">
+          <strong>Sicherheitshinweis:</strong> Teilen Sie Ihre API Keys niemals öffentlich. 
+          Speichern Sie sie sicher und rotieren Sie sie regelmäßig.
+        </AlertDescription>
+      </Alert>
     </div>
   );
 }
