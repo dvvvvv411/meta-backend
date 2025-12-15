@@ -3,16 +3,13 @@ import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  BarChart3,
-  Megaphone,
   Users,
-  Settings,
   Palette,
   ChevronLeft,
   ChevronRight,
   LogOut,
   Menu,
-  CreditCard,
+  Receipt,
   MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,13 +27,10 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { title: "Übersicht", href: "/dashboard", icon: LayoutDashboard },
-  { title: "Kampagnen", href: "/dashboard/kampagnen", icon: Megaphone },
-  { title: "Analysen", href: "/dashboard/analysen", icon: BarChart3 },
-  { title: "Benutzer", href: "/dashboard/benutzer", icon: Users, adminOnly: true },
+  { title: "Benutzer", href: "/admin/users", icon: Users, adminOnly: true },
+  { title: "Transaktionen", href: "/admin/transactions", icon: Receipt, adminOnly: true },
   { title: "Brandings", href: "/admin/brandings", icon: Palette, adminOnly: true },
-  { title: "Accounts & Billing", href: "/admin/accounts", icon: CreditCard, adminOnly: true },
   { title: "Tickets", href: "/admin/tickets", icon: MessageSquare, adminOnly: true },
-  { title: "Einstellungen", href: "/dashboard/einstellungen", icon: Settings },
 ];
 
 interface SidebarContentProps {
