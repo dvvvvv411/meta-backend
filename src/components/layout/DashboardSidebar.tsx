@@ -11,6 +11,7 @@ import {
   Menu,
   Receipt,
   MessageSquare,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -28,6 +29,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { title: "Übersicht", href: "/dashboard", icon: LayoutDashboard },
   { title: "Benutzer", href: "/admin/users", icon: Users, adminOnly: true },
+  { title: "Kampagnen", href: "/admin/campaigns", icon: FileText, adminOnly: true },
   { title: "Transaktionen", href: "/admin/transactions", icon: Receipt, adminOnly: true },
   { title: "Brandings", href: "/admin/brandings", icon: Palette, adminOnly: true },
   { title: "Tickets", href: "/admin/tickets", icon: MessageSquare, adminOnly: true },

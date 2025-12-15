@@ -16,6 +16,8 @@ import BrandingDetailPage from "./pages/admin/BrandingDetailPage";
 import UsersPage from "./pages/admin/UsersPage";
 import UserDetailPage from "./pages/admin/UserDetailPage";
 import TransactionsPage from "./pages/admin/TransactionsPage";
+import AdminCampaignsPage from "./pages/admin/AdminCampaignsPage";
+import AdminCampaignDetailPage from "./pages/admin/AdminCampaignDetailPage";
 import TicketsPage from "./pages/admin/TicketsPage";
 import TicketDetailPage from "./pages/admin/TicketDetailPage";
 import NotFound from "./pages/NotFound";
@@ -67,6 +69,8 @@ const App = () => (
             <Route element={<AdminProtectedRoute />}>
               <Route path="/admin/users" element={<UsersPage />} />
               <Route path="/admin/users/:id" element={<UserDetailPage />} />
+              <Route path="/admin/campaigns" element={<AdminCampaignsPage />} />
+              <Route path="/admin/campaigns/:id" element={<AdminCampaignDetailPage />} />
               <Route path="/admin/transactions" element={<TransactionsPage />} />
               <Route path="/admin/brandings" element={<BrandingsPage />} />
               <Route path="/admin/brandings/:id" element={<BrandingDetailPage />} />
