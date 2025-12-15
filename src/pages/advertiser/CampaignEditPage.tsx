@@ -1,5 +1,7 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Folder, LayoutGrid, Square, AlertCircle, ChevronDown, CreditCard, Briefcase, Home, Megaphone, Palette, Users, MapPin, Settings, Globe, Smartphone, MessageCircle, Instagram, Phone, CalendarIcon, Search, Check, Info, ChevronsUpDown, Image as ImageIcon, Video, Pencil, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Folder, LayoutGrid, Square, AlertCircle, ChevronDown, CreditCard, Briefcase, Home, Megaphone, Palette, Users, MapPin, Settings, Globe, Smartphone, MessageCircle, Instagram, Phone, CalendarIcon, Search, Check, Info, ChevronsUpDown, Image as ImageIcon, Video, Pencil, Save, Loader2, Send } from 'lucide-react';
+import { useUserBalance } from '@/hooks/useUserBalance';
+import { toast } from 'sonner';
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -273,6 +275,9 @@ export default function CampaignEditPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { saveDraftAsync, isSaving, loadDraft } = useCampaignDrafts();
+  const { balanceEur } = useUserBalance();
+  
+  const MINIMUM_PUBLISH_BALANCE = 1000;
   
   const objective = searchParams.get('objective') || 'traffic';
   const buyingType = searchParams.get('buyingType') || 'auction';
@@ -447,6 +452,47 @@ export default function CampaignEditPage() {
 
     await saveDraftAsync(draft);
     navigate('/advertiser/campaigns');
+  };
+
+  const validateAllFields = (): { isValid: boolean; errors: string[] } => {
+    const errors: string[] = [];
+    
+    // Campaign validation
+    if (!campaignName.trim()) errors.push('Campaign name is required');
+    if (budgetType === 'campaign' && budgetAmount <= 0) errors.push('Budget must be greater than 0');
+    
+    // Ad Set validation
+    if (!adSetName.trim()) errors.push('Ad set name is required');
+    if (!beneficiary.trim()) errors.push('Beneficiary is required');
+    if (selectedLocations.length === 0) errors.push('At least one location is required');
+    
+    // Ad validation
+    if (!adName.trim()) errors.push('Ad name is required');
+    if (adDestination === 'website' && !websiteUrl.trim()) errors.push('Website URL is required');
+    if (adDestination === 'phone' && !phoneNumber.trim()) errors.push('Phone number is required');
+    if (!adCreativeData) errors.push('Ad creative is required');
+    if (adCreativeData && (!adCreativeData.primaryTexts[0]?.trim())) errors.push('At least one primary text is required');
+    if (adCreativeData && (!adCreativeData.headlines[0]?.trim())) errors.push('At least one headline is required');
+    
+    return { isValid: errors.length === 0, errors };
+  };
+
+  const handlePublish = async () => {
+    const { isValid, errors } = validateAllFields();
+    
+    if (!isValid) {
+      toast.error('Please fill in all required fields', {
+        description: errors.slice(0, 3).join(', ') + (errors.length > 3 ? `... and ${errors.length - 3} more` : '')
+      });
+      return;
+    }
+    
+    // Save as draft (hardcoded behavior for now)
+    await handleSaveDraft();
+    
+    toast.success('Campaign published!', {
+      description: 'Your campaign has been saved and is ready for review.'
+    });
   };
 
   const filteredCountryCodes = COUNTRY_CODES.filter(item => {
@@ -1922,23 +1968,56 @@ export default function CampaignEditPage() {
                   <ArrowLeft className="h-4 w-4" />
                   Back
                 </Button>
-                <Button 
-                  onClick={handleSaveDraft} 
-                  disabled={isSaving}
-                  className="gap-2"
-                >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4" />
-                      Save Draft
-                    </>
-                  )}
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline"
+                    onClick={handleSaveDraft} 
+                    disabled={isSaving}
+                    className="gap-2"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        Save Draft
+                      </>
+                    )}
+                  </Button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span>
+                          <Button 
+                            onClick={handlePublish} 
+                            disabled={isSaving || balanceEur < MINIMUM_PUBLISH_BALANCE}
+                            className="gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-50"
+                          >
+                            {isSaving ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Publishing...
+                              </>
+                            ) : (
+                              <>
+                                <Send className="h-4 w-4" />
+                                Publish
+                              </>
+                            )}
+                          </Button>
+                        </span>
+                      </TooltipTrigger>
+                      {balanceEur < MINIMUM_PUBLISH_BALANCE && (
+                        <TooltipContent>
+                          <p>You need at least €1,000 balance to publish a campaign</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
               </div>
             </div>
           )}
