@@ -5,9 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
-import ForgotPassword from "./pages/auth/ForgotPassword";
+import AuthPage from "./pages/auth/AuthPage";
+import { Navigate } from "react-router-dom";
 import Datenschutz from "./pages/legal/Datenschutz";
 import Impressum from "./pages/legal/Impressum";
 import Dashboard from "./pages/Dashboard";
@@ -47,9 +46,10 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/auth/login" element={<Login />} />
-            <Route path="/auth/register" element={<Register />} />
-            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/auth/login" element={<Navigate to="/auth" replace />} />
+            <Route path="/auth/register" element={<Navigate to="/auth?mode=register" replace />} />
+            <Route path="/auth/forgot-password" element={<Navigate to="/auth" replace />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/advertiser" element={<AdvertiserLayout />}>
