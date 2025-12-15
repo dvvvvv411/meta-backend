@@ -394,74 +394,60 @@ const AuthPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column - Premium Fintech Look */}
-        <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 flex-col justify-center items-center p-12 xl:p-16">
-          
-          {/* Subtle Grid Pattern Overlay */}
-          <div 
-            className="absolute inset-0 opacity-[0.03]"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-            }}
-          />
-          
-          {/* Gradient Orbs for modern look */}
-          <div className="absolute top-20 right-20 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 left-10 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-3xl" />
-          
-          {/* Content Card with Glassmorphism */}
-          <div className="relative z-10 max-w-md bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 xl:p-10 text-center">
-            {/* Logo with light background for visibility */}
-            <div className="inline-flex items-center justify-center bg-white rounded-xl p-3 mb-6">
-              <img src={metaLogo} alt="Meta" className="h-10 w-auto" />
-            </div>
+        {/* Right Column - Clean Meta/Facebook Style */}
+        <div className="hidden lg:flex lg:w-[55%] bg-[#f0f2f5] flex-col justify-center items-center p-12 xl:p-16">
+          <div className="max-w-md text-center">
+            {/* Logo */}
+            <img 
+              src={metaLogo} 
+              alt="Meta" 
+              className="h-12 w-auto mx-auto mb-8" 
+            />
             
-            <h2 className="text-2xl font-semibold text-white mb-2">Meta Agency Platform</h2>
-            <p className="text-white/70 mb-10">
-              Die professionelle Lösung für Meta-Werbetreibende
+            {/* Headline */}
+            <h2 className="text-3xl font-semibold text-[#1c1e21] mb-4">
+              Verbinde dich mit deiner Zielgruppe
+            </h2>
+            
+            {/* Subline */}
+            <p className="text-lg text-[#606770] mb-12">
+              MetaNetwork ermöglicht es dir, verifizierte Agency Accounts 
+              zu mieten und professionelle Kampagnen zu erstellen.
             </p>
             
-            {/* Feature List */}
-            <div className="space-y-4 text-left mb-10">
+            {/* Simple Feature List */}
+            <div className="space-y-4 text-left mb-12">
               <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Check className="h-3.5 w-3.5 text-blue-400" />
-                </div>
-                <span className="text-white/90">Verifizierte Agency Accounts mieten</span>
+                <Check className="h-5 w-5 text-[#1877F2] flex-shrink-0" />
+                <span className="text-[#1c1e21]">Verifizierte Agency Accounts mit Business Suite Zugang</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Check className="h-3.5 w-3.5 text-blue-400" />
-                </div>
-                <span className="text-white/90">Voller Meta Business Suite Zugang</span>
+                <Check className="h-5 w-5 text-[#1877F2] flex-shrink-0" />
+                <span className="text-[#1c1e21]">Flexible Laufzeiten ohne langfristige Bindung</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Check className="h-3.5 w-3.5 text-blue-400" />
-                </div>
-                <span className="text-white/90">Persönlicher Support & Beratung</span>
+                <Check className="h-5 w-5 text-[#1877F2] flex-shrink-0" />
+                <span className="text-[#1c1e21]">Sichere Zahlungen mit Kryptowährungen</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Check className="h-3.5 w-3.5 text-blue-400" />
-                </div>
-                <span className="text-white/90">Transparente Abrechnung in EUR</span>
+                <Check className="h-5 w-5 text-[#1877F2] flex-shrink-0" />
+                <span className="text-[#1c1e21]">Professioneller Support für alle Anliegen</span>
               </div>
             </div>
             
+            {/* Divider */}
+            <div className="border-t border-[#dadde1] mb-8" />
+            
             {/* Trust Section */}
-            <div className="pt-6 border-t border-white/10">
-              <div className="flex items-center justify-center gap-6 text-sm text-white/60">
-                <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4" />
-                  DSGVO-konform
-                </div>
-                <div className="flex items-center gap-2">
-                  <Lock className="h-4 w-4" />
-                  SSL-gesichert
-                </div>
-              </div>
+            <div className="flex items-center justify-center gap-6 text-sm text-[#606770]">
+              <span className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                DSGVO-konform
+              </span>
+              <span className="flex items-center gap-2">
+                <Lock className="h-4 w-4" />
+                SSL-gesichert
+              </span>
             </div>
           </div>
         </div>
