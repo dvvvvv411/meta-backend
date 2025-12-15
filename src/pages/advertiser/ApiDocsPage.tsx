@@ -115,9 +115,9 @@ const ApiDocsPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left Navigation - Desktop */}
-      <aside className="hidden lg:flex w-64 border-r border-border/50 bg-card/50 backdrop-blur-sm flex-col sticky top-0 h-screen">
+    <div className="min-h-screen">
+      {/* Left Navigation - Desktop (Fixed) */}
+      <aside className="hidden lg:flex fixed left-0 top-0 w-64 h-screen border-r border-border/50 bg-card/50 backdrop-blur-sm flex-col z-30">
         <div className="p-4 border-b border-border/50">
           <div className="flex items-center gap-2 text-primary">
             <Globe className="h-4 w-4" />
@@ -156,7 +156,7 @@ const ApiDocsPage = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 lg:ml-64">
         {/* Mobile Navigation */}
         <div className="lg:hidden p-4 border-b border-border sticky top-0 bg-background z-10">
           <Select value={activeSection} onValueChange={scrollToSection}>
@@ -182,13 +182,6 @@ const ApiDocsPage = () => {
                 und liefern JSON-Responses.
               </p>
               
-              <Alert className="bg-blue-50 border-blue-200">
-                <Info className="h-4 w-4 text-blue-600" />
-                <AlertDescription className="text-blue-800">
-                  Diese API-Dokumentation dient zu Demonstrations- und Evaluierungszwecken.
-                </AlertDescription>
-              </Alert>
-
               <div className="grid gap-4 sm:grid-cols-3 mt-8">
                 <Card>
                   <CardContent className="pt-6 text-center">
