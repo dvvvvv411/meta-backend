@@ -456,7 +456,7 @@ const AuthPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="font-semibold text-[#1c1e21] text-base">Sichere Zahlungen</div>
-                <div className="text-sm text-[#606770] mt-1">Krypto mit Transparenz</div>
+                <div className="text-sm text-[#606770] mt-1">Transparente Abrechnung</div>
               </div>
               
               {/* Benefit 4 */}
