@@ -5,11 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, Plus, X, Image as ImageIcon, Video, ArrowLeft, ArrowRight, Scissors, RefreshCw } from 'lucide-react';
+import { Upload, Plus, X, Image as ImageIcon, Video, ArrowLeft, ArrowRight, Scissors, RefreshCw, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-
+import { useImageUpload } from '@/hooks/useImageUpload';
+import { useAuth } from '@/contexts/AuthContext';
 const CALL_TO_ACTION_OPTIONS = [
   { value: 'subscribe', label: 'Subscribe' },
   { value: 'watch_more', label: 'Watch more' },
@@ -64,16 +65,32 @@ interface AdCreativeModalProps {
 }
 
 export function AdCreativeModal({ open, onOpenChange, creativeType, onComplete }: AdCreativeModalProps) {
+  const { user } = useAuth();
   const [step, setStep] = useState<'media' | 'text'>('media');
+  const [isUploading, setIsUploading] = useState(false);
   
-  // Media state
+  // Image upload hook
+  const { uploadImage } = useImageUpload({
+    bucket: 'campaign-creatives',
+    maxSizeMB: 10,
+    allowedTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
+  });
+  
+  // Media state - store both blob URLs (for preview) and file objects (for upload)
   const [uploadedMedia, setUploadedMedia] = useState<string | null>(null);
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [images, setImages] = useState<Record<FormatType, string | null>>({
     square: null,
     vertical: null,
     horizontal: null,
   });
+  const [imageFiles, setImageFiles] = useState<Record<FormatType, File | null>>({
+    square: null,
+    vertical: null,
+    horizontal: null,
+  });
   const [videoThumbnail, setVideoThumbnail] = useState<string | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [mediaFileName, setMediaFileName] = useState<string>('');
   
   // Crop modal state
@@ -102,12 +119,18 @@ export function AdCreativeModal({ open, onOpenChange, creativeType, onComplete }
     if (file) {
       const url = URL.createObjectURL(file);
       setUploadedMedia(url);
+      setMediaFile(file);
       setMediaFileName(file.name);
       // Set all formats to the same initial image
       setImages({
         square: url,
         vertical: url,
         horizontal: url,
+      });
+      setImageFiles({
+        square: file,
+        vertical: file,
+        horizontal: file,
       });
     }
   };
@@ -117,6 +140,7 @@ export function AdCreativeModal({ open, onOpenChange, creativeType, onComplete }
     if (file) {
       const url = URL.createObjectURL(file);
       setImages(prev => ({ ...prev, [format]: url }));
+      setImageFiles(prev => ({ ...prev, [format]: file }));
     }
   };
 
@@ -125,6 +149,7 @@ export function AdCreativeModal({ open, onOpenChange, creativeType, onComplete }
     if (file) {
       const url = URL.createObjectURL(file);
       setVideoThumbnail(url);
+      setThumbnailFile(file);
     }
   };
 
@@ -192,9 +217,98 @@ export function AdCreativeModal({ open, onOpenChange, creativeType, onComplete }
       pixelCrop.height
     );
 
-    const croppedUrl = canvas.toDataURL('image/jpeg', 0.95);
-    setImages(prev => ({ ...prev, [cropFormat]: croppedUrl }));
+    // Convert canvas to blob/file for upload
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const croppedFile = new File([blob], `cropped-${cropFormat}.jpg`, { type: 'image/jpeg' });
+        const croppedUrl = URL.createObjectURL(blob);
+        setImages(prev => ({ ...prev, [cropFormat]: croppedUrl }));
+        setImageFiles(prev => ({ ...prev, [cropFormat]: croppedFile }));
+      }
+    }, 'image/jpeg', 0.95);
+    
     setCropModalOpen(false);
+  };
+
+  // Helper to convert data URL to File
+  const dataUrlToFile = async (dataUrl: string, filename: string): Promise<File> => {
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    return new File([blob], filename, { type: blob.type });
+  };
+
+  // Upload all images to Supabase Storage
+  const uploadAllImages = async (): Promise<{
+    mediaUrl: string;
+    images?: { square: string; vertical: string; horizontal: string };
+    thumbnailUrl?: string;
+  } | null> => {
+    if (!user?.id) return null;
+    
+    const timestamp = Date.now();
+    const basePath = `${user.id}/${timestamp}`;
+    
+    try {
+      // Upload main media
+      let finalMediaUrl = uploadedMedia;
+      if (mediaFile) {
+        const mediaPath = `${basePath}/main-${mediaFile.name}`;
+        const uploadedMediaUrl = await uploadImage(mediaFile, mediaPath);
+        if (uploadedMediaUrl) finalMediaUrl = uploadedMediaUrl;
+      }
+      
+      // For images, upload all 3 formats
+      if (creativeType === 'image') {
+        const uploadedImages: { square: string; vertical: string; horizontal: string } = {
+          square: finalMediaUrl || '',
+          vertical: finalMediaUrl || '',
+          horizontal: finalMediaUrl || '',
+        };
+        
+        for (const format of ['square', 'vertical', 'horizontal'] as FormatType[]) {
+          const file = imageFiles[format];
+          const imageUrl = images[format];
+          
+          if (file) {
+            const path = `${basePath}/${format}-${file.name}`;
+            const url = await uploadImage(file, path);
+            if (url) uploadedImages[format] = url;
+          } else if (imageUrl?.startsWith('data:')) {
+            // Handle data URLs from cropping
+            const file = await dataUrlToFile(imageUrl, `${format}.jpg`);
+            const path = `${basePath}/${format}.jpg`;
+            const url = await uploadImage(file, path);
+            if (url) uploadedImages[format] = url;
+          } else if (imageUrl && !imageUrl.startsWith('blob:')) {
+            // Already a permanent URL
+            uploadedImages[format] = imageUrl;
+          } else if (finalMediaUrl) {
+            uploadedImages[format] = finalMediaUrl;
+          }
+        }
+        
+        return {
+          mediaUrl: finalMediaUrl || '',
+          images: uploadedImages,
+        };
+      }
+      
+      // For videos, upload thumbnail
+      let finalThumbnailUrl = videoThumbnail;
+      if (thumbnailFile) {
+        const thumbnailPath = `${basePath}/thumbnail-${thumbnailFile.name}`;
+        const uploadedThumbnailUrl = await uploadImage(thumbnailFile, thumbnailPath);
+        if (uploadedThumbnailUrl) finalThumbnailUrl = uploadedThumbnailUrl;
+      }
+      
+      return {
+        mediaUrl: finalMediaUrl || '',
+        thumbnailUrl: finalThumbnailUrl || undefined,
+      };
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      return null;
+    }
   };
 
   const addPrimaryText = () => {
@@ -239,34 +353,61 @@ export function AdCreativeModal({ open, onOpenChange, creativeType, onComplete }
     return true;
   };
 
-  const handleDone = () => {
+  const handleDone = async () => {
     if (!uploadedMedia) return;
     
-    onComplete({
-      type: creativeType,
-      mediaUrl: uploadedMedia,
-      images: creativeType === 'image' ? {
-        square: images.square || uploadedMedia,
-        vertical: images.vertical || uploadedMedia,
-        horizontal: images.horizontal || uploadedMedia,
-      } : undefined,
-      videoThumbnailUrl: videoThumbnail || undefined,
-      primaryTexts: primaryTexts.filter(t => t.trim() !== ''),
-      headlines: headlines.filter(h => h.trim() !== ''),
-      description,
-      callToAction,
-    });
+    setIsUploading(true);
     
-    // Reset state
-    setStep('media');
-    setUploadedMedia(null);
-    setImages({ square: null, vertical: null, horizontal: null });
-    setVideoThumbnail(null);
-    setMediaFileName('');
-    setPrimaryTexts(['']);
-    setHeadlines(['']);
-    setDescription('');
-    setCallToAction('learn_more');
+    try {
+      // Upload all images to Supabase Storage
+      const uploadedUrls = await uploadAllImages();
+      
+      if (!uploadedUrls) {
+        // Fallback to blob URLs if upload fails (they won't persist)
+        onComplete({
+          type: creativeType,
+          mediaUrl: uploadedMedia,
+          images: creativeType === 'image' ? {
+            square: images.square || uploadedMedia,
+            vertical: images.vertical || uploadedMedia,
+            horizontal: images.horizontal || uploadedMedia,
+          } : undefined,
+          videoThumbnailUrl: videoThumbnail || undefined,
+          primaryTexts: primaryTexts.filter(t => t.trim() !== ''),
+          headlines: headlines.filter(h => h.trim() !== ''),
+          description,
+          callToAction,
+        });
+      } else {
+        // Use permanent Storage URLs
+        onComplete({
+          type: creativeType,
+          mediaUrl: uploadedUrls.mediaUrl,
+          images: uploadedUrls.images,
+          videoThumbnailUrl: uploadedUrls.thumbnailUrl,
+          primaryTexts: primaryTexts.filter(t => t.trim() !== ''),
+          headlines: headlines.filter(h => h.trim() !== ''),
+          description,
+          callToAction,
+        });
+      }
+      
+      // Reset state
+      setStep('media');
+      setUploadedMedia(null);
+      setMediaFile(null);
+      setImages({ square: null, vertical: null, horizontal: null });
+      setImageFiles({ square: null, vertical: null, horizontal: null });
+      setVideoThumbnail(null);
+      setThumbnailFile(null);
+      setMediaFileName('');
+      setPrimaryTexts(['']);
+      setHeadlines(['']);
+      setDescription('');
+      setCallToAction('learn_more');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleClose = () => {
@@ -616,8 +757,15 @@ export function AdCreativeModal({ open, onOpenChange, creativeType, onComplete }
                   <ArrowLeft className="h-4 w-4" />
                   Back
                 </Button>
-                <Button onClick={handleDone}>
-                  Done
+                <Button onClick={handleDone} disabled={isUploading}>
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    'Done'
+                  )}
                 </Button>
               </div>
             </>
