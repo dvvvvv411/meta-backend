@@ -35,7 +35,7 @@ export default function AdminCampaignDetailPage() {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      <DashboardLayout isAdmin>
         <div className="space-y-6">
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-96 w-full" />
@@ -46,7 +46,7 @@ export default function AdminCampaignDetailPage() {
 
   if (!campaign) {
     return (
-      <DashboardLayout>
+      <DashboardLayout isAdmin>
         <div className="text-center py-12">
           <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-xl font-semibold mb-2">Kampagne nicht gefunden</h2>
@@ -62,7 +62,7 @@ export default function AdminCampaignDetailPage() {
   const { campaign_data, adset_data, ad_data } = campaign;
 
   return (
-    <DashboardLayout>
+    <DashboardLayout isAdmin>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-start gap-4">
