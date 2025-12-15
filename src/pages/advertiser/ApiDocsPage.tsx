@@ -115,9 +115,9 @@ const ApiDocsPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left Navigation - Desktop */}
-      <aside className="hidden lg:flex w-64 border-r border-border/50 bg-card/50 backdrop-blur-sm flex-col sticky top-0 h-screen">
+    <div className="flex h-[calc(100vh-140px)]">
+      {/* Left Navigation - Desktop (Fixed) */}
+      <aside className="hidden lg:flex w-64 border-r border-border/50 bg-card/50 backdrop-blur-sm flex-col flex-shrink-0 h-full overflow-hidden">
         <div className="p-4 border-b border-border/50">
           <div className="flex items-center gap-2 text-primary">
             <Globe className="h-4 w-4" />
@@ -182,13 +182,6 @@ const ApiDocsPage = () => {
                 und liefern JSON-Responses.
               </p>
               
-              <Alert className="bg-blue-50 border-blue-200">
-                <Info className="h-4 w-4 text-blue-600" />
-                <AlertDescription className="text-blue-800">
-                  Diese API-Dokumentation dient zu Demonstrations- und Evaluierungszwecken.
-                </AlertDescription>
-              </Alert>
-
               <div className="grid gap-4 sm:grid-cols-3 mt-8">
                 <Card>
                   <CardContent className="pt-6 text-center">
