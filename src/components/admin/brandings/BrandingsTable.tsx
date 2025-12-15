@@ -6,7 +6,7 @@ import { Pencil, Eye, Trash2, ExternalLink, Mail, Building2 } from 'lucide-react
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 import { Skeleton } from '@/components/ui/skeleton';
 import { BrandingFormModal } from './BrandingFormModal';
 import { BrandingDeleteModal } from './BrandingDeleteModal';
@@ -62,7 +62,7 @@ export function BrandingsTable() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-16">Logo</TableHead>
+              <TableHead className="w-24">Logo</TableHead>
               <TableHead>Unternehmen</TableHead>
               <TableHead className="hidden md:table-cell">Domain</TableHead>
               <TableHead className="hidden lg:table-cell">E-Mail</TableHead>
@@ -75,15 +75,22 @@ export function BrandingsTable() {
             {brandings.map((branding) => (
               <TableRow key={branding.id} className="group">
                 <TableCell>
-                  <Avatar className="h-10 w-10 rounded-lg">
-                    <AvatarImage src={branding.logo_url || undefined} alt={branding.name} />
-                    <AvatarFallback 
-                      className="rounded-lg text-xs font-medium"
-                      style={{ backgroundColor: branding.primary_color + '20', color: branding.primary_color }}
-                    >
-                      {branding.name.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="h-10 w-20 flex items-center">
+                    {branding.logo_url ? (
+                      <img 
+                        src={branding.logo_url} 
+                        alt={branding.name}
+                        className="max-h-10 max-w-20 object-contain"
+                      />
+                    ) : (
+                      <div 
+                        className="h-10 w-10 rounded-lg flex items-center justify-center text-xs font-medium"
+                        style={{ backgroundColor: branding.primary_color + '20', color: branding.primary_color }}
+                      >
+                        {branding.name.substring(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="font-medium">{branding.name}</div>
