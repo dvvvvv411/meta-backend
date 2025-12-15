@@ -20,9 +20,9 @@
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    /* Violet accent */
-    --accent: 263 70% 50%;
-    --accent-foreground: 0 0% 100%;
+    /* Light Blue accent for hover states (Meta-style) */
+    --accent: 214 95% 96%;
+    --accent-foreground: 217 91% 40%;
 
     --secondary: 220 14% 96%;
     --secondary-foreground: 222 47% 11%;
