@@ -27,7 +27,7 @@ interface DepositModalProps {
 
 type Step = 'amount' | 'currency' | 'payment' | 'status';
 
-const QUICK_AMOUNTS = [50, 100, 250, 500];
+const QUICK_AMOUNTS = [100, 250, 500, 1000];
 
 export function DepositModal({ open, onOpenChange }: DepositModalProps) {
   const { toast } = useToast();
@@ -219,10 +219,10 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
         <div className="space-y-5">
           {/* Step: Amount */}
           {step === 'amount' && (
-            <div className="space-y-5">
+            <div className="space-y-6">
               {/* Quick Amount Selection */}
               <div className="space-y-3">
-                <Label className="text-sm font-medium">Schnellauswahl</Label>
+                <Label className="text-sm font-medium text-center block">Schnellauswahl</Label>
                 <QuickAmountSelector
                   amounts={QUICK_AMOUNTS}
                   selectedAmount={QUICK_AMOUNTS.includes(numAmount) ? numAmount : null}
@@ -230,22 +230,34 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                 />
               </div>
 
-              {/* Custom Amount Input */}
+              {/* Separator */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border/50" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-3 text-muted-foreground">oder</span>
+                </div>
+              </div>
+
+              {/* Custom Amount Input - Centered & Narrow */}
               <div className="space-y-2">
-                <Label htmlFor="amount" className="text-sm font-medium">Eigener Betrag</Label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-muted-foreground">€</span>
-                  <Input
-                    id="amount"
-                    type="number"
-                    min="10"
-                    max="10000"
-                    step="1"
-                    placeholder="0"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    className="pl-10 pr-4 h-14 text-2xl font-bold text-center bg-muted/30 border-border/50 focus:border-primary focus:bg-background"
-                  />
+                <Label htmlFor="amount" className="text-sm font-medium text-center block">Eigener Betrag</Label>
+                <div className="flex justify-center">
+                  <div className="relative w-48">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-muted-foreground">€</span>
+                    <Input
+                      id="amount"
+                      type="number"
+                      min="10"
+                      max="10000"
+                      step="1"
+                      placeholder="0"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      className="pl-10 pr-4 h-14 text-2xl font-bold text-center bg-muted/30 border-border/50 focus:border-primary focus:bg-background"
+                    />
+                  </div>
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
                   Min. 10€ • Max. 10.000€
@@ -254,9 +266,6 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
               
               {/* Fee Calculator */}
               <FeeCalculator grossAmount={numAmount} />
-              
-              {/* Trust Badge */}
-              <TrustBadges />
               
               <Button 
                 className="w-full h-12 gradient-bg text-base font-semibold" 
