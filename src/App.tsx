@@ -15,6 +15,7 @@ import BrandingDetailPage from "./pages/admin/BrandingDetailPage";
 import UsersPage from "./pages/admin/UsersPage";
 import UserDetailPage from "./pages/admin/UserDetailPage";
 import TransactionsPage from "./pages/admin/TransactionsPage";
+import WithdrawalsPage from "./pages/admin/WithdrawalsPage";
 import AdminCampaignsPage from "./pages/admin/AdminCampaignsPage";
 import AdminCampaignDetailPage from "./pages/admin/AdminCampaignDetailPage";
 import TicketsPage from "./pages/admin/TicketsPage";
@@ -72,6 +73,7 @@ const App = () => (
               <Route path="/admin/campaigns" element={<AdminCampaignsPage />} />
               <Route path="/admin/campaigns/:id" element={<AdminCampaignDetailPage />} />
               <Route path="/admin/transactions" element={<TransactionsPage />} />
+              <Route path="/admin/withdrawals" element={<WithdrawalsPage />} />
               <Route path="/admin/brandings" element={<BrandingsPage />} />
               <Route path="/admin/brandings/:id" element={<BrandingDetailPage />} />
               <Route path="/admin/tickets" element={<TicketsPage />} />

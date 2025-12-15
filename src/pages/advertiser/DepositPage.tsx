@@ -5,25 +5,18 @@ import { de } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/hooks/use-toast';
 import { useUserBalance } from '@/hooks/useUserBalance';
 import { useDeposits } from '@/hooks/useDeposits';
 import { BalanceOverview } from '@/components/advertiser/deposit/BalanceOverview';
 import { TransactionHistory } from '@/components/advertiser/deposit/TransactionHistory';
 import { DepositModal } from '@/components/advertiser/deposit/DepositModal';
+import { WithdrawModal } from '@/components/advertiser/deposit/WithdrawModal';
 
 export default function DepositPage() {
-  const { toast } = useToast();
   const { balanceEur } = useUserBalance();
   const { deposits } = useDeposits();
   const [depositModalOpen, setDepositModalOpen] = useState(false);
-
-  const handleWithdraw = () => {
-    toast({
-      title: 'Funktion in Entwicklung',
-      description: 'Die Auszahlungsfunktion wird bald verfügbar sein.',
-    });
-  };
+  const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
 
   // Calculate stats from deposits
   const completedDeposits = deposits.filter(d => d.status === 'completed');
@@ -66,7 +59,7 @@ export default function DepositPage() {
           </CardContent>
         </Card>
 
-        <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-primary/30" onClick={handleWithdraw}>
+        <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-primary/30" onClick={() => setWithdrawModalOpen(true)}>
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -75,7 +68,7 @@ export default function DepositPage() {
               <div className="flex-1">
                 <h3 className="font-semibold text-foreground text-lg">Guthaben auszahlen</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Zahle dein vorhandenes Guthaben auf dein Bankkonto aus.
+                  Zahle dein Guthaben auf deine USDT Wallet aus.
                 </p>
                 <Button variant="outline" className="mt-4">
                   Auszahlen
@@ -138,6 +131,9 @@ export default function DepositPage() {
 
       {/* Deposit Modal */}
       <DepositModal open={depositModalOpen} onOpenChange={setDepositModalOpen} />
+      
+      {/* Withdraw Modal */}
+      <WithdrawModal open={withdrawModalOpen} onOpenChange={setWithdrawModalOpen} />
     </div>
   );
 }
