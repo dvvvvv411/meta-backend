@@ -12,6 +12,7 @@ import {
   Receipt,
   MessageSquare,
   FileText,
+  ArrowUpFromLine,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -31,6 +32,7 @@ const navItems: NavItem[] = [
   { title: "Benutzer", href: "/admin/users", icon: Users, adminOnly: true },
   { title: "Kampagnen", href: "/admin/campaigns", icon: FileText, adminOnly: true },
   { title: "Transaktionen", href: "/admin/transactions", icon: Receipt, adminOnly: true },
+  { title: "Auszahlungen", href: "/admin/withdrawals", icon: ArrowUpFromLine, adminOnly: true },
   { title: "Brandings", href: "/admin/brandings", icon: Palette, adminOnly: true },
   { title: "Tickets", href: "/admin/tickets", icon: MessageSquare, adminOnly: true },
 ];
