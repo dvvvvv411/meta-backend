@@ -7,20 +7,18 @@ interface AccountListProps {
   accounts: AdvertiserAccount[];
   onToggleAutoRenew: (accountId: string, autoRenew: boolean) => void;
   isToggling?: boolean;
+  onRenameAccount: (accountId: string, newName: string) => void;
+  isRenaming?: boolean;
   onAddAccount: () => void;
-  customerName: string;
-  customerEmail: string;
-  companyName?: string;
 }
 
 export function AccountList({ 
   accounts, 
   onToggleAutoRenew, 
   isToggling,
+  onRenameAccount,
+  isRenaming,
   onAddAccount,
-  customerName,
-  customerEmail,
-  companyName,
 }: AccountListProps) {
   if (accounts.length === 0) {
     return null;
@@ -39,9 +37,8 @@ export function AccountList({
             account={account}
             onToggleAutoRenew={onToggleAutoRenew}
             isToggling={isToggling}
-            customerName={customerName}
-            customerEmail={customerEmail}
-            companyName={companyName}
+            onRenameAccount={onRenameAccount}
+            isRenaming={isRenaming}
           />
         ))}
 
