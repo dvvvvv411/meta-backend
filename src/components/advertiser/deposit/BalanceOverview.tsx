@@ -3,19 +3,36 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface BalanceOverviewProps {
   balanceEur: number;
   onDepositClick?: () => void;
 }
 
+// Generate unique 4 digits based on user ID
+const generateCardDigits = (userId: string | undefined): string => {
+  if (!userId) return '0000';
+  
+  let hash = 0;
+  for (let i = 0; i < userId.length; i++) {
+    const char = userId.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  
+  const digits = Math.abs(hash % 10000);
+  return digits.toString().padStart(4, '0');
+};
+
 export function BalanceOverview({ balanceEur, onDepositClick }: BalanceOverviewProps) {
+  const { user } = useAuth();
+  
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
-  // Generate a pseudo card number from a hash (just for visual effect)
-  const cardLastDigits = '4821';
+  const cardLastDigits = generateCardDigits(user?.id);
 
   return (
     <Card className="overflow-hidden border-0 shadow-xl">
@@ -101,7 +118,7 @@ export function BalanceOverview({ balanceEur, onDepositClick }: BalanceOverviewP
             onClick={onDepositClick}
           >
             <Plus className="h-4 w-4 mr-2" />
-            Guthaben aufladen
+            Guthaben einzahlen
           </Button>
           <Button 
             variant="outline" 
