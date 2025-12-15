@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -127,6 +127,25 @@ export function CampaignStatsTable({ campaigns }: CampaignStatsTableProps) {
       </div>
     </TableHead>
   );
+
+  // Empty state
+  if (campaigns.length === 0) {
+    return (
+      <Card className="animate-fade-in" style={{ animationDelay: '500ms' }}>
+        <CardHeader>
+          <CardTitle className="text-lg">Kampagnen-Übersicht</CardTitle>
+          <CardDescription>Detaillierte Performance-Daten aller Kampagnen</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="py-12 text-center border-2 border-dashed border-muted rounded-lg bg-muted/20">
+            <BarChart3 className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
+            <p className="text-muted-foreground">Keine Kampagnen vorhanden</p>
+            <p className="text-muted-foreground/60 text-xs mt-1">Erstelle deine erste Kampagne um Daten zu sehen</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="animate-fade-in" style={{ animationDelay: '500ms' }}>
