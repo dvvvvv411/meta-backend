@@ -57,7 +57,7 @@ export default function UserDetailPage() {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      <DashboardLayout isAdmin>
         <div className="space-y-6">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-32 w-full" />
@@ -69,7 +69,7 @@ export default function UserDetailPage() {
 
   if (!data?.profile) {
     return (
-      <DashboardLayout>
+      <DashboardLayout isAdmin>
         <div className="text-center py-12">
           <p className="text-muted-foreground">Benutzer nicht gefunden</p>
           <Button variant="outline" onClick={() => navigate('/admin/users')} className="mt-4">
@@ -83,7 +83,7 @@ export default function UserDetailPage() {
   const { profile, transactions, drafts, accounts, role } = data;
 
   return (
-    <DashboardLayout>
+    <DashboardLayout isAdmin>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">

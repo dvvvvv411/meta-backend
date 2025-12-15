@@ -9,7 +9,7 @@ export default function BrandingsPage() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
   return (
-    <DashboardLayout>
+    <DashboardLayout isAdmin>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

@@ -22,7 +22,7 @@ export default function UsersPage() {
   );
 
   return (
-    <DashboardLayout>
+    <DashboardLayout isAdmin>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Benutzer</h1>
