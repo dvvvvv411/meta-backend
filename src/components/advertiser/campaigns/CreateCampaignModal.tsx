@@ -83,7 +83,7 @@ export function CreateCampaignModal({ open, onOpenChange }: CreateCampaignModalP
         </DialogHeader>
 
         {/* Scrollbarer Content-Bereich */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto px-1 -mx-1 py-1 -my-1">
           {step === 1 ? (
             <div className="space-y-6">
               {/* Agency Account Selection */}
