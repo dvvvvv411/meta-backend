@@ -134,8 +134,8 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
                 isLocked && "bg-muted"
               )}>
                 <div className="relative">
-                <Icon className={cn(
-                    "h-5 w-5 transition-colors duration-75",
+                  <Icon className={cn(
+                    "h-5 w-5 transition-colors duration-200",
                     isActive ? "text-primary-foreground" : "text-primary",
                     isLocked && "text-muted-foreground"
                   )} />
@@ -145,8 +145,8 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
                 </div>
               </div>
               {!isCollapsed && (
-              <span className={cn(
-                  "font-medium text-sm transition-colors duration-75",
+                <span className={cn(
+                  "font-medium text-sm transition-colors duration-200",
                   isActive ? "text-primary-foreground" : "text-foreground"
                 )}>
                   {item.label}
