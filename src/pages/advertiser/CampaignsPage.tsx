@@ -11,10 +11,27 @@ import { de } from 'date-fns/locale';
 
 export default function CampaignsPage() {
   const navigate = useNavigate();
-  const { hasActiveAccount } = useAdvertiserAccount();
+  const { hasActiveAccount, isLoading: isAccountLoading } = useAdvertiserAccount();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const { drafts, isLoading, deleteDraft, isDeleting } = useCampaignDrafts();
+  const { drafts, isLoading: isDraftsLoading, deleteDraft, isDeleting } = useCampaignDrafts();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Show loading state while checking account status
+  if (isAccountLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Kampagnen erstellen</h1>
+          <p className="text-muted-foreground mt-1">
+            Erstelle und verwalte deine Werbekampagnen.
+          </p>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    );
+  }
 
   const handleDeleteDraft = (draftId: string) => {
     setDeletingId(draftId);
@@ -76,7 +93,7 @@ export default function CampaignsPage() {
       </div>
 
       {/* Drafts Section */}
-      {!isLoading && drafts.length > 0 && (
+      {!isDraftsLoading && drafts.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
