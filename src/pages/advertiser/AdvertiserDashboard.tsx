@@ -275,43 +275,79 @@ export default function AdvertiserDashboard() {
         </Card>
       )}
 
-      {/* Quick Links */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="hover:border-primary/50 transition-colors cursor-pointer group" onClick={() => navigate('/advertiser/deposit')}>
-          <CardHeader className="pb-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-2 group-hover:bg-primary/20 transition-colors">
-              <Wallet className="h-5 w-5 text-primary" />
-            </div>
-            <CardTitle className="text-base">Guthaben einzahlen</CardTitle>
-            <CardDescription className="text-sm">
-              Lade dein Konto auf um Werbung zu schalten.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+      {/* Schnellaktionen */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold">Schnellaktionen</h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          {/* Guthaben einzahlen */}
+          <Card className="relative overflow-hidden hover:border-blue-300 transition-colors">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-blue-500 to-cyan-400" />
+            <CardContent className="p-6 pl-5">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
+                <Wallet className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-1">Guthaben einzahlen</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Lade dein Konto auf um Werbung zu schalten.
+              </p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
+                onClick={() => navigate('/advertiser/deposit')}
+              >
+                Einzahlen
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
 
-        <Card className="hover:border-primary/50 transition-colors cursor-pointer group" onClick={() => navigate('/advertiser/rent-account')}>
-          <CardHeader className="pb-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-2 group-hover:bg-primary/20 transition-colors">
-              <Building2 className="h-5 w-5 text-primary" />
-            </div>
-            <CardTitle className="text-base">Account mieten</CardTitle>
-            <CardDescription className="text-sm">
-              Miete einen Agency Account für 150€/Monat.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+          {/* Account mieten */}
+          <Card className="relative overflow-hidden hover:border-emerald-300 transition-colors">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-emerald-500 to-green-400" />
+            <CardContent className="p-6 pl-5">
+              <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-4">
+                <Building2 className="h-6 w-6 text-emerald-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-1">Account mieten</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Miete einen Agency Account für 150€/Monat.
+              </p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300"
+                onClick={() => navigate('/advertiser/rent-account')}
+              >
+                Account mieten
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
 
-        <Card className="hover:border-primary/50 transition-colors cursor-pointer group" onClick={() => navigate('/advertiser/support')}>
-          <CardHeader className="pb-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-2 group-hover:bg-primary/20 transition-colors">
-              <HelpCircle className="h-5 w-5 text-primary" />
-            </div>
-            <CardTitle className="text-base">Support kontaktieren</CardTitle>
-            <CardDescription className="text-sm">
-              Hast du Fragen? Unser Team hilft dir gerne.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+          {/* Support kontaktieren */}
+          <Card className="relative overflow-hidden hover:border-violet-300 transition-colors">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-violet-500 to-purple-400" />
+            <CardContent className="p-6 pl-5">
+              <div className="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center mb-4">
+                <HelpCircle className="h-6 w-6 text-violet-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-1">Support kontaktieren</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Hast du Fragen? Unser Team hilft dir gerne.
+              </p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-violet-600 border-violet-200 hover:bg-violet-50 hover:text-violet-700 hover:border-violet-300"
+                onClick={() => navigate('/advertiser/support')}
+              >
+                Support öffnen
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
