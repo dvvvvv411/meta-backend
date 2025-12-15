@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, Copy, Check, Wallet, Timer } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Copy, Check, Wallet, Timer, Lightbulb } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   Dialog,
@@ -240,11 +240,12 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                 </div>
               </div>
 
-              {/* Custom Amount Input - Centered & Narrow */}
-              <div className="space-y-2">
-                <Label htmlFor="amount" className="text-sm font-medium text-center block">Eigener Betrag</Label>
-                <div className="flex justify-center">
-                  <div className="relative w-48">
+              {/* Custom Amount Section - 50/50 Layout */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Left: Input Field */}
+                <div className="space-y-2">
+                  <Label htmlFor="amount" className="text-sm font-medium">Eigener Betrag</Label>
+                  <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-muted-foreground">€</span>
                     <Input
                       id="amount"
@@ -258,10 +259,33 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                       className="pl-10 pr-4 h-14 text-2xl font-bold text-center bg-muted/30 border-border/50 focus:border-primary focus:bg-background"
                     />
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    Min. 10€ • Max. 10.000€
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground text-center">
-                  Min. 10€ • Max. 10.000€
-                </p>
+
+                {/* Right: Info Box */}
+                <div className="flex items-center">
+                  <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 w-full">
+                    <div className="flex items-start gap-2">
+                      <Lightbulb className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-blue-900">Verwendung</p>
+                        <ul className="text-xs text-blue-700 space-y-1">
+                          <li className="flex items-center gap-1.5">
+                            <Check className="h-3 w-3" /> Werbekampagnen
+                          </li>
+                          <li className="flex items-center gap-1.5">
+                            <Check className="h-3 w-3" /> Agency Accounts
+                          </li>
+                          <li className="flex items-center gap-1.5">
+                            <Check className="h-3 w-3" /> Jederzeit auszahlbar
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               
               {/* Fee Calculator */}
