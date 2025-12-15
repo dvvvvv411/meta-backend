@@ -170,6 +170,12 @@ export function useCampaignDrafts() {
   });
 
   const loadDraft = async (draftId: string): Promise<CampaignDraft | null> => {
+    // Check cache first for instant load
+    const cached = queryClient.getQueryData<CampaignDraft>(['campaign-draft', draftId]);
+    if (cached) {
+      return cached;
+    }
+    
     const { data, error } = await supabase
       .from('campaign_drafts')
       .select('*')

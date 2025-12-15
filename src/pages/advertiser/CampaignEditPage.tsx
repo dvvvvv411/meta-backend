@@ -340,14 +340,21 @@ export default function CampaignEditPage() {
   const [creativeType, setCreativeType] = useState<'image' | 'video' | null>(null);
   const [creativeModalOpen, setCreativeModalOpen] = useState(false);
   const [adCreativeData, setAdCreativeData] = useState<AdCreativeData | null>(null);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(!!draftId);
 
   // Load draft if draftId is present
   useEffect(() => {
     const loadDraftData = async () => {
-      if (!draftId) return;
+      if (!draftId) {
+        setIsLoadingDraft(false);
+        return;
+      }
       
       const draft = await loadDraft(draftId);
-      if (!draft) return;
+      if (!draft) {
+        setIsLoadingDraft(false);
+        return;
+      }
 
       // Campaign data
       setCampaignName(draft.campaign_data.campaignName || 'New Traffic Campaign');
@@ -393,6 +400,8 @@ export default function CampaignEditPage() {
       if (draft.ad_data.adCreativeData) {
         setAdCreativeData(draft.ad_data.adCreativeData as unknown as AdCreativeData);
       }
+      
+      setIsLoadingDraft(false);
     };
 
     loadDraftData();
@@ -568,6 +577,15 @@ export default function CampaignEditPage() {
       case 'bid_cap': return 'Set a maximum bid for each auction.';
     }
   };
+
+  // Show loading state while draft is being loaded
+  if (isLoadingDraft) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
