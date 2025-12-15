@@ -34,7 +34,8 @@ export default function RentAccountPage() {
     isLoading, 
     createAccount, 
     payWithBalance,
-    toggleAutoRenew 
+    toggleAutoRenew,
+    renameAccount,
   } = useAdvertiserAccounts();
   const { balanceEur, invalidateBalance } = useUserBalance();
 
@@ -167,10 +168,9 @@ export default function RentAccountPage() {
         accounts={accounts}
         onToggleAutoRenew={handleToggleAutoRenew}
         isToggling={toggleAutoRenew.isPending}
+        onRenameAccount={(accountId, newName) => renameAccount.mutate({ accountId, newName })}
+        isRenaming={renameAccount.isPending}
         onAddAccount={scrollToTop}
-        customerName={customerName}
-        customerEmail={customerEmail}
-        companyName={companyName}
       />
 
       <CheckoutModal

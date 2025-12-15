@@ -197,6 +197,21 @@ export const useAdvertiserAccounts = () => {
     },
   });
 
+  const renameAccount = useMutation({
+    mutationFn: async ({ accountId, newName }: { accountId: string; newName: string }) => {
+      const { error } = await supabase
+        .from('accounts')
+        .update({ name: newName })
+        .eq('id', accountId)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['advertiser-accounts'] });
+    },
+  });
+
   return {
     accounts: accounts ?? [],
     activeAccounts,
@@ -208,5 +223,6 @@ export const useAdvertiserAccounts = () => {
     createAccount,
     payWithBalance,
     toggleAutoRenew,
+    renameAccount,
   };
 };
