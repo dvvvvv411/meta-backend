@@ -10,6 +10,7 @@ interface StatCardProps {
   icon: LucideIcon;
   className?: string;
   style?: React.CSSProperties;
+  onClick?: () => void;
 }
 
 export function StatCard({
@@ -20,14 +21,17 @@ export function StatCard({
   icon: Icon,
   className,
   style,
+  onClick,
 }: StatCardProps) {
   return (
     <div 
       className={cn(
         "stat-card rounded-xl p-3 sm:p-4 transition-all duration-300 hover:shadow-lg",
+        onClick && "cursor-pointer",
         className
       )} 
       style={style}
+      onClick={onClick}
     >
       <div className="flex items-start justify-between">
         <div>

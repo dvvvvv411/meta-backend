@@ -1,112 +1,183 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { CampaignTable } from "@/components/dashboard/CampaignTable";
-import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
-import { Button } from "@/components/ui/button";
-import {
-  Eye,
-  MousePointerClick,
-  Euro,
-  TrendingUp,
-  Plus,
-  Download,
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Users, Receipt, MonitorSmartphone, MessageSquare } from "lucide-react";
+import { useAdminStats } from "@/hooks/useAdminTransactions";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  return (
-    <DashboardLayout isAdmin={true}>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">
-            Willkommen zurück!
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Hier ist eine Übersicht Ihrer Werbekampagnen.
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            <span className="hidden sm:inline">Exportieren</span>
-          </Button>
-          <Button variant="gradient" className="gap-2">
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Neue Kampagne</span>
-          </Button>
-        </div>
-      </div>
+  const navigate = useNavigate();
+  const { data: stats, isLoading } = useAdminStats();
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-        <StatCard
-          title="Impressionen"
-          value="1.24M"
-          change="+12.5% vs. Vorwoche"
-          changeType="positive"
-          icon={Eye}
-          className="animate-fade-in"
-          style={{ animationDelay: "0ms" } as React.CSSProperties}
-        />
-        <StatCard
-          title="Klicks"
-          value="48.2K"
-          change="+8.3% vs. Vorwoche"
-          changeType="positive"
-          icon={MousePointerClick}
-          className="animate-fade-in"
-          style={{ animationDelay: "100ms" } as React.CSSProperties}
-        />
-        <StatCard
-          title="Ausgaben"
-          value="24.580 €"
-          change="72% des Budgets"
-          changeType="neutral"
-          icon={Euro}
-          className="animate-fade-in"
-          style={{ animationDelay: "200ms" } as React.CSSProperties}
-        />
-        <StatCard
-          title="Conversions"
-          value="1.847"
-          change="+15.2% vs. Vorwoche"
-          changeType="positive"
-          icon={TrendingUp}
-          className="animate-fade-in"
-          style={{ animationDelay: "300ms" } as React.CSSProperties}
-        />
-      </div>
+  const getTypeBadge = (type: string) => {
+    switch (type) {
+      case 'deposit':
+        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Einzahlung</Badge>;
+      case 'rental':
+        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Account Miete</Badge>;
+      case 'withdrawal':
+        return <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">Auszahlung</Badge>;
+      default:
+        return <Badge variant="outline">{type}</Badge>;
+    }
+  };
 
-      {/* Chart and Table */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-        <PerformanceChart />
-        <div className="fintech-card">
-          <h3 className="font-display font-semibold text-lg mb-4">
-            Schnellaktionen
-          </h3>
-          <div className="space-y-3">
-            {[
-              { label: "Neue Kampagne erstellen", icon: Plus },
-              { label: "Budget anpassen", icon: Euro },
-              { label: "Zielgruppe erweitern", icon: TrendingUp },
-              { label: "Bericht herunterladen", icon: Download },
-            ].map((action, i) => (
-              <button
-                key={i}
-                className="w-full flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/30 hover:bg-muted/50 transition-all duration-200 text-left"
-              >
-                <div className="h-10 w-10 rounded-lg gradient-bg-soft flex items-center justify-center">
-                  <action.icon className="h-5 w-5 text-primary" />
-                </div>
-                <span className="font-medium">{action.label}</span>
-              </button>
+  if (isLoading) {
+    return (
+      <DashboardLayout isAdmin={true}>
+        <div className="space-y-6">
+          <Skeleton className="h-8 w-48" />
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-32" />
             ))}
           </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Skeleton className="h-64" />
+            <Skeleton className="h-64" />
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout isAdmin={true}>
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-bold">Admin Übersicht</h1>
+          <p className="text-muted-foreground">Willkommen im Admin Dashboard</p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="Benutzer"
+            value={stats?.usersCount.toString() || "0"}
+            icon={Users}
+            change=""
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => navigate('/admin/users')}
+          />
+          <StatCard
+            title="Transaktionen"
+            value={stats?.transactionsCount.toString() || "0"}
+            icon={Receipt}
+            change=""
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => navigate('/admin/transactions')}
+          />
+          <StatCard
+            title="Agency Accounts"
+            value={stats?.accountsCount.toString() || "0"}
+            icon={MonitorSmartphone}
+            change=""
+          />
+          <StatCard
+            title="Tickets"
+            value={stats?.ticketsCount.toString() || "0"}
+            icon={MessageSquare}
+            change={stats?.openTicketsCount ? `${stats.openTicketsCount} offen` : ""}
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => navigate('/admin/tickets')}
+          />
+        </div>
+
+        {/* Recent Data */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Recent Transactions */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-lg">Letzte Transaktionen</CardTitle>
+              <button 
+                onClick={() => navigate('/admin/transactions')}
+                className="text-sm text-primary hover:underline"
+              >
+                Alle anzeigen
+              </button>
+            </CardHeader>
+            <CardContent>
+              {stats?.recentTransactions.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">Keine Transaktionen vorhanden</p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Datum</TableHead>
+                      <TableHead>Typ</TableHead>
+                      <TableHead className="text-right">Betrag</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {stats?.recentTransactions.map((tx) => (
+                      <TableRow key={tx.id}>
+                        <TableCell className="text-sm">
+                          {tx.created_at ? format(new Date(tx.created_at), 'dd.MM.', { locale: de }) : '-'}
+                        </TableCell>
+                        <TableCell>{getTypeBadge(tx.type)}</TableCell>
+                        <TableCell className="text-right font-mono text-sm">
+                          {tx.amount.toFixed(2)} €
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Recent Users */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-lg">Neue Benutzer</CardTitle>
+              <button 
+                onClick={() => navigate('/admin/users')}
+                className="text-sm text-primary hover:underline"
+              >
+                Alle anzeigen
+              </button>
+            </CardHeader>
+            <CardContent>
+              {stats?.recentUsers.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">Keine Benutzer vorhanden</p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>E-Mail</TableHead>
+                      <TableHead>Firma</TableHead>
+                      <TableHead>Registriert</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {stats?.recentUsers.map((user) => (
+                      <TableRow 
+                        key={user.id} 
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => navigate(`/admin/users/${user.id}`)}
+                      >
+                        <TableCell className="font-medium text-sm">{user.email}</TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {user.company_name || '-'}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {user.created_at ? format(new Date(user.created_at), 'dd.MM.yyyy', { locale: de }) : '-'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
-
-      {/* Campaigns Table */}
-      <CampaignTable />
     </DashboardLayout>
   );
 }

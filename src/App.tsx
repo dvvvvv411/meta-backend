@@ -13,8 +13,9 @@ import Impressum from "./pages/legal/Impressum";
 import Dashboard from "./pages/Dashboard";
 import BrandingsPage from "./pages/admin/BrandingsPage";
 import BrandingDetailPage from "./pages/admin/BrandingDetailPage";
-import AccountsPage from "./pages/admin/AccountsPage";
-import AccountDetailPage from "./pages/admin/AccountDetailPage";
+import UsersPage from "./pages/admin/UsersPage";
+import UserDetailPage from "./pages/admin/UserDetailPage";
+import TransactionsPage from "./pages/admin/TransactionsPage";
 import TicketsPage from "./pages/admin/TicketsPage";
 import TicketDetailPage from "./pages/admin/TicketDetailPage";
 import NotFound from "./pages/NotFound";
@@ -64,10 +65,11 @@ const App = () => (
               </Route>
             </Route>
             <Route element={<AdminProtectedRoute />}>
+              <Route path="/admin/users" element={<UsersPage />} />
+              <Route path="/admin/users/:id" element={<UserDetailPage />} />
+              <Route path="/admin/transactions" element={<TransactionsPage />} />
               <Route path="/admin/brandings" element={<BrandingsPage />} />
               <Route path="/admin/brandings/:id" element={<BrandingDetailPage />} />
-              <Route path="/admin/accounts" element={<AccountsPage />} />
-              <Route path="/admin/accounts/:id" element={<AccountDetailPage />} />
               <Route path="/admin/tickets" element={<TicketsPage />} />
               <Route path="/admin/tickets/:id" element={<TicketDetailPage />} />
             </Route>
