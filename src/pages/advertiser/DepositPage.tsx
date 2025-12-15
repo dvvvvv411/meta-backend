@@ -43,7 +43,7 @@ export default function DepositPage() {
       </div>
 
       {/* Current Balance */}
-      <BalanceOverview balanceEur={balanceEur} />
+      <BalanceOverview balanceEur={balanceEur} onDepositClick={() => setDepositModalOpen(true)} />
 
       {/* Action Buttons */}
       <div className="grid gap-4 sm:grid-cols-2">
