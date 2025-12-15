@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
+import { useAdvertiserAccount } from '@/hooks/useAdvertiserAccount';
 
 interface NavItem {
   label: string;
@@ -47,7 +47,7 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
-  const { hasActiveAccount } = useAdvertiserAccounts();
+  const { hasActiveAccount, isLoading } = useAdvertiserAccount();
 
   // Mobile is always expanded
   const isCollapsed = isMobile ? false : collapsed;
@@ -110,7 +110,7 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
       <nav className="flex-1 py-6 px-3 space-y-2 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
-          const isLocked = item.requiresAccount && !hasActiveAccount;
+          const isLocked = item.requiresAccount && !isLoading && !hasActiveAccount;
           const Icon = item.icon;
 
           const navButton = (
