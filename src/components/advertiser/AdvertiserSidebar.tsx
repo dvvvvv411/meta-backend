@@ -6,6 +6,7 @@ import {
   Wallet, 
   Megaphone, 
   BarChart3, 
+  Code2,
   Settings, 
   HelpCircle, 
   LogOut,
@@ -33,6 +34,7 @@ const navItems: NavItem[] = [
   { label: 'Guthaben', icon: Wallet, path: '/advertiser/deposit' },
   { label: 'Kampagnen', icon: Megaphone, path: '/advertiser/campaigns', requiresAccount: true },
   { label: 'Statistiken', icon: BarChart3, path: '/advertiser/statistics', requiresAccount: true },
+  { label: 'API Dokumentation', icon: Code2, path: '/advertiser/api' },
   { label: 'Einstellungen', icon: Settings, path: '/advertiser/settings' },
   { label: 'Support / Tickets', icon: HelpCircle, path: '/advertiser/support' },
 ];

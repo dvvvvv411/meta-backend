@@ -27,6 +27,7 @@ import DepositPage from "./pages/advertiser/DepositPage";
 import CampaignsPage from "./pages/advertiser/CampaignsPage";
 import CampaignEditPage from "./pages/advertiser/CampaignEditPage";
 import StatisticsPage from "./pages/advertiser/StatisticsPage";
+import ApiDocsPage from "./pages/advertiser/ApiDocsPage";
 import SettingsPage from "./pages/advertiser/SettingsPage";
 import SupportPage from "./pages/advertiser/SupportPage";
 
@@ -53,6 +54,7 @@ const App = () => (
                 <Route path="campaigns" element={<CampaignsPage />} />
                 <Route path="campaigns/edit/:id" element={<CampaignEditPage />} />
                 <Route path="statistics" element={<StatisticsPage />} />
+                <Route path="api" element={<ApiDocsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="support" element={<SupportPage />} />
               </Route>
