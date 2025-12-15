@@ -30,6 +30,8 @@ import StatisticsPage from "./pages/advertiser/StatisticsPage";
 import ApiDocsPage from "./pages/advertiser/ApiDocsPage";
 import SettingsPage from "./pages/advertiser/SettingsPage";
 import SupportPage from "./pages/advertiser/SupportPage";
+import NewTicketPage from "./pages/advertiser/NewTicketPage";
+import AdvertiserTicketDetailPage from "./pages/advertiser/AdvertiserTicketDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +59,8 @@ const App = () => (
                 <Route path="api" element={<ApiDocsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="support" element={<SupportPage />} />
+                <Route path="support/new" element={<NewTicketPage />} />
+                <Route path="support/:id" element={<AdvertiserTicketDetailPage />} />
               </Route>
             </Route>
             <Route element={<AdminProtectedRoute />}>
