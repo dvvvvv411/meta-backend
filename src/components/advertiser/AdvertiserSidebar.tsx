@@ -29,9 +29,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Übersicht', icon: LayoutDashboard, path: '/advertiser' },
-  { label: 'Agency Account mieten', icon: Building2, path: '/advertiser/rent-account' },
-  { label: 'Guthaben einzahlen', icon: Wallet, path: '/advertiser/deposit' },
-  { label: 'Kampagne erstellen (Demo)', icon: Megaphone, path: '/advertiser/campaigns', requiresAccount: true },
+  { label: 'Agency Account', icon: Building2, path: '/advertiser/rent-account' },
+  { label: 'Guthaben', icon: Wallet, path: '/advertiser/deposit' },
+  { label: 'Kampagnen', icon: Megaphone, path: '/advertiser/campaigns', requiresAccount: true },
   { label: 'Statistiken', icon: BarChart3, path: '/advertiser/statistics', requiresAccount: true },
   { label: 'Einstellungen', icon: Settings, path: '/advertiser/settings' },
   { label: 'Support / Tickets', icon: HelpCircle, path: '/advertiser/support' },
