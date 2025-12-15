@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Building2, Calendar, AlertTriangle, Info } from 'lucide-react';
+import { Building2, AlertTriangle, Info, Pencil, Check, X } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { AutoRenewToggle } from './AutoRenewToggle';
 import { AccountDetailModal } from './AccountDetailModal';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import type { AdvertiserAccount } from '@/hooks/useAdvertiserAccounts';
 
@@ -27,6 +28,20 @@ export function AccountCard({
   isRenaming,
 }: AccountCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(account.name);
+
+  const handleSaveEdit = () => {
+    if (editName.trim() && editName !== account.name) {
+      onRenameAccount(account.id, editName.trim());
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditName(account.name);
+    setIsEditing(false);
+  };
 
   const expireDate = account.expire_at ? new Date(account.expire_at) : null;
   const startDate = account.start_date ? new Date(account.start_date) : null;
@@ -55,10 +70,53 @@ export function AccountCard({
         isExpired && "border-destructive/50 opacity-75"
       )}>
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-primary" />
-              <CardTitle className="text-base">{account.name}</CardTitle>
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <Building2 className="h-5 w-5 text-primary shrink-0" />
+              
+              {isEditing ? (
+                <div className="flex items-center gap-1 flex-1">
+                  <Input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="h-7 text-sm"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveEdit();
+                      if (e.key === 'Escape') handleCancelEdit();
+                    }}
+                  />
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    className="h-6 w-6 shrink-0"
+                    onClick={handleSaveEdit}
+                    disabled={isRenaming}
+                  >
+                    <Check className="h-3 w-3 text-green-600" />
+                  </Button>
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    className="h-6 w-6 shrink-0"
+                    onClick={handleCancelEdit}
+                  >
+                    <X className="h-3 w-3 text-muted-foreground" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <CardTitle className="text-base truncate">{account.name}</CardTitle>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-6 w-6 shrink-0"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    <Pencil className="h-3 w-3 text-muted-foreground" />
+                  </Button>
+                </>
+              )}
             </div>
             {getStatusBadge()}
           </div>

@@ -111,10 +111,6 @@ export function AccountDetailModal({
               <p className="font-medium">{formatCurrency(account.price_paid ?? 150)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Rechnungsnummer</p>
-              <p className="font-medium">{account.invoice_number ?? '-'}</p>
-            </div>
-            <div>
               <p className="text-muted-foreground">Auto-Verlängerung</p>
               <p className="font-medium flex items-center gap-1">
                 {account.auto_renew ? (
