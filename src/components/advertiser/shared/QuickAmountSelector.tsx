@@ -4,34 +4,28 @@ interface QuickAmountSelectorProps {
   amounts: number[];
   selectedAmount: number | null;
   onSelect: (amount: number) => void;
-  customAmount?: string;
-  onCustomAmountChange?: (value: string) => void;
 }
 
 export function QuickAmountSelector({
   amounts,
   selectedAmount,
   onSelect,
-  customAmount,
-  onCustomAmountChange,
 }: QuickAmountSelectorProps) {
-  const isCustomSelected = customAmount && parseFloat(customAmount) > 0 && !amounts.includes(parseFloat(customAmount));
-
   return (
-    <div className="grid grid-cols-4 gap-2">
+    <div className="grid grid-cols-2 gap-3">
       {amounts.map((amount) => (
         <button
           key={amount}
           onClick={() => onSelect(amount)}
           className={cn(
-            "py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200",
+            "py-4 px-4 rounded-xl text-lg font-bold transition-all duration-200",
             "border-2 hover:scale-[1.02] active:scale-[0.98]",
             selectedAmount === amount
-              ? "border-primary bg-primary text-primary-foreground shadow-md"
-              : "border-border/50 bg-muted/30 text-foreground hover:border-primary/50 hover:bg-primary/5"
+              ? "border-primary bg-primary/10 text-primary shadow-md"
+              : "border-border bg-card text-foreground hover:border-primary/50 hover:bg-muted/50"
           )}
         >
-          {amount}€
+          {amount.toLocaleString('de-DE')} €
         </button>
       ))}
     </div>
