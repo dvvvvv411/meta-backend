@@ -394,49 +394,80 @@ const AuthPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column - Clean Meta/Facebook Style */}
-        <div className="hidden lg:flex lg:w-[55%] bg-[#f0f2f5] flex-col justify-center items-center p-12 xl:p-16">
-          <div className="max-w-md text-center">
+        {/* Right Column - Meta Style with Blue Accents & Flowchart */}
+        <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden bg-gradient-to-br from-white via-blue-50/70 to-[#f0f2f5] flex-col justify-center items-center p-12 xl:p-16">
+          
+          {/* Subtle Blue Decoration Circles */}
+          <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#1877F2]/5 rounded-full" />
+          <div className="absolute -bottom-32 -left-20 w-80 h-80 bg-[#1877F2]/5 rounded-full" />
+          <div className="absolute top-1/3 right-10 w-32 h-32 bg-blue-400/5 rounded-full" />
+          <div className="absolute bottom-1/4 left-16 w-24 h-24 bg-[#1877F2]/3 rounded-full" />
+          
+          <div className="relative z-10 max-w-md text-center">
             {/* Logo */}
             <img 
               src={metaLogo} 
               alt="Meta" 
-              className="h-12 w-auto mx-auto mb-8" 
+              className="h-10 w-auto mx-auto mb-6" 
             />
             
             {/* Headline */}
-            <h2 className="text-3xl font-semibold text-[#1c1e21] mb-4">
+            <h2 className="text-2xl xl:text-3xl font-semibold text-[#1c1e21] mb-3">
               Verbinde dich mit deiner Zielgruppe
             </h2>
             
             {/* Subline */}
-            <p className="text-lg text-[#606770] mb-12">
-              MetaNetwork ermöglicht es dir, verifizierte Agency Accounts 
-              zu mieten und professionelle Kampagnen zu erstellen.
+            <p className="text-base text-[#606770] mb-8">
+              In nur 4 Schritten zu deiner ersten Kampagne
             </p>
             
-            {/* Simple Feature List */}
-            <div className="space-y-4 text-left mb-12">
-              <div className="flex items-center gap-3">
-                <Check className="h-5 w-5 text-[#1877F2] flex-shrink-0" />
-                <span className="text-[#1c1e21]">Verifizierte Agency Accounts mit Business Suite Zugang</span>
+            {/* Flowchart */}
+            <div className="flex flex-col items-center gap-2 mb-8">
+              {/* Step 1 */}
+              <div className="flex items-center gap-4 bg-white rounded-xl px-5 py-3.5 shadow-sm border border-blue-100 w-full">
+                <div className="w-9 h-9 rounded-full bg-[#1877F2] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">1</div>
+                <div className="text-left">
+                  <div className="font-medium text-[#1c1e21]">Account wählen</div>
+                  <div className="text-sm text-[#606770]">Verifizierte Agency Accounts</div>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <Check className="h-5 w-5 text-[#1877F2] flex-shrink-0" />
-                <span className="text-[#1c1e21]">Flexible Laufzeiten ohne langfristige Bindung</span>
+              
+              {/* Connector */}
+              <div className="w-0.5 h-3 bg-[#1877F2]/30" />
+              
+              {/* Step 2 */}
+              <div className="flex items-center gap-4 bg-white rounded-xl px-5 py-3.5 shadow-sm border border-blue-100 w-full">
+                <div className="w-9 h-9 rounded-full bg-[#1877F2] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">2</div>
+                <div className="text-left">
+                  <div className="font-medium text-[#1c1e21]">Sicher bezahlen</div>
+                  <div className="text-sm text-[#606770]">Mit Krypto oder Guthaben</div>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <Check className="h-5 w-5 text-[#1877F2] flex-shrink-0" />
-                <span className="text-[#1c1e21]">Sichere Zahlungen mit Kryptowährungen</span>
+              
+              {/* Connector */}
+              <div className="w-0.5 h-3 bg-[#1877F2]/30" />
+              
+              {/* Step 3 */}
+              <div className="flex items-center gap-4 bg-white rounded-xl px-5 py-3.5 shadow-sm border border-blue-100 w-full">
+                <div className="w-9 h-9 rounded-full bg-[#1877F2] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">3</div>
+                <div className="text-left">
+                  <div className="font-medium text-[#1c1e21]">Sofort Zugang</div>
+                  <div className="text-sm text-[#606770]">Zur Meta Business Suite</div>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <Check className="h-5 w-5 text-[#1877F2] flex-shrink-0" />
-                <span className="text-[#1c1e21]">Professioneller Support für alle Anliegen</span>
+              
+              {/* Connector */}
+              <div className="w-0.5 h-3 bg-[#1877F2]/30" />
+              
+              {/* Step 4 */}
+              <div className="flex items-center gap-4 bg-white rounded-xl px-5 py-3.5 shadow-sm border border-blue-100 w-full">
+                <div className="w-9 h-9 rounded-full bg-[#1877F2] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">4</div>
+                <div className="text-left">
+                  <div className="font-medium text-[#1c1e21]">Kampagnen starten</div>
+                  <div className="text-sm text-[#606770]">Professionelle Werbung schalten</div>
+                </div>
               </div>
             </div>
-            
-            {/* Divider */}
-            <div className="border-t border-[#dadde1] mb-8" />
             
             {/* Trust Section */}
             <div className="flex items-center justify-center gap-6 text-sm text-[#606770]">
