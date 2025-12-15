@@ -91,6 +91,45 @@ export const MoneroIcon = ({ className, size = 24 }: IconProps) => (
   </svg>
 );
 
+// Network Icons (small badges for USDT/USDC networks)
+export const TRC20Icon = ({ className, size = 14 }: IconProps) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} className={className}>
+    <circle cx="12" cy="12" r="12" fill="#EF0027"/>
+    <path d="M8.5 7h7l-1.5 2h-4l-1.5-2zm2.5 3h2v7h-2v-7z" fill="#FFF"/>
+  </svg>
+);
+
+export const ERC20Icon = ({ className, size = 14 }: IconProps) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} className={className}>
+    <circle cx="12" cy="12" r="12" fill="#627EEA"/>
+    <path d="M12 4l-5 8 5 3 5-3-5-8zm-5 9l5 7 5-7-5 3-5-3z" fill="#FFF" fillOpacity="0.8"/>
+  </svg>
+);
+
+export const BSCIcon = ({ className, size = 14 }: IconProps) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} className={className}>
+    <circle cx="12" cy="12" r="12" fill="#F3BA2F"/>
+    <path d="M12 5l2 2-2 2-2-2 2-2zm-5 5l2-2 2 2-2 2-2-2zm10 0l-2-2 2-2 2 2-2 2zm-5 2l2 2-2 2-2-2 2-2zm-5 3l2-2 2 2-2 2-2-2zm10 0l-2-2 2-2 2 2-2 2z" fill="#FFF"/>
+  </svg>
+);
+
+export const PolygonIcon = ({ className, size = 14 }: IconProps) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} className={className}>
+    <circle cx="12" cy="12" r="12" fill="#8247E5"/>
+    <path d="M15.5 9.5l-2-1.2c-.3-.2-.7-.2-1 0l-2 1.2c-.3.2-.5.5-.5.9v2.4c0 .4.2.7.5.9l2 1.2c.3.2.7.2 1 0l2-1.2c.3-.2.5-.5.5-.9v-2.4c0-.4-.2-.7-.5-.9z" fill="#FFF"/>
+  </svg>
+);
+
+// Get network icon for USDT/USDC variants
+export const getNetworkIcon = (currencyId: string): React.FC<IconProps> | null => {
+  const id = currencyId.toLowerCase();
+  if (id.includes('trc20')) return TRC20Icon;
+  if (id.includes('erc20')) return ERC20Icon;
+  if (id.includes('bsc') || id.includes('bep20')) return BSCIcon;
+  if (id.includes('matic') || id.includes('polygon')) return PolygonIcon;
+  return null;
+};
+
 // Map currency IDs to their icons
 export const CryptoIconMap: Record<string, React.FC<IconProps>> = {
   btc: BitcoinIcon,

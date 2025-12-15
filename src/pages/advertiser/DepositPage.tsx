@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowDownToLine, ArrowUpFromLine, Shield, Receipt, Calendar, TrendingUp } from 'lucide-react';
+import { ArrowDownToLine, ArrowUpFromLine, Receipt, Calendar, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
@@ -135,25 +135,6 @@ export default function DepositPage() {
 
       {/* Transaction History */}
       <TransactionHistory deposits={deposits} />
-
-      {/* Security Note */}
-      <Card className="bg-muted/30 border-muted">
-        <CardContent className="pt-6">
-          <div className="flex gap-3">
-            <Shield className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-            <div className="text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">Sicherheitshinweis</p>
-              <p className="mt-1">
-                Alle Transaktionen werden sicher verarbeitet. Bei Problemen oder Fragen 
-                kontaktiere unseren Support unter{' '}
-                <a href="mailto:support@example.com" className="text-primary hover:underline">
-                  support@example.com
-                </a>
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Deposit Modal */}
       <DepositModal open={depositModalOpen} onOpenChange={setDepositModalOpen} />

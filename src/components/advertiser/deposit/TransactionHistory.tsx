@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { CheckCircle2, Clock, XCircle, Receipt, Download, Eye, ChevronDown } from 'lucide-react';
@@ -18,6 +18,15 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import type { Deposit } from '@/hooks/useDeposits';
 import { generateCSV, downloadCSV, formatDateForCSV } from '@/lib/csv-export';
 import { TransactionDetailModal } from './TransactionDetailModal';
@@ -29,14 +38,36 @@ interface TransactionHistoryProps {
 export function TransactionHistory({ deposits }: TransactionHistoryProps) {
   const [selectedTransaction, setSelectedTransaction] = useState<Deposit | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [typeFilter, setTypeFilter] = useState<'all' | 'deposit' | 'rental' | 'withdrawal'>('all');
+  const [hideExpired, setHideExpired] = useState(false);
 
   const openDetails = (deposit: Deposit) => {
     setSelectedTransaction(deposit);
     setDetailModalOpen(true);
   };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
   };
+
+  // Filter deposits based on type and expired status
+  const filteredDeposits = useMemo(() => {
+    let result = deposits;
+    
+    // Filter by type
+    if (typeFilter !== 'all') {
+      result = result.filter(d => d.type === typeFilter);
+    }
+    
+    // Hide expired
+    if (hideExpired) {
+      result = result.filter(d => 
+        !(d.status === 'pending' && d.expires_at && new Date(d.expires_at) < new Date())
+      );
+    }
+    
+    return result;
+  }, [deposits, typeFilter, hideExpired]);
 
   const getStatusBadge = (status: string, expiresAt: string | null) => {
     // Check if expired (pending + expires_at in past)
@@ -180,38 +211,74 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
   return (
     <Card>
       <CardHeader>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <CardTitle className="text-lg">Transaktionshistorie</CardTitle>
-            <CardDescription>Alle deine Ein- und Auszahlungen</CardDescription>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle className="text-lg">Transaktionshistorie</CardTitle>
+              <CardDescription>Alle deine Ein- und Auszahlungen</CardDescription>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleExportCSV}
+              disabled={deposits.length === 0}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              CSV Export
+            </Button>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleExportCSV}
-            disabled={deposits.length === 0}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            CSV Export
-          </Button>
+          
+          {/* Filters */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="type-filter" className="text-sm text-muted-foreground whitespace-nowrap">Typ:</Label>
+              <Select value={typeFilter} onValueChange={(value: 'all' | 'deposit' | 'rental' | 'withdrawal') => setTypeFilter(value)}>
+                <SelectTrigger id="type-filter" className="w-[160px] h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle</SelectItem>
+                  <SelectItem value="deposit">Einzahlung</SelectItem>
+                  <SelectItem value="rental">Account Miete</SelectItem>
+                  <SelectItem value="withdrawal">Auszahlung</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Switch
+                id="hide-expired"
+                checked={hideExpired}
+                onCheckedChange={setHideExpired}
+              />
+              <Label htmlFor="hide-expired" className="text-sm text-muted-foreground cursor-pointer">
+                Abgelaufene ausblenden
+              </Label>
+            </div>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        {deposits.length === 0 ? (
+        {filteredDeposits.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
               <Receipt className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="text-muted-foreground font-medium">Keine Transaktionen vorhanden</p>
+            <p className="text-muted-foreground font-medium">
+              {deposits.length === 0 ? 'Keine Transaktionen vorhanden' : 'Keine Transaktionen gefunden'}
+            </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Deine Ein- und Auszahlungen werden hier angezeigt.
+              {deposits.length === 0 
+                ? 'Deine Ein- und Auszahlungen werden hier angezeigt.'
+                : 'Passe die Filter an, um mehr Transaktionen zu sehen.'
+              }
             </p>
           </div>
         ) : (
           <>
             {/* Mobile: Collapsible Cards */}
             <div className="md:hidden space-y-3">
-              {deposits.map((deposit) => (
+              {filteredDeposits.map((deposit) => (
                 <TransactionCard key={deposit.id} deposit={deposit} />
               ))}
             </div>
@@ -230,7 +297,7 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {deposits.map((deposit) => (
+                  {filteredDeposits.map((deposit) => (
                     <TableRow key={deposit.id}>
                       <TableCell className="whitespace-nowrap">
                         {format(new Date(deposit.created_at), 'dd.MM.yyyy', { locale: de })}

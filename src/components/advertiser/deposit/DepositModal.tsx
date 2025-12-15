@@ -183,6 +183,18 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
 
   const isSuccess = paymentStatus === 'finished' || paymentStatus === 'confirmed';
 
+  // Format pay_currency nicely (e.g., "USDTTRC20" -> "USDT (TRC20)")
+  const formatPayCurrency = (currency: string) => {
+    const upper = currency.toUpperCase();
+    if (upper === 'USDTTRC20' || upper === 'USDT_TRC20') return 'USDT (TRC20)';
+    if (upper === 'USDTERC20' || upper === 'USDT_ERC20') return 'USDT (ERC20)';
+    if (upper === 'USDTBSC' || upper === 'USDT_BSC') return 'USDT (BSC)';
+    if (upper === 'USDTMATIC' || upper === 'USDT_MATIC') return 'USDT (Polygon)';
+    if (upper === 'USDCERC20' || upper === 'USDC_ERC20') return 'USDC (ERC20)';
+    if (upper === 'BNBBSC' || upper === 'BNB_BSC') return 'BNB (BSC)';
+    return upper;
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -322,7 +334,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                   <Label className="text-xs text-muted-foreground">Zu zahlender Betrag</Label>
                   <div className="flex items-center gap-2 p-3 rounded-xl border border-border/50 bg-muted/20">
                     <span className="flex-1 font-mono text-lg font-bold">
-                      {paymentData.pay_amount} {paymentData.pay_currency.toUpperCase()}
+                      {paymentData.pay_amount} {formatPayCurrency(paymentData.pay_currency)}
                     </span>
                     <Button
                       variant="outline"
@@ -333,13 +345,18 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                       {copied === 'amount' ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
                     </Button>
                   </div>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1 px-1">
+                    <span>Du erhältst:</span>
+                    <span className="font-semibold text-foreground">{paymentData.net_amount.toFixed(2)} €</span>
+                    <span>nach Abzug der Gebühr</span>
+                  </p>
                 </div>
                 
                 {/* Wallet Address */}
                 <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">Wallet-Adresse</Label>
                   <div className="flex items-center gap-2 p-3 rounded-xl border border-border/50 bg-muted/20">
-                    <span className="flex-1 font-mono text-xs break-all leading-relaxed">
+                    <span className="flex-1 font-mono text-sm break-all leading-relaxed">
                       {paymentData.pay_address}
                     </span>
                     <Button
