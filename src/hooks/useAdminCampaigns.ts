@@ -59,16 +59,41 @@ export function useAdminCampaigns() {
   return useQuery({
     queryKey: ['admin-campaigns'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch all campaign drafts
+      const { data: drafts, error: draftsError } = await supabase
         .from('campaign_drafts')
-        .select(`
-          *,
-          profiles:user_id (email)
-        `)
+        .select('*')
         .order('updated_at', { ascending: false });
 
-      if (error) throw error;
-      return (data as unknown as DbCampaignDraft[]).map(parseDbDraft);
+      if (draftsError) throw draftsError;
+
+      // Fetch all profiles for email mapping
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, email');
+
+      if (profilesError) throw profilesError;
+
+      // Create email lookup map
+      const emailMap = new Map<string, string>();
+      profiles?.forEach(p => emailMap.set(p.id, p.email));
+
+      // Combine drafts with user emails
+      return (drafts || []).map(draft => ({
+        id: draft.id,
+        name: draft.name,
+        objective: draft.objective,
+        buying_type: draft.buying_type,
+        setup: draft.setup,
+        user_id: draft.user_id,
+        user_email: emailMap.get(draft.user_id) || 'Unbekannt',
+        account_id: draft.account_id,
+        campaign_data: draft.campaign_data as unknown as CampaignDraftData,
+        adset_data: draft.adset_data as unknown as AdSetDraftData,
+        ad_data: draft.ad_data as unknown as AdDraftData,
+        created_at: draft.created_at,
+        updated_at: draft.updated_at,
+      })) as AdminCampaignDraft[];
     },
   });
 }
@@ -77,18 +102,37 @@ export function useAdminCampaignDetail(id: string) {
   return useQuery({
     queryKey: ['admin-campaign', id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: draft, error: draftError } = await supabase
         .from('campaign_drafts')
-        .select(`
-          *,
-          profiles:user_id (email)
-        `)
+        .select('*')
         .eq('id', id)
         .maybeSingle();
 
-      if (error) throw error;
-      if (!data) return null;
-      return parseDbDraft(data as unknown as DbCampaignDraft);
+      if (draftError) throw draftError;
+      if (!draft) return null;
+
+      // Fetch user email
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', draft.user_id)
+        .maybeSingle();
+
+      return {
+        id: draft.id,
+        name: draft.name,
+        objective: draft.objective,
+        buying_type: draft.buying_type,
+        setup: draft.setup,
+        user_id: draft.user_id,
+        user_email: profile?.email || 'Unbekannt',
+        account_id: draft.account_id,
+        campaign_data: draft.campaign_data as unknown as CampaignDraftData,
+        adset_data: draft.adset_data as unknown as AdSetDraftData,
+        ad_data: draft.ad_data as unknown as AdDraftData,
+        created_at: draft.created_at,
+        updated_at: draft.updated_at,
+      } as AdminCampaignDraft;
     },
     enabled: !!id,
   });

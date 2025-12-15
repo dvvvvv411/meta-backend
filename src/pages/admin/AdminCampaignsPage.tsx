@@ -42,7 +42,7 @@ export default function AdminCampaignsPage() {
   });
 
   return (
-    <DashboardLayout>
+    <DashboardLayout isAdmin>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Kampagnenentwürfe</h1>
