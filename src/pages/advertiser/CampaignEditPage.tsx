@@ -289,6 +289,12 @@ export default function CampaignEditPage() {
 
   const [activeLevel, setActiveLevel] = useState<EditorLevel>('campaign');
   
+  // Helper function to change level and scroll to top
+  const handleLevelChange = (level: EditorLevel) => {
+    setActiveLevel(level);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
   // Names for sidebar
   const [campaignName, setCampaignName] = useState('New Traffic Campaign');
   const [adSetName, setAdSetName] = useState('New Traffic Ad Set');
@@ -639,7 +645,7 @@ export default function CampaignEditPage() {
       <div className="md:hidden border-b bg-card/50 px-4 py-3">
         <div className="flex items-center justify-between gap-2">
           <button
-            onClick={() => setActiveLevel('campaign')}
+            onClick={() => handleLevelChange('campaign')}
             className={`flex-1 flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
               activeLevel === 'campaign' ? 'bg-primary/10 text-primary' : 'text-muted-foreground'
             }`}
@@ -649,7 +655,7 @@ export default function CampaignEditPage() {
           </button>
           
           <button
-            onClick={() => setActiveLevel('adset')}
+            onClick={() => handleLevelChange('adset')}
             className={`flex-1 flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
               activeLevel === 'adset' ? 'bg-primary/10 text-primary' : 'text-muted-foreground'
             }`}
@@ -659,7 +665,7 @@ export default function CampaignEditPage() {
           </button>
           
           <button
-            onClick={() => setActiveLevel('ad')}
+            onClick={() => handleLevelChange('ad')}
             className={`flex-1 flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
               activeLevel === 'ad' ? 'bg-primary/10 text-primary' : 'text-muted-foreground'
             }`}
@@ -676,7 +682,7 @@ export default function CampaignEditPage() {
           <div className="space-y-0.5">
             {/* Campaign Level */}
             <button
-              onClick={() => setActiveLevel('campaign')}
+              onClick={() => handleLevelChange('campaign')}
               className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
                 activeLevel === 'campaign'
                   ? 'bg-primary/10 text-primary'
@@ -690,7 +696,7 @@ export default function CampaignEditPage() {
             {/* Ad Set Level - Indented */}
             <div className="pl-4">
               <button
-                onClick={() => setActiveLevel('adset')}
+                onClick={() => handleLevelChange('adset')}
                 className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
                   activeLevel === 'adset'
                     ? 'bg-primary/10 text-primary'
@@ -705,7 +711,7 @@ export default function CampaignEditPage() {
             {/* Ad Level - Further Indented */}
             <div className="pl-8">
               <button
-                onClick={() => setActiveLevel('ad')}
+                onClick={() => handleLevelChange('ad')}
                 className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
                   activeLevel === 'ad'
                     ? 'bg-primary/10 text-primary'
@@ -1114,7 +1120,7 @@ export default function CampaignEditPage() {
 
               {/* Next Button */}
               <div className="flex justify-end pt-4">
-                <Button onClick={() => setActiveLevel('adset')} className="gap-2">
+                <Button onClick={() => handleLevelChange('adset')} className="gap-2">
                   Next
                   <ArrowRight className="h-4 w-4" />
                 </Button>
@@ -1595,11 +1601,11 @@ export default function CampaignEditPage() {
 
               {/* Next Button to Ad */}
               <div className="flex justify-between pt-4">
-                <Button variant="outline" onClick={() => setActiveLevel('campaign')} className="gap-2">
+                <Button variant="outline" onClick={() => handleLevelChange('campaign')} className="gap-2">
                   <ArrowLeft className="h-4 w-4" />
                   Back
                 </Button>
-                <Button onClick={() => setActiveLevel('ad')} className="gap-2">
+                <Button onClick={() => handleLevelChange('ad')} className="gap-2">
                   Next
                   <ArrowRight className="h-4 w-4" />
                 </Button>
@@ -2024,7 +2030,7 @@ export default function CampaignEditPage() {
 
               {/* Navigation Buttons */}
               <div className="flex flex-col sm:flex-row justify-between gap-3 pt-4">
-                <Button variant="outline" onClick={() => setActiveLevel('adset')} className="gap-2">
+                <Button variant="outline" onClick={() => handleLevelChange('adset')} className="gap-2">
                   <ArrowLeft className="h-4 w-4" />
                   Back
                 </Button>
