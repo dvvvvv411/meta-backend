@@ -422,33 +422,41 @@ const AuthPage: React.FC = () => {
             </p>
             
             {/* Benefits Grid */}
-            <div className="grid grid-cols-2 gap-3 mb-8">
+            <div className="grid grid-cols-2 gap-4 mb-8">
               {/* Benefit 1 */}
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-blue-100 text-left">
-                <BadgeCheck className="h-6 w-6 text-[#1877F2] mb-2" />
-                <div className="font-medium text-[#1c1e21] text-sm">Verifizierte Accounts</div>
-                <div className="text-xs text-[#606770]">Geprüfte Agency Accounts</div>
+              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-white/50 text-left hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1877F2] to-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <BadgeCheck className="h-5 w-5 text-white" />
+                </div>
+                <div className="font-semibold text-[#1c1e21] text-base">Verifizierte Accounts</div>
+                <div className="text-sm text-[#606770] mt-1">Geprüfte Agency Accounts</div>
               </div>
               
               {/* Benefit 2 */}
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-blue-100 text-left">
-                <Zap className="h-6 w-6 text-[#1877F2] mb-2" />
-                <div className="font-medium text-[#1c1e21] text-sm">Sofortiger Zugang</div>
-                <div className="text-xs text-[#606770]">In Minuten startklar</div>
+              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-white/50 text-left hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1877F2] to-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <Zap className="h-5 w-5 text-white" />
+                </div>
+                <div className="font-semibold text-[#1c1e21] text-base">Sofortiger Zugang</div>
+                <div className="text-sm text-[#606770] mt-1">In Minuten startklar</div>
               </div>
               
               {/* Benefit 3 */}
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-blue-100 text-left">
-                <ShieldCheck className="h-6 w-6 text-[#1877F2] mb-2" />
-                <div className="font-medium text-[#1c1e21] text-sm">Sichere Zahlungen</div>
-                <div className="text-xs text-[#606770]">Krypto mit Transparenz</div>
+              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-white/50 text-left hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1877F2] to-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <ShieldCheck className="h-5 w-5 text-white" />
+                </div>
+                <div className="font-semibold text-[#1c1e21] text-base">Sichere Zahlungen</div>
+                <div className="text-sm text-[#606770] mt-1">Krypto mit Transparenz</div>
               </div>
               
               {/* Benefit 4 */}
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-blue-100 text-left">
-                <Target className="h-6 w-6 text-[#1877F2] mb-2" />
-                <div className="font-medium text-[#1c1e21] text-sm">Keine Sperrrisiken</div>
-                <div className="text-xs text-[#606770]">Professionell verwaltet</div>
+              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-white/50 text-left hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1877F2] to-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <Target className="h-5 w-5 text-white" />
+                </div>
+                <div className="font-semibold text-[#1c1e21] text-base">Keine Sperrrisiken</div>
+                <div className="text-sm text-[#606770] mt-1">Professionell verwaltet</div>
               </div>
             </div>
             
