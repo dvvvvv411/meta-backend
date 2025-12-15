@@ -202,26 +202,70 @@ export function CurrencySearchSelector({
         </div>
       )}
 
-      {/* All Currencies List */}
-      <div className="space-y-2">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-1">
-          {filter === 'all' ? 'Alle Währungen' : filter === 'stablecoin' ? 'Stablecoins' : 'Kryptowährungen'}
-        </span>
-        
-        {filteredCurrencies.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Keine Ergebnisse für "{search}"</p>
-            <p className="text-xs mt-1">Versuche einen anderen Suchbegriff</p>
+      {/* All Currencies List - 50/50 Layout */}
+      {filteredCurrencies.length === 0 ? (
+        <div className="text-center py-8 text-muted-foreground">
+          <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
+          <p className="text-sm">Keine Ergebnisse für "{search}"</p>
+          <p className="text-xs mt-1">Versuche einen anderen Suchbegriff</p>
+        </div>
+      ) : filter === 'all' ? (
+        /* Two-column layout when showing all */
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Left Column: Stablecoins */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-3.5 w-3.5 text-green-500" />
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Stablecoins
+              </span>
+            </div>
+            <ScrollArea className="h-[200px] pr-2">
+              <div className="space-y-2">
+                {filteredCurrencies
+                  .filter(c => c.category === 'stablecoin')
+                  .map(c => renderCurrencyItem(c, false))}
+              </div>
+            </ScrollArea>
           </div>
-        ) : (
+
+          {/* Right Column: Cryptocurrencies */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Coins className="h-3.5 w-3.5 text-amber-500" />
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Kryptowährungen
+              </span>
+            </div>
+            <ScrollArea className="h-[200px] pr-2">
+              <div className="space-y-2">
+                {filteredCurrencies
+                  .filter(c => c.category === 'crypto')
+                  .map(c => renderCurrencyItem(c, false))}
+              </div>
+            </ScrollArea>
+          </div>
+        </div>
+      ) : (
+        /* Single column when filtered */
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            {filter === 'stablecoin' ? (
+              <TrendingUp className="h-3.5 w-3.5 text-green-500" />
+            ) : (
+              <Coins className="h-3.5 w-3.5 text-amber-500" />
+            )}
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              {filter === 'stablecoin' ? 'Stablecoins' : 'Kryptowährungen'}
+            </span>
+          </div>
           <ScrollArea className="h-[200px] pr-2">
             <div className="space-y-2">
               {filteredCurrencies.map(c => renderCurrencyItem(c, false))}
             </div>
           </ScrollArea>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
