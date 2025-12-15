@@ -424,36 +424,48 @@ const AuthPage: React.FC = () => {
             {/* Benefits Grid */}
             <div className="grid grid-cols-2 gap-4 mb-8">
               {/* Benefit 1 */}
-              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-white/50 text-left hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1877F2] to-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <BadgeCheck className="h-5 w-5 text-white" />
+              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-white/50 text-left hover:shadow-xl transition-all duration-300 group">
+                <div className="relative w-12 h-12 flex items-center justify-center mb-3">
+                  <div className="absolute inset-0 rounded-full bg-[#1877F2]/20 blur-md group-hover:blur-lg group-hover:bg-[#1877F2]/30 transition-all duration-300" />
+                  <div className="relative w-10 h-10 rounded-full border-2 border-[#1877F2]/40 flex items-center justify-center bg-white/50 backdrop-blur-sm group-hover:border-[#1877F2]/60 transition-all">
+                    <BadgeCheck className="h-5 w-5 text-[#1877F2]" strokeWidth={1.5} />
+                  </div>
                 </div>
                 <div className="font-semibold text-[#1c1e21] text-base">Verifizierte Accounts</div>
                 <div className="text-sm text-[#606770] mt-1">Geprüfte Agency Accounts</div>
               </div>
               
               {/* Benefit 2 */}
-              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-white/50 text-left hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1877F2] to-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Zap className="h-5 w-5 text-white" />
+              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-white/50 text-left hover:shadow-xl transition-all duration-300 group">
+                <div className="relative w-12 h-12 flex items-center justify-center mb-3">
+                  <div className="absolute inset-0 rounded-full bg-[#1877F2]/20 blur-md group-hover:blur-lg group-hover:bg-[#1877F2]/30 transition-all duration-300" />
+                  <div className="relative w-10 h-10 rounded-full border-2 border-[#1877F2]/40 flex items-center justify-center bg-white/50 backdrop-blur-sm group-hover:border-[#1877F2]/60 transition-all">
+                    <Zap className="h-5 w-5 text-[#1877F2]" strokeWidth={1.5} />
+                  </div>
                 </div>
                 <div className="font-semibold text-[#1c1e21] text-base">Sofortiger Zugang</div>
                 <div className="text-sm text-[#606770] mt-1">In Minuten startklar</div>
               </div>
               
               {/* Benefit 3 */}
-              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-white/50 text-left hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1877F2] to-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <ShieldCheck className="h-5 w-5 text-white" />
+              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-white/50 text-left hover:shadow-xl transition-all duration-300 group">
+                <div className="relative w-12 h-12 flex items-center justify-center mb-3">
+                  <div className="absolute inset-0 rounded-full bg-[#1877F2]/20 blur-md group-hover:blur-lg group-hover:bg-[#1877F2]/30 transition-all duration-300" />
+                  <div className="relative w-10 h-10 rounded-full border-2 border-[#1877F2]/40 flex items-center justify-center bg-white/50 backdrop-blur-sm group-hover:border-[#1877F2]/60 transition-all">
+                    <ShieldCheck className="h-5 w-5 text-[#1877F2]" strokeWidth={1.5} />
+                  </div>
                 </div>
                 <div className="font-semibold text-[#1c1e21] text-base">Sichere Zahlungen</div>
                 <div className="text-sm text-[#606770] mt-1">Krypto mit Transparenz</div>
               </div>
               
               {/* Benefit 4 */}
-              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-white/50 text-left hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1877F2] to-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Target className="h-5 w-5 text-white" />
+              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-white/50 text-left hover:shadow-xl transition-all duration-300 group">
+                <div className="relative w-12 h-12 flex items-center justify-center mb-3">
+                  <div className="absolute inset-0 rounded-full bg-[#1877F2]/20 blur-md group-hover:blur-lg group-hover:bg-[#1877F2]/30 transition-all duration-300" />
+                  <div className="relative w-10 h-10 rounded-full border-2 border-[#1877F2]/40 flex items-center justify-center bg-white/50 backdrop-blur-sm group-hover:border-[#1877F2]/60 transition-all">
+                    <Target className="h-5 w-5 text-[#1877F2]" strokeWidth={1.5} />
+                  </div>
                 </div>
                 <div className="font-semibold text-[#1c1e21] text-base">Keine Sperrrisiken</div>
                 <div className="text-sm text-[#606770] mt-1">Professionell verwaltet</div>
