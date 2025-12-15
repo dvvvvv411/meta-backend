@@ -320,41 +320,42 @@ export default function AdminCampaignDetailPage() {
                     {ad_data.adCreativeData.callToAction && (
                       <DetailRow label="Call to Action" value={<Badge>{ad_data.adCreativeData.callToAction as string}</Badge>} />
                     )}
-                    {ad_data.adCreativeData.squareImage && (
-                      <DetailRow 
-                        label="Quadratisches Bild" 
-                        value={
-                          <img 
-                            src={ad_data.adCreativeData.squareImage as string} 
-                            alt="Square" 
-                            className="max-w-32 max-h-32 object-contain rounded border"
-                          />
-                        } 
-                      />
-                    )}
-                    {ad_data.adCreativeData.verticalImage && (
-                      <DetailRow 
-                        label="Vertikales Bild" 
-                        value={
-                          <img 
-                            src={ad_data.adCreativeData.verticalImage as string} 
-                            alt="Vertical" 
-                            className="max-w-24 max-h-40 object-contain rounded border"
-                          />
-                        } 
-                      />
-                    )}
-                    {ad_data.adCreativeData.horizontalImage && (
-                      <DetailRow 
-                        label="Horizontales Bild" 
-                        value={
-                          <img 
-                            src={ad_data.adCreativeData.horizontalImage as string} 
-                            alt="Horizontal" 
-                            className="max-w-48 max-h-28 object-contain rounded border"
-                          />
-                        } 
-                      />
+                    {(ad_data.adCreativeData as { images?: { square?: string; vertical?: string; horizontal?: string } }).images && (
+                      <div className="py-4 border-b border-border">
+                        <h4 className="text-sm font-medium text-muted-foreground mb-3">Hochgeladene Bilder</h4>
+                        <div className="grid grid-cols-3 gap-4">
+                          {(ad_data.adCreativeData as { images?: { square?: string } }).images?.square && (
+                            <div className="space-y-1">
+                              <img 
+                                src={(ad_data.adCreativeData as { images: { square: string } }).images.square} 
+                                alt="Square" 
+                                className="w-full aspect-square object-cover rounded border"
+                              />
+                              <p className="text-xs text-center text-muted-foreground">1:1</p>
+                            </div>
+                          )}
+                          {(ad_data.adCreativeData as { images?: { vertical?: string } }).images?.vertical && (
+                            <div className="space-y-1">
+                              <img 
+                                src={(ad_data.adCreativeData as { images: { vertical: string } }).images.vertical} 
+                                alt="Vertical" 
+                                className="w-full aspect-[9/16] object-cover rounded border"
+                              />
+                              <p className="text-xs text-center text-muted-foreground">9:16</p>
+                            </div>
+                          )}
+                          {(ad_data.adCreativeData as { images?: { horizontal?: string } }).images?.horizontal && (
+                            <div className="space-y-1">
+                              <img 
+                                src={(ad_data.adCreativeData as { images: { horizontal: string } }).images.horizontal} 
+                                alt="Horizontal" 
+                                className="w-full aspect-[1.91/1] object-cover rounded border"
+                              />
+                              <p className="text-xs text-center text-muted-foreground">1.91:1</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     )}
                   </>
                 )}
