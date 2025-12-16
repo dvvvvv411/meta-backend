@@ -51,7 +51,6 @@ const App = () => (
             <Route path="/auth/register" element={<Navigate to="/auth?mode=register" replace />} />
             <Route path="/auth/forgot-password" element={<Navigate to="/auth" replace />} />
             <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/advertiser" element={<AdvertiserLayout />}>
                 <Route index element={<AdvertiserDashboard />} />
                 <Route path="rent-account" element={<RentAccountPage />} />
@@ -67,6 +66,7 @@ const App = () => (
               </Route>
             </Route>
             <Route element={<AdminProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/admin/users" element={<UsersPage />} />
               <Route path="/admin/users/:id" element={<UserDetailPage />} />
               <Route path="/admin/campaigns" element={<AdminCampaignsPage />} />
