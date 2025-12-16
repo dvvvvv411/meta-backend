@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { LegalFooter } from '@/components/ui/legal-footer';
 
 const Impressum = () => {
   return (
@@ -86,8 +85,6 @@ const Impressum = () => {
           </section>
         </article>
       </main>
-
-      <LegalFooter />
     </div>
   );
 };
