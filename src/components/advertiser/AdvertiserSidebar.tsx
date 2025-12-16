@@ -89,7 +89,7 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
           <img 
             src={logoUrl} 
             alt={branding?.name || 'MetaNetwork'} 
-            className="max-h-8 max-w-[140px] object-contain" 
+            className="max-h-10 max-w-[180px] object-contain" 
           />
         )}
         
