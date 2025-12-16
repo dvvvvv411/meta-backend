@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { LegalFooter } from '@/components/ui/legal-footer';
 import { useDomainBranding } from '@/hooks/useDomainBranding';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import metaLogo from '@/assets/meta-logo.png';
 
 // Validation Schemas
@@ -48,6 +49,7 @@ const AuthPage: React.FC = () => {
   
   const { signIn, signUp, resetPassword, user } = useAuth();
   const navigate = useNavigate();
+  usePageMeta('Login');
   const { toast } = useToast();
   const { data: branding } = useDomainBranding();
   

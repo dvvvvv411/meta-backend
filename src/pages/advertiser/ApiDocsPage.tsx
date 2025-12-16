@@ -150,7 +150,7 @@ const ApiDocsPage = () => {
 
         <div className="p-4 border-t border-border/50">
           <div className="text-xs text-muted-foreground">
-            Version 1.0.0
+            Version 2.4.1
           </div>
         </div>
       </aside>

@@ -5,8 +5,10 @@ import { AdvertiserHeader } from './AdvertiserHeader';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { LegalFooter } from '@/components/ui/legal-footer';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 export const AdvertiserLayout = () => {
+  usePageMeta();
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
 
