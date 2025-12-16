@@ -81,9 +81,9 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
       <div className="absolute top-0 left-0 right-0 h-1 gradient-bg" />
       
       {/* Logo / Brand */}
-      <div className="h-20 flex items-center justify-between px-4 border-b border-border/50">
+      <div className="h-20 flex items-center justify-center px-4 border-b border-border/50 relative">
         {!isCollapsed && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center">
             {branding?.logo_url ? (
               <img 
                 src={branding.logo_url} 
@@ -91,15 +91,12 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
                 className="h-10 max-w-[140px] object-contain" 
               />
             ) : (
-              <>
-                <img src={metaLogo} alt="MetaNetwork" className="h-8 w-auto" />
-                <span className="font-bold text-lg text-foreground">MetaNetwork</span>
-              </>
+              <img src={metaLogo} alt="MetaNetwork" className="h-8 w-auto" />
             )}
           </div>
         )}
         {isCollapsed && !isMobile && (
-          <div className="flex items-center justify-center mx-auto">
+          <div className="flex items-center justify-center">
             {branding?.logo_url ? (
               <img 
                 src={branding.logo_url} 
@@ -116,10 +113,7 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
             variant="ghost"
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
-            className={cn(
-              "h-8 w-8 rounded-lg bg-secondary/50 hover:bg-secondary transition-all duration-200",
-              isCollapsed && "absolute -right-0 top-6"
-            )}
+            className="h-8 w-8 rounded-lg bg-secondary/50 hover:bg-secondary transition-all duration-200 absolute right-4 top-1/2 -translate-y-1/2"
           >
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
