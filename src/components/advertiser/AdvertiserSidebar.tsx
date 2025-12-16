@@ -20,7 +20,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdvertiserAccount } from '@/hooks/useAdvertiserAccount';
 import { useDomainBranding } from '@/hooks/useDomainBranding';
-import metaLogo from '@/assets/meta-logo.png';
+
+const DEFAULT_LOGO_URL = 'https://tpkecrwoyfxcynezbyel.supabase.co/storage/v1/object/public/branding-logos/fec753ad-b83c-4bf6-b1e8-3879fccd5018.png';
 
 interface NavItem {
   label: string;
@@ -69,7 +70,7 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
     navigate('/auth/login');
   };
 
-  const logoUrl = branding?.logo_url || metaLogo;
+  const logoUrl = branding?.logo_url || DEFAULT_LOGO_URL;
 
   return (
     <aside 

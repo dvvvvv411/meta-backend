@@ -19,7 +19,8 @@ import { cn } from '@/lib/utils';
 import { CurrencySearchSelector, CurrencyOption } from '@/components/advertiser/shared/CurrencySearchSelector';
 import { TrustBadges, PoweredByBadge } from '@/components/advertiser/shared/TrustBadges';
 import { PaymentStatusIndicator } from '@/components/advertiser/shared/PaymentStatusIndicator';
-import metaLogo from '@/assets/meta-logo.png';
+
+const DEFAULT_LOGO_URL = 'https://tpkecrwoyfxcynezbyel.supabase.co/storage/v1/object/public/branding-logos/fec753ad-b83c-4bf6-b1e8-3879fccd5018.png';
 
 const RENTAL_PRICE = 150;
 
@@ -192,7 +193,7 @@ export function CheckoutModal({
                   <div className="p-4 bg-gradient-to-br from-muted/50 to-muted/20 border-b border-border/50">
                     <div className="flex items-center gap-4">
                       <div className="w-14 h-14 rounded-xl bg-white shadow-sm flex items-center justify-center p-2">
-                        <img src={metaLogo} alt="Meta" className="w-full h-full object-contain" />
+                        <img src={DEFAULT_LOGO_URL} alt="MetaNetwork Agency" className="w-full h-full object-contain" />
                       </div>
                       <div className="flex-1">
                         <p className="font-bold text-foreground">Agency Account</p>

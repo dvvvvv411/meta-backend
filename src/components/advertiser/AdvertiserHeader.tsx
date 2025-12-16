@@ -23,7 +23,8 @@ import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
 import { useUserBalance } from '@/hooks/useUserBalance';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useDomainBranding } from '@/hooks/useDomainBranding';
-import metaLogo from '@/assets/meta-logo.png';
+
+const DEFAULT_LOGO_URL = 'https://tpkecrwoyfxcynezbyel.supabase.co/storage/v1/object/public/branding-logos/fec753ad-b83c-4bf6-b1e8-3879fccd5018.png';
 
 interface AdvertiserHeaderProps {
   onMenuToggle?: () => void;
@@ -39,7 +40,7 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
-  const logoUrl = branding?.logo_url || metaLogo;
+  const logoUrl = branding?.logo_url || DEFAULT_LOGO_URL;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
