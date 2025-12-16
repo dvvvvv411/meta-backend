@@ -12,14 +12,15 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Lock,
-  Sparkles
+  Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdvertiserAccount } from '@/hooks/useAdvertiserAccount';
+import { useBrandingByDomain } from '@/hooks/useBrandingByDomain';
+import metaLogo from '@/assets/meta-logo.png';
 
 interface NavItem {
   label: string;
@@ -50,6 +51,7 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const { hasActiveAccount, isLoading } = useAdvertiserAccount();
+  const { data: branding } = useBrandingByDomain();
 
   // Mobile is always expanded
   const isCollapsed = isMobile ? false : collapsed;
@@ -82,15 +84,31 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
       <div className="h-20 flex items-center justify-between px-4 border-b border-border/50">
         {!isCollapsed && (
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center shadow-md">
-              <Sparkles className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-lg gradient-text">Dashboard</span>
+            {branding?.logo_url ? (
+              <img 
+                src={branding.logo_url} 
+                alt={branding.name} 
+                className="h-10 max-w-[140px] object-contain" 
+              />
+            ) : (
+              <>
+                <img src={metaLogo} alt="MetaNetwork" className="h-8 w-auto" />
+                <span className="font-bold text-lg text-foreground">MetaNetwork</span>
+              </>
+            )}
           </div>
         )}
         {isCollapsed && !isMobile && (
-          <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center shadow-md mx-auto">
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
+          <div className="flex items-center justify-center mx-auto">
+            {branding?.logo_url ? (
+              <img 
+                src={branding.logo_url} 
+                alt={branding.name} 
+                className="h-8 max-w-[40px] object-contain" 
+              />
+            ) : (
+              <img src={metaLogo} alt="MetaNetwork" className="h-8 w-auto" />
+            )}
           </div>
         )}
         {!isMobile && (

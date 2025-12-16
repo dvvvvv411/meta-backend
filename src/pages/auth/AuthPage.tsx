@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { LegalFooter } from '@/components/ui/legal-footer';
+import { useBrandingByDomain } from '@/hooks/useBrandingByDomain';
 import metaLogo from '@/assets/meta-logo.png';
 
 // Validation Schemas
@@ -48,6 +49,7 @@ const AuthPage: React.FC = () => {
   const { signIn, signUp, resetPassword, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { data: branding } = useBrandingByDomain();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -138,8 +140,14 @@ const AuthPage: React.FC = () => {
           <div className="w-full max-w-md mx-auto">
             {/* Logo */}
             <div className="flex items-center gap-3 mb-10">
-              <img src={metaLogo} alt="Meta" className="h-8 w-auto" />
-              <span className="text-xl font-semibold text-foreground">MetaNetwork</span>
+              {branding?.logo_url ? (
+                <img src={branding.logo_url} alt={branding.name} className="h-10 max-w-[180px] object-contain" />
+              ) : (
+                <>
+                  <img src={metaLogo} alt="Meta" className="h-8 w-auto" />
+                  <span className="text-xl font-semibold text-foreground">MetaNetwork</span>
+                </>
+              )}
             </div>
 
             {/* Tab Switcher - Only show for login/register */}
@@ -405,11 +413,19 @@ const AuthPage: React.FC = () => {
           
           <div className="relative z-10 max-w-md text-center">
             {/* Logo */}
-            <img 
-              src={metaLogo} 
-              alt="Meta" 
-              className="h-10 w-auto mx-auto mb-6" 
-            />
+            {branding?.logo_url ? (
+              <img 
+                src={branding.logo_url} 
+                alt={branding.name} 
+                className="h-12 max-w-[200px] object-contain mx-auto mb-6" 
+              />
+            ) : (
+              <img 
+                src={metaLogo} 
+                alt="Meta" 
+                className="h-10 w-auto mx-auto mb-6" 
+              />
+            )}
             
             {/* Headline */}
             <h2 className="text-2xl xl:text-3xl font-semibold text-[#1c1e21] mb-3">
