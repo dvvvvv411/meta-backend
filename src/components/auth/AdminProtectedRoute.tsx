@@ -21,7 +21,7 @@ export default function AdminProtectedRoute() {
   }
 
   if (role !== 'admin') {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/advertiser" replace />;
   }
 
   return <Outlet />;
