@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { useNewTicketCount } from "@/hooks/useTickets";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NavItem {
   title: string;
@@ -45,7 +46,14 @@ interface SidebarContentProps {
 
 function SidebarNavContent({ collapsed, isAdmin, onCollapse }: SidebarContentProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
   const { data: newTicketCount } = useNewTicketCount();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/auth');
+  };
 
   const filteredItems = navItems.filter(
     (item) => !item.adminOnly || isAdmin
@@ -114,6 +122,7 @@ function SidebarNavContent({ collapsed, isAdmin, onCollapse }: SidebarContentPro
       {/* Footer */}
       <div className="border-t border-sidebar-border p-3">
         <button
+          onClick={handleLogout}
           className={cn(
             "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-destructive/10 hover:text-destructive"
           )}
