@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Wallet, ArrowUpFromLine, AlertCircle, Check, Loader2 } from 'lucide-react';
+import { Wallet, AlertCircle, Check, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useUserBalance } from '@/hooks/useUserBalance';
 import { useWithdrawals } from '@/hooks/useWithdrawals';
+import { TetherIcon, ERC20Icon } from '@/lib/crypto-icons';
 
 interface WithdrawModalProps {
   open: boolean;
@@ -86,8 +87,16 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center pb-2">
-          <div className="mx-auto w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mb-3">
-            <ArrowUpFromLine className="h-6 w-6 text-muted-foreground" />
+          {/* USDT + ERC20 Badge Header */}
+          <div className="mx-auto flex items-center justify-center mb-3">
+            <div className="relative">
+              <div className="w-16 h-16 rounded-2xl bg-[#26A17B]/10 flex items-center justify-center">
+                <TetherIcon size={40} />
+              </div>
+              <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-md border border-border/50">
+                <ERC20Icon size={18} />
+              </div>
+            </div>
           </div>
           <DialogTitle className="text-xl">
             {isSuccess ? 'Anfrage erstellt!' : 'Guthaben auszahlen'}
@@ -95,21 +104,30 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
           <DialogDescription>
             {isSuccess 
               ? 'Deine Auszahlungsanfrage wurde erfolgreich eingereicht'
-              : 'Auszahlung via USDT (ERC20)'
+              : 'Auszahlung via USDT auf dem Ethereum Netzwerk'
             }
           </DialogDescription>
         </DialogHeader>
 
         {isSuccess ? (
           <div className="space-y-5 text-center py-4">
-            <div className="w-20 h-20 rounded-full mx-auto flex items-center justify-center bg-emerald-100 text-emerald-600">
-              <Check className="h-10 w-10" />
+            {/* Success with USDT Branding */}
+            <div className="relative w-24 h-24 mx-auto">
+              <div className="w-24 h-24 rounded-full flex items-center justify-center bg-[#26A17B]/10">
+                <TetherIcon size={48} />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
+                <Check className="h-5 w-5 text-white" />
+              </div>
             </div>
             
             <div>
               <p className="text-lg font-semibold">Auszahlung beantragt!</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {numAmount.toFixed(2)} € werden an deine Wallet gesendet.
+              <p className="text-2xl font-bold text-[#26A17B] mt-2">
+                ≈ {numAmount.toFixed(2)} USDT
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                werden an deine ERC20 Wallet gesendet.
                 <br />
                 Bearbeitungszeit: 24-48 Stunden.
               </p>
@@ -130,11 +148,15 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
               <p className="text-3xl font-bold text-foreground mt-1">
                 {balanceEur.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
               </p>
+              <p className="text-sm text-[#26A17B] font-medium mt-1">
+                ≈ {balanceEur.toLocaleString('de-DE', { minimumFractionDigits: 2 })} USDT
+              </p>
             </div>
 
             {/* Wallet Address Input */}
             <div className="space-y-2">
-              <Label htmlFor="wallet" className="text-sm font-medium">
+              <Label htmlFor="wallet" className="text-sm font-medium flex items-center gap-2">
+                <TetherIcon size={16} />
                 USDT (ERC20) Wallet-Adresse
               </Label>
               <div className="relative">
@@ -186,6 +208,11 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
                   className="pl-8 text-lg font-semibold"
                 />
               </div>
+              {numAmount > 0 && (
+                <p className="text-sm text-[#26A17B] font-medium">
+                  ≈ {numAmount.toFixed(2)} USDT
+                </p>
+              )}
               <p className="text-xs text-muted-foreground">
                 Min. {minAmount}€ • Max. {maxAmount.toFixed(2)}€
               </p>
@@ -196,13 +223,22 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
               )}
             </div>
 
-            {/* Info Alert */}
+            {/* Info Alert with Network Badge */}
             <Alert className="bg-blue-50 border-blue-200">
-              <AlertCircle className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-blue-800 text-sm">
-                Auszahlungen werden innerhalb von 24-48 Stunden bearbeitet.
-                Die Gutschrift erfolgt als USDT auf das ERC20 Netzwerk.
-              </AlertDescription>
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+                <div className="space-y-2">
+                  <AlertDescription className="text-blue-800 text-sm">
+                    Auszahlungen werden innerhalb von 24-48 Stunden bearbeitet.
+                  </AlertDescription>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/80 border border-blue-200">
+                      <ERC20Icon size={14} />
+                      <span className="text-xs font-medium text-blue-800">Ethereum (ERC20)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </Alert>
 
             {/* Submit Button */}
@@ -217,7 +253,10 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
                   Wird bearbeitet...
                 </>
               ) : (
-                'Auszahlung beantragen'
+                <>
+                  <TetherIcon size={18} className="mr-2" />
+                  Auszahlung beantragen
+                </>
               )}
             </Button>
           </div>
