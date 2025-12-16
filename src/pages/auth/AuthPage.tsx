@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { LegalFooter } from '@/components/ui/legal-footer';
 import { useDomainBranding } from '@/hooks/useDomainBranding';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import metaLogo from '@/assets/meta-logo.png';
@@ -496,9 +495,6 @@ const AuthPage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Legal Footer */}
-      <LegalFooter />
     </div>
   );
 };
