@@ -1,4 +1,4 @@
-import { Download, Image } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -21,27 +21,6 @@ export function ExportButtons({ disabled = false }: ExportButtonsProps) {
               >
                 <Download className="h-4 w-4" />
                 CSV Export
-              </Button>
-            </span>
-          </TooltipTrigger>
-          {disabled && (
-            <TooltipContent>
-              <p>Export ist im Demo-Modus nicht verfügbar</p>
-            </TooltipContent>
-          )}
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                disabled={disabled}
-                className="gap-2"
-              >
-                <Image className="h-4 w-4" />
-                PNG Snapshot
               </Button>
             </span>
           </TooltipTrigger>

@@ -17,7 +17,7 @@ export default function AdminProtectedRoute() {
   }
 
   if (!user) {
-    return <Navigate to="/auth/login" replace />;
+    return <Navigate to="/auth" replace />;
   }
 
   if (role !== 'admin') {

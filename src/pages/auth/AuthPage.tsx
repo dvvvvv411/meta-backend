@@ -47,7 +47,7 @@ const AuthPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
   
-  const { signIn, signUp, resetPassword, user } = useAuth();
+  const { signIn, signUp, resetPassword, user, role, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
   usePageMeta('Login');
   const { toast } = useToast();
@@ -56,12 +56,16 @@ const AuthPage: React.FC = () => {
   const logoUrl = branding?.logo_url || metaLogo;
   const brandName = branding?.name || 'MetaNetwork';
 
-  // Redirect if already logged in
+  // Redirect based on role if already logged in
   useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
+    if (user && !isAuthLoading) {
+      if (role === 'admin') {
+        navigate('/dashboard');
+      } else {
+        navigate('/advertiser');
+      }
     }
-  }, [user, navigate]);
+  }, [user, role, isAuthLoading, navigate]);
 
   // Login Form
   const loginForm = useForm<LoginFormData>({
@@ -89,9 +93,8 @@ const AuthPage: React.FC = () => {
         title: 'Anmeldung fehlgeschlagen',
         description: error,
       });
-    } else {
-      navigate('/dashboard');
     }
+    // Redirect is handled by useEffect based on role
   };
 
   const handleRegister = async (data: RegisterFormData) => {
@@ -110,7 +113,7 @@ const AuthPage: React.FC = () => {
         title: 'Willkommen!',
         description: 'Ihr Konto wurde erfolgreich erstellt.',
       });
-      navigate('/dashboard');
+      navigate('/advertiser');
     }
   };
 
