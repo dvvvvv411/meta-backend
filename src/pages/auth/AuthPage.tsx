@@ -14,7 +14,9 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useDomainBranding } from '@/hooks/useDomainBranding';
 import { usePageMeta } from '@/hooks/usePageMeta';
-import metaLogo from '@/assets/meta-logo.png';
+
+// MetaNetwork Agency Logo aus der DB als Fallback
+const DEFAULT_LOGO_URL = 'https://tpkecrwoyfxcynezbyel.supabase.co/storage/v1/object/public/branding-logos/fec753ad-b83c-4bf6-b1e8-3879fccd5018.png';
 
 // Validation Schemas
 const loginSchema = z.object({
@@ -52,7 +54,7 @@ const AuthPage: React.FC = () => {
   const { toast } = useToast();
   const { data: branding } = useDomainBranding();
   
-  const logoUrl = branding?.logo_url || metaLogo;
+  const logoUrl = branding?.logo_url || DEFAULT_LOGO_URL;
   const brandName = branding?.name || 'MetaNetwork';
 
   // Redirect based on role if already logged in
