@@ -89,7 +89,7 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
           <img 
             src={logoUrl} 
             alt={branding?.name || 'MetaNetwork'} 
-            className="max-h-8 w-auto object-contain" 
+            className="max-h-8 max-w-[140px] object-contain" 
           />
         )}
         
@@ -99,8 +99,8 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
             className={cn(
-              "h-8 w-8 rounded-lg bg-secondary/50 hover:bg-secondary transition-all duration-200",
-              isCollapsed ? "mx-auto" : "absolute right-4"
+              "h-8 w-8 rounded-lg bg-secondary/50 hover:bg-secondary transition-all duration-200 shrink-0",
+              isCollapsed ? "mx-auto" : "absolute right-3"
             )}
           >
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
