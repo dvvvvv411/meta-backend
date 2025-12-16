@@ -495,6 +495,14 @@ export default function CampaignEditPage() {
   };
 
   const handlePublish = async () => {
+    // Zuerst Guthaben prüfen
+    if (balanceEur < MINIMUM_PUBLISH_BALANCE) {
+      toast.error('Unzureichendes Guthaben', {
+        description: 'Du benötigst mindestens €1.000 Guthaben, um eine Kampagne zu veröffentlichen.'
+      });
+      return;
+    }
+
     const { isValid, errors } = validateAllFields();
     
     if (!isValid) {
@@ -2053,36 +2061,23 @@ export default function CampaignEditPage() {
                       </>
                     )}
                   </Button>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span>
-                          <Button 
-                            onClick={handlePublish} 
-                            disabled={isSaving || balanceEur < MINIMUM_PUBLISH_BALANCE}
-                            className="gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-50"
-                          >
-                            {isSaving ? (
-                              <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Publishing...
-                              </>
-                            ) : (
-                              <>
-                                <Send className="h-4 w-4" />
-                                Publish
-                              </>
-                            )}
-                          </Button>
-                        </span>
-                      </TooltipTrigger>
-                      {balanceEur < MINIMUM_PUBLISH_BALANCE && (
-                        <TooltipContent>
-                          <p>You need at least €1,000 balance to publish a campaign</p>
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Button 
+                    onClick={handlePublish} 
+                    disabled={isSaving}
+                    className="gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-50"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Publishing...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4" />
+                        Publish
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
             </div>
