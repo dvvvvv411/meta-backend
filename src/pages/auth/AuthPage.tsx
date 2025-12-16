@@ -57,7 +57,7 @@ const AuthPage: React.FC = () => {
 
   // Redirect based on role if already logged in
   useEffect(() => {
-    if (user && !isAuthLoading) {
+    if (user && !isAuthLoading && role !== null) {
       if (role === 'admin') {
         navigate('/dashboard');
       } else {
