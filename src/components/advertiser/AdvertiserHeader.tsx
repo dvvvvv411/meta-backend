@@ -39,7 +39,6 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
-  const companyName = user?.user_metadata?.company_name as string | undefined;
   const logoUrl = branding?.logo_url || metaLogo;
 
   const formatCurrency = (amount: number) => {
@@ -150,8 +149,8 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
                 <User className="h-4 w-4 text-primary" />
               </div>
               <div className="hidden sm:block text-left">
-                <p className="text-sm font-medium leading-tight">
-                  {companyName || user?.email?.split('@')[0] || 'Benutzer'}
+                <p className="text-sm font-medium leading-tight truncate max-w-[180px]">
+                  {user?.email || 'Benutzer'}
                 </p>
               {accountsLoading ? (
                   <Skeleton className="h-4 w-12 mt-0.5" />
@@ -169,8 +168,7 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 bg-popover">
             <div className="px-2 py-1.5 sm:hidden">
-              <p className="text-sm font-medium">{companyName || user?.email?.split('@')[0]}</p>
-              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              <p className="text-sm font-medium truncate">{user?.email}</p>
             </div>
             <DropdownMenuSeparator className="sm:hidden" />
             <DropdownMenuItem onClick={() => navigate('/advertiser/settings')}>

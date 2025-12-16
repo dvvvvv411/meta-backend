@@ -1,15 +1,26 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import { AdvertiserSidebar } from './AdvertiserSidebar';
 import { AdvertiserHeader } from './AdvertiserHeader';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { usePageMeta } from '@/hooks/usePageMeta';
+import { useDomainBranding } from '@/hooks/useDomainBranding';
 
 export const AdvertiserLayout = () => {
   usePageMeta();
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
+  const { isLoading: brandingLoading } = useDomainBranding();
+
+  if (brandingLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex w-full bg-background">

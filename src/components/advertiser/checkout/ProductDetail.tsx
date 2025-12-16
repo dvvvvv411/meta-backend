@@ -172,7 +172,7 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
                   ))}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">500+</span> zufriedene Werbetreibende vertrauen uns
+                  <span className="font-semibold text-foreground">3.500+</span> zufriedene Werbetreibende vertrauen uns
                 </p>
               </div>
             </div>
