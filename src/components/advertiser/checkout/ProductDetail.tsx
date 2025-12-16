@@ -1,5 +1,6 @@
 import { Check, Zap, Shield, BarChart3, Headphones, Clock, ArrowRight, Star, Lock, Sparkles } from 'lucide-react';
-import metaLogo from '@/assets/meta-logo.png';
+
+const DEFAULT_LOGO_URL = 'https://tpkecrwoyfxcynezbyel.supabase.co/storage/v1/object/public/branding-logos/fec753ad-b83c-4bf6-b1e8-3879fccd5018.png';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -45,7 +46,7 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
                 <div className="space-y-4 text-center">
                   {/* Logo and Badge */}
                   <div className="flex items-center justify-center gap-3">
-                    <img src={metaLogo} alt="Meta Logo" className="h-8 w-auto" />
+                    <img src={DEFAULT_LOGO_URL} alt="MetaNetwork Agency" className="h-8 w-auto" />
                     <Badge className="gradient-bg text-primary-foreground border-0 text-sm px-3 py-1">
                       Premium • 30 Tage
                     </Badge>
