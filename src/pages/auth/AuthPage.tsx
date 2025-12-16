@@ -146,9 +146,8 @@ const AuthPage: React.FC = () => {
         <div className="w-full lg:w-[45%] flex flex-col justify-center px-6 py-12 lg:px-16 xl:px-24">
           <div className="w-full max-w-md mx-auto">
             {/* Logo */}
-            <div className="flex items-center gap-3 mb-10">
+            <div className="mb-10">
               <img src={logoUrl} alt={brandName} className="h-8 w-auto" />
-              <span className="text-xl font-semibold text-foreground">{brandName}</span>
             </div>
 
             {/* Tab Switcher - Only show for login/register */}
@@ -253,7 +252,7 @@ const AuthPage: React.FC = () => {
             {view === 'register' && (
               <div className="animate-fade-in">
                 <h1 className="text-2xl font-semibold text-foreground mb-2">Konto erstellen</h1>
-                <p className="text-muted-foreground mb-8">Starten Sie jetzt mit MetaNetwork</p>
+                <p className="text-muted-foreground mb-8">Starten Sie jetzt mit {brandName}</p>
 
                 <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-5">
                   <div className="space-y-2">
@@ -427,7 +426,7 @@ const AuthPage: React.FC = () => {
             
             {/* Subline */}
             <p className="text-base text-[#606770] mb-8">
-              Deine Vorteile mit MetaNetwork
+              Deine Vorteile mit {brandName}
             </p>
             
             {/* Benefits Grid */}
