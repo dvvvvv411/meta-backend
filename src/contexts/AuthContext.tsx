@@ -50,6 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (data) {
       setRole(data.role as AppRole);
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -66,9 +67,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }, 0);
         } else {
           setRole(null);
+          setIsLoading(false);
         }
-        
-        setIsLoading(false);
       }
     );
 
@@ -79,9 +79,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (session?.user) {
         fetchUserRole(session.user.id);
+      } else {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     });
 
     return () => subscription.unsubscribe();
