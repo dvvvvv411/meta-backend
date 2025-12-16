@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useUserBalance } from '@/hooks/useUserBalance';
 import { useWithdrawals } from '@/hooks/useWithdrawals';
+import { useUsdtRate } from '@/hooks/useUsdtRate';
 import { TetherIcon, ERC20Icon } from '@/lib/crypto-icons';
 
 interface WithdrawModalProps {
@@ -25,6 +26,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
   const { toast } = useToast();
   const { balanceEur, invalidateBalance } = useUserBalance();
   const { createWithdrawalRequest } = useWithdrawals();
+  const { eurToUsdt } = useUsdtRate();
   
   const [walletAddress, setWalletAddress] = useState('');
   const [amount, setAmount] = useState('');
@@ -124,7 +126,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
             <div>
               <p className="text-lg font-semibold">Auszahlung beantragt!</p>
               <p className="text-2xl font-bold text-[#26A17B] mt-2">
-                ≈ {numAmount.toFixed(2)} USDT
+                ≈ {eurToUsdt(numAmount).toFixed(2)} USDT
               </p>
               <p className="text-sm text-muted-foreground mt-2">
                 werden an deine ERC20 Wallet gesendet.
@@ -149,7 +151,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
                 {balanceEur.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
               </p>
               <p className="text-sm text-[#26A17B] font-medium mt-1">
-                ≈ {balanceEur.toLocaleString('de-DE', { minimumFractionDigits: 2 })} USDT
+                ≈ {eurToUsdt(balanceEur).toLocaleString('de-DE', { minimumFractionDigits: 2 })} USDT
               </p>
             </div>
 
@@ -210,7 +212,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
               </div>
               {numAmount > 0 && (
                 <p className="text-sm text-[#26A17B] font-medium">
-                  ≈ {numAmount.toFixed(2)} USDT
+                  ≈ {eurToUsdt(numAmount).toFixed(2)} USDT
                 </p>
               )}
               <p className="text-xs text-muted-foreground">
@@ -253,10 +255,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
                   Wird bearbeitet...
                 </>
               ) : (
-                <>
-                  <TetherIcon size={18} className="mr-2" />
-                  Auszahlung beantragen
-                </>
+                'Auszahlung beantragen'
               )}
             </Button>
           </div>
