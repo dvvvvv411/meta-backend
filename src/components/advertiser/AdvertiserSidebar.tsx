@@ -12,14 +12,15 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Lock,
-  Sparkles
+  Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdvertiserAccount } from '@/hooks/useAdvertiserAccount';
+import { useDomainBranding } from '@/hooks/useDomainBranding';
+import metaLogo from '@/assets/meta-logo.png';
 
 interface NavItem {
   label: string;
@@ -50,6 +51,7 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const { hasActiveAccount, isLoading } = useAdvertiserAccount();
+  const { data: branding } = useDomainBranding();
 
   // Mobile is always expanded
   const isCollapsed = isMobile ? false : collapsed;
@@ -67,6 +69,8 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
     navigate('/auth/login');
   };
 
+  const logoUrl = branding?.logo_url || metaLogo;
+
   return (
     <aside 
       className={cn(
@@ -79,20 +83,15 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
       <div className="absolute top-0 left-0 right-0 h-1 gradient-bg" />
       
       {/* Logo / Brand */}
-      <div className="h-20 flex items-center justify-between px-4 border-b border-border/50">
+      <div className="h-20 flex items-center justify-center px-4 border-b border-border/50 relative">
         {!isCollapsed && (
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center shadow-md">
-              <Sparkles className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-lg gradient-text">Dashboard</span>
-          </div>
+          <img 
+            src={logoUrl} 
+            alt={branding?.name || 'MetaNetwork'} 
+            className="max-h-10 w-auto object-contain" 
+          />
         )}
-        {isCollapsed && !isMobile && (
-          <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center shadow-md mx-auto">
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
-          </div>
-        )}
+        
         {!isMobile && (
           <Button
             variant="ghost"
@@ -100,7 +99,7 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
             onClick={() => setCollapsed(!collapsed)}
             className={cn(
               "h-8 w-8 rounded-lg bg-secondary/50 hover:bg-secondary transition-all duration-200",
-              isCollapsed && "absolute -right-0 top-6"
+              isCollapsed ? "mx-auto" : "absolute right-4"
             )}
           >
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
