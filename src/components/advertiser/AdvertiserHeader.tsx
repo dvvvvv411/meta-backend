@@ -21,6 +21,9 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
 import { useUserBalance } from '@/hooks/useUserBalance';
+import { useNotifications } from '@/hooks/useNotifications';
+import { useDomainBranding } from '@/hooks/useDomainBranding';
+import metaLogo from '@/assets/meta-logo.png';
 
 interface AdvertiserHeaderProps {
   onMenuToggle?: () => void;
@@ -31,17 +34,13 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
   const { user, signOut } = useAuth();
   const { hasActiveAccount, isLoading: accountsLoading } = useAdvertiserAccounts();
   const { balanceEur, isLoading: balanceLoading } = useUserBalance();
+  const { notifications, unreadCount } = useNotifications();
+  const { data: branding } = useDomainBranding();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
   const companyName = user?.user_metadata?.company_name as string | undefined;
-
-  // Mock notifications - in production this would come from the database
-  const notifications = [
-    { id: '1', title: 'Zahlung erhalten', message: '150 EUR wurde gutgeschrieben', time: 'vor 2 Std.' },
-    { id: '2', title: 'Account läuft ab', message: 'Dein Account läuft in 3 Tagen ab', time: 'vor 1 Tag' },
-  ];
-  const unreadCount = notifications.length;
+  const logoUrl = branding?.logo_url || metaLogo;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
@@ -49,18 +48,31 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
 
   const handleLogout = async () => {
     await signOut();
-    navigate('/auth/login');
+    navigate('/auth');
+  };
+
+  const handleNotificationClick = (link?: string) => {
+    if (link) navigate(link);
   };
 
   return (
     <header className="sticky top-0 z-10 h-16 bg-background/95 backdrop-blur border-b border-border px-4 sm:px-6 flex items-center justify-between gap-2 sm:gap-4">
-      {/* Left: Menu Button (Mobile) + Search */}
+      {/* Left: Menu Button (Mobile) + Logo (Mobile) + Search */}
       <div className="flex items-center gap-2 sm:gap-4 flex-1">
         {showMenuButton && (
           <Button variant="ghost" size="icon" onClick={onMenuToggle} className="shrink-0" aria-label="Navigation öffnen">
             <Menu className="h-5 w-5" aria-hidden="true" />
           </Button>
         )}
+
+        {/* Mobile Logo */}
+        <div className="sm:hidden shrink-0">
+          <img 
+            src={logoUrl} 
+            alt={branding?.name || 'MetaNetwork'} 
+            className="h-7 w-auto object-contain" 
+          />
+        </div>
 
         {/* Global Search - Hidden on small screens */}
         <div className="relative hidden md:block max-w-xs flex-1">
@@ -111,7 +123,11 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
             <div className="max-h-80 overflow-y-auto">
               {notifications.length > 0 ? (
                 notifications.map((notification) => (
-                  <div key={notification.id} className="p-3 hover:bg-muted/50 cursor-pointer border-b border-border last:border-0">
+                  <div 
+                    key={notification.id} 
+                    className="p-3 hover:bg-muted/50 cursor-pointer border-b border-border last:border-0"
+                    onClick={() => handleNotificationClick(notification.link)}
+                  >
                     <p className="text-sm font-medium">{notification.title}</p>
                     <p className="text-xs text-muted-foreground">{notification.message}</p>
                     <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
