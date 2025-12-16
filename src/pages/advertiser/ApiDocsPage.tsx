@@ -150,7 +150,7 @@ const ApiDocsPage = () => {
 
         <div className="p-4 border-t border-border/50">
           <div className="text-xs text-muted-foreground">
-            Version 3.2.1
+            Version 1.0.0
           </div>
         </div>
       </aside>
@@ -774,7 +774,7 @@ const ApiDocsPage = () => {
               MetaNetwork API – Built for scalable advertising infrastructure.
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Version 3.2.1 • © 2025 MetaNetwork
+              Version 1.0.0 • © 2025 MetaNetwork
             </p>
           </footer>
         </div>
