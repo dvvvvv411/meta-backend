@@ -1,4 +1,4 @@
-import { CheckCircle2, Download, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import {
@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { downloadInvoice, InvoiceData } from '@/lib/invoice-generator';
+
 
 interface OrderConfirmationProps {
   open: boolean;
@@ -37,22 +37,6 @@ export function OrderConfirmation({
 
   const formatDate = (date: Date) => format(date, 'dd.MM.yyyy', { locale: de });
 
-  const handleDownloadInvoice = () => {
-    const invoiceData: InvoiceData = {
-      invoiceNumber: orderData.invoiceNumber,
-      date: new Date(),
-      customerName: orderData.customerName,
-      customerEmail: orderData.customerEmail,
-      companyName: orderData.companyName,
-      product: 'Agency Account - 30 Tage',
-      amount: orderData.amount,
-      currency: orderData.currency,
-      paymentMethod: 'Krypto (USDT)',
-      validFrom: orderData.startDate,
-      validUntil: orderData.endDate,
-    };
-    downloadInvoice(invoiceData);
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -101,17 +85,9 @@ export function OrderConfirmation({
           </div>
         </div>
 
-        <div className="flex gap-3 pt-4">
+        <div className="pt-4">
           <Button 
-            variant="outline" 
-            className="flex-1"
-            onClick={handleDownloadInvoice}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Rechnung
-          </Button>
-          <Button 
-            className="flex-1"
+            className="w-full"
             onClick={onGoToDashboard}
           >
             Zum Dashboard
