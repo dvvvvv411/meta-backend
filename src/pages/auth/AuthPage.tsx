@@ -148,8 +148,8 @@ const AuthPage: React.FC = () => {
         <div className="w-full lg:w-[45%] flex flex-col justify-center px-6 py-12 lg:px-16 xl:px-24">
           <div className="w-full max-w-md mx-auto">
             {/* Logo */}
-            <div className="mb-10">
-              <img src={logoUrl} alt={brandName} className="h-8 w-auto" />
+          <div className="mb-10 flex justify-center">
+            <img src={logoUrl} alt={brandName} className="h-8 w-auto" />
             </div>
 
             {/* Tab Switcher - Only show for login/register */}
