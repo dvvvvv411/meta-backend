@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { LegalFooter } from '@/components/ui/legal-footer';
+import { useDomainBranding } from '@/hooks/useDomainBranding';
 import metaLogo from '@/assets/meta-logo.png';
 
 // Validation Schemas
@@ -48,6 +49,10 @@ const AuthPage: React.FC = () => {
   const { signIn, signUp, resetPassword, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { data: branding } = useDomainBranding();
+  
+  const logoUrl = branding?.logo_url || metaLogo;
+  const brandName = branding?.name || 'MetaNetwork';
 
   // Redirect if already logged in
   useEffect(() => {
@@ -138,8 +143,8 @@ const AuthPage: React.FC = () => {
           <div className="w-full max-w-md mx-auto">
             {/* Logo */}
             <div className="flex items-center gap-3 mb-10">
-              <img src={metaLogo} alt="Meta" className="h-8 w-auto" />
-              <span className="text-xl font-semibold text-foreground">MetaNetwork</span>
+              <img src={logoUrl} alt={brandName} className="h-8 w-auto" />
+              <span className="text-xl font-semibold text-foreground">{brandName}</span>
             </div>
 
             {/* Tab Switcher - Only show for login/register */}
@@ -406,8 +411,8 @@ const AuthPage: React.FC = () => {
           <div className="relative z-10 max-w-md text-center">
             {/* Logo */}
             <img 
-              src={metaLogo} 
-              alt="Meta" 
+              src={logoUrl} 
+              alt={brandName} 
               className="h-10 w-auto mx-auto mb-6" 
             />
             
