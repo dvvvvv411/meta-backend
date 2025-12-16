@@ -58,11 +58,11 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
   return (
     <header className="sticky top-0 z-10 h-16 bg-background/95 backdrop-blur border-b border-border px-4 sm:px-6 flex items-center justify-between gap-2 sm:gap-4">
       {/* Mobile Logo - zentriert */}
-      <div className="sm:hidden absolute left-1/2 -translate-x-1/2">
+      <div className="sm:hidden absolute left-1/2 -translate-x-1/2 max-w-[120px]">
         <img 
           src={logoUrl} 
           alt={branding?.name || 'MetaNetwork'} 
-          className="h-7 w-auto object-contain" 
+          className="h-7 w-full object-contain" 
         />
       </div>
 
