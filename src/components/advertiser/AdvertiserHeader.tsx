@@ -56,22 +56,22 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
 
   return (
     <header className="sticky top-0 z-10 h-16 bg-background/95 backdrop-blur border-b border-border px-4 sm:px-6 flex items-center justify-between gap-2 sm:gap-4">
-      {/* Left: Menu Button (Mobile) + Logo (Mobile) + Search */}
+      {/* Mobile Logo - zentriert */}
+      <div className="sm:hidden absolute left-1/2 -translate-x-1/2">
+        <img 
+          src={logoUrl} 
+          alt={branding?.name || 'MetaNetwork'} 
+          className="h-7 w-auto object-contain" 
+        />
+      </div>
+
+      {/* Left: Menu Button (Mobile) + Search */}
       <div className="flex items-center gap-2 sm:gap-4 flex-1">
         {showMenuButton && (
           <Button variant="ghost" size="icon" onClick={onMenuToggle} className="shrink-0" aria-label="Navigation öffnen">
             <Menu className="h-5 w-5" aria-hidden="true" />
           </Button>
         )}
-
-        {/* Mobile Logo */}
-        <div className="sm:hidden shrink-0">
-          <img 
-            src={logoUrl} 
-            alt={branding?.name || 'MetaNetwork'} 
-            className="h-7 w-auto object-contain" 
-          />
-        </div>
 
         {/* Global Search - Hidden on small screens */}
         <div className="relative hidden md:block max-w-xs flex-1">
