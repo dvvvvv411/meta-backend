@@ -47,8 +47,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
   const minAmount = 10;
   const maxAmount = balanceEur;
 
-  // Validate ERC20 wallet address (0x followed by 40 hex characters)
-  const isValidWalletAddress = /^0x[a-fA-F0-9]{40}$/.test(walletAddress);
+  const isValidWalletAddress = walletAddress.trim().length > 0;
   const isValidAmount = numAmount >= minAmount && numAmount <= maxAmount;
   const canSubmit = isValidWalletAddress && isValidAmount && !isSubmitting;
 
@@ -172,11 +171,6 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
                   className="pl-10 font-mono text-sm"
                 />
               </div>
-              {walletAddress && !isValidWalletAddress && (
-                <p className="text-xs text-destructive">
-                  Bitte gib eine gültige ERC20 Wallet-Adresse ein (0x...)
-                </p>
-              )}
             </div>
 
             {/* Amount Input */}
