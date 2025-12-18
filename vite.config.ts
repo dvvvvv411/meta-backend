@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     allowedHosts: [
       "web.metanetwork.agency",
+      "web.metanetworkagency.com",
       ".lovable.app",
       ".lovableproject.com"
     ],
