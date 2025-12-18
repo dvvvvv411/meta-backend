@@ -177,11 +177,9 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
           {/* Introduction */}
           <section id="introduction" className="scroll-mt-20">
             <div className="space-y-4">
-              <h1 className="text-3xl font-bold text-foreground">MetaNetwork Advertiser API</h1>
+              <h1 className="text-3xl font-bold text-foreground">{t.apiDocs.pageTitle}</h1>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Die MetaNetwork API ermöglicht Werbetreibenden und Agenturen, Kampagnen, Budgets, 
-                Accounts und Statistiken programmatisch zu verwalten. Alle Endpoints sind REST-basiert 
-                und liefern JSON-Responses.
+                {t.apiDocs.pageIntro}
               </p>
               
               <div className="grid gap-4 sm:grid-cols-3 mt-8">
@@ -190,8 +188,8 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
                       <Zap className="h-6 w-6 text-primary" />
                     </div>
-                    <h3 className="font-semibold">Schnell</h3>
-                    <p className="text-sm text-muted-foreground mt-1">Durchschnittliche Latenz &lt;100ms</p>
+                    <h3 className="font-semibold">{t.apiDocs.fast}</h3>
+                    <p className="text-sm text-muted-foreground mt-1">{t.apiDocs.fastDesc}</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -199,8 +197,8 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
                       <ShieldCheck className="h-6 w-6 text-primary" />
                     </div>
-                    <h3 className="font-semibold">Sicher</h3>
-                    <p className="text-sm text-muted-foreground mt-1">TLS 1.3 & OAuth 2.0</p>
+                    <h3 className="font-semibold">{t.apiDocs.secure}</h3>
+                    <p className="text-sm text-muted-foreground mt-1">{t.apiDocs.secureDesc}</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -208,8 +206,8 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
                       <Globe className="h-6 w-6 text-primary" />
                     </div>
-                    <h3 className="font-semibold">RESTful</h3>
-                    <p className="text-sm text-muted-foreground mt-1">Standardisierte JSON Responses</p>
+                    <h3 className="font-semibold">{t.apiDocs.restful}</h3>
+                    <p className="text-sm text-muted-foreground mt-1">{t.apiDocs.restfulDesc}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -270,24 +268,23 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                Die aktuelle stabile Version ist <code className="bg-muted px-1 rounded">v1</code>. 
-                Breaking Changes werden nur in neuen Major-Versionen eingeführt.
+                {t.apiDocs.currentVersion} <code className="bg-muted px-1 rounded">v1</code>. 
+                {t.apiDocs.breakingChanges}
               </AlertDescription>
             </Alert>
           </section>
 
           {/* Agency Accounts */}
           <section id="agency-accounts" className="scroll-mt-20 space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Agency Accounts</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t.apiDocs.agencyAccounts}</h2>
             <p className="text-muted-foreground">
-              Verwalte deine Agency Accounts programmatisch. Rufe Account-Details ab, 
-              prüfe den Status und verwalte Ausgabenlimits.
+              {t.apiDocs.agencyAccountsDesc}
             </p>
 
             <EndpointCard
               method="GET"
               path="/v1/agency-accounts"
-              description="Liste aller aktiven Agency Accounts abrufen, inklusive Status und Budgetinformationen."
+              description={t.apiDocs.listAccounts}
               response={`{
   "data": [
     {
@@ -312,7 +309,7 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
             <EndpointCard
               method="GET"
               path="/v1/agency-accounts/:id"
-              description="Details eines spezifischen Agency Accounts abrufen."
+              description={t.apiDocs.getAccount}
               response={`{
   "data": {
     "id": "acc_7x8kL9mN2pQ3",
@@ -332,7 +329,7 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
             <EndpointCard
               method="PATCH"
               path="/v1/agency-accounts/:id"
-              description="Agency Account Einstellungen aktualisieren (z.B. Name, Auto-Renewal)."
+              description={t.apiDocs.updateAccount}
               request={`{
   "name": "Updated Account Name",
   "auto_renew": false
@@ -350,16 +347,15 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
 
           {/* Campaigns */}
           <section id="campaigns" className="scroll-mt-20 space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Kampagnen</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t.apiDocs.campaignsSection}</h2>
             <p className="text-muted-foreground">
-              Erstelle und verwalte Werbekampagnen. Definiere Budgets, Zielgruppen und 
-              Optimierungsziele programmatisch.
+              {t.apiDocs.campaignsDesc}
             </p>
 
             <EndpointCard
               method="GET"
               path="/v1/campaigns"
-              description="Liste aller Kampagnen mit Filtern nach Status, Account und Datumsbereich."
+              description={t.apiDocs.listCampaigns}
               response={`{
   "data": [
     {
@@ -384,7 +380,7 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
             <EndpointCard
               method="POST"
               path="/v1/campaigns"
-              description="Neue Werbekampagne erstellen. Erfordert einen aktiven Agency Account."
+              description={t.apiDocs.createCampaign}
               request={`{
   "name": "Scaling Campaign EU",
   "account_id": "acc_7x8kL9mN2pQ3",
@@ -408,7 +404,7 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
             <EndpointCard
               method="PUT"
               path="/v1/campaigns/:id/status"
-              description="Kampagnenstatus ändern (aktivieren, pausieren, archivieren)."
+              description={t.apiDocs.updateStatus}
               request={`{
   "status": "paused"
 }`}
@@ -424,23 +420,22 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
 
           {/* Wallet / Top-Up */}
           <section id="wallet" className="scroll-mt-20 space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Budget & Top-Up</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t.apiDocs.wallet}</h2>
             <p className="text-muted-foreground">
-              Verwalte dein Guthaben und führe Top-Ups durch. Unterstützt werden 
-              Kryptowährungen (USDT, USDC, BTC, ETH) mit automatischer Konvertierung.
+              {t.apiDocs.walletDesc}
             </p>
 
             <Alert className="bg-amber-50 border-amber-200">
               <AlertCircle className="h-4 w-4 text-amber-600" />
               <AlertDescription className="text-amber-800">
-                Auf alle Top-Ups wird eine Gebühr von 2% erhoben, die automatisch abgezogen wird.
+                {t.apiDocs.feeNotice}
               </AlertDescription>
             </Alert>
 
             <EndpointCard
               method="GET"
               path="/v1/wallet/balance"
-              description="Aktuelles Guthaben und verfügbares Budget abrufen."
+              description={t.apiDocs.getBalance}
               response={`{
   "data": {
     "balance": 4250.00,
@@ -454,7 +449,7 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
             <EndpointCard
               method="POST"
               path="/v1/wallet/topup"
-              description="Neuen Top-Up via Kryptowährung initiieren. Gibt Wallet-Adresse für die Zahlung zurück."
+              description={t.apiDocs.initiateTopup}
               request={`{
   "amount": 500,
   "currency": "EUR",
@@ -478,7 +473,7 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
             <EndpointCard
               method="GET"
               path="/v1/wallet/transactions"
-              description="Transaktionshistorie mit Filtern nach Typ und Zeitraum."
+              description={t.apiDocs.transactionHistory}
               response={`{
   "data": [
     {
@@ -510,16 +505,15 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
 
           {/* Statistics */}
           <section id="statistics" className="scroll-mt-20 space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Statistiken & Reporting</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t.apiDocs.statisticsSection}</h2>
             <p className="text-muted-foreground">
-              Greife auf detaillierte Performance-Daten zu. Abrufe KPIs, Tageswerte 
-              und aggregierte Statistiken für deine Kampagnen.
+              {t.apiDocs.statisticsDesc}
             </p>
 
             <EndpointCard
               method="GET"
               path="/v1/stats"
-              description="Aggregierte Statistiken für alle Kampagnen oder gefiltert nach Kampagne/Account."
+              description={t.apiDocs.aggregatedStats}
               response={`{
   "data": {
     "period": {
@@ -543,7 +537,7 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
             <EndpointCard
               method="GET"
               path="/v1/stats/daily"
-              description="Tägliche Performance-Daten für detaillierte Analysen und Trends."
+              description={t.apiDocs.dailyStats}
               response={`{
   "data": [
     {
@@ -567,21 +561,20 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
 
           {/* Webhooks */}
           <section id="webhooks" className="scroll-mt-20 space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Webhooks</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t.apiDocs.webhooks}</h2>
             <p className="text-muted-foreground">
-              Erhalte Echtzeit-Benachrichtigungen über wichtige Events. Konfiguriere 
-              Webhook-Endpoints in deinem Dashboard.
+              {t.apiDocs.webhooksDesc}
             </p>
 
             <div className="space-y-3">
               {[
-                { event: 'campaign.started', desc: 'Kampagne wurde erfolgreich aktiviert' },
-                { event: 'campaign.paused', desc: 'Kampagne wurde pausiert (manuell oder automatisch)' },
-                { event: 'campaign.budget_depleted', desc: 'Tagesbudget wurde aufgebraucht' },
-                { event: 'spend.limit_reached', desc: 'Ausgabenlimit des Accounts erreicht' },
-                { event: 'account.expiring', desc: 'Agency Account läuft in 3 Tagen ab' },
-                { event: 'account.expired', desc: 'Agency Account ist abgelaufen' },
-                { event: 'payment.completed', desc: 'Zahlung wurde erfolgreich verarbeitet' },
+                { event: 'campaign.started', desc: t.apiDocs.eventCampaignStarted },
+                { event: 'campaign.paused', desc: t.apiDocs.eventCampaignPaused },
+                { event: 'campaign.budget_depleted', desc: t.apiDocs.eventBudgetDepleted },
+                { event: 'spend.limit_reached', desc: t.apiDocs.eventSpendLimit },
+                { event: 'account.expiring', desc: t.apiDocs.eventAccountExpiring },
+                { event: 'account.expired', desc: t.apiDocs.eventAccountExpired },
+                { event: 'payment.completed', desc: t.apiDocs.eventPaymentCompleted },
               ].map((webhook) => (
                 <div key={webhook.event} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border/50">
                   <Badge variant="outline" className="font-mono text-xs">{webhook.event}</Badge>
@@ -591,7 +584,7 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
             </div>
             
             <CodeBlock 
-              title="Webhook Payload Beispiel"
+              title={t.apiDocs.webhookPayloadExample}
               code={`{
   "id": "evt_1a2B3c4D5e6F",
   "event": "campaign.started",
@@ -607,39 +600,37 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                Webhooks werden mit einer HMAC-SHA256 Signatur im <code className="bg-muted px-1 rounded">X-Signature</code> Header 
-                gesendet. Verifiziere diese Signatur, um die Authentizität zu gewährleisten.
+                {t.apiDocs.webhookSignatureInfo}
               </AlertDescription>
             </Alert>
           </section>
 
           {/* Error Codes */}
           <section id="errors" className="scroll-mt-20 space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Fehlercodes</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t.apiDocs.errorCodes}</h2>
             <p className="text-muted-foreground">
-              Die API verwendet standardisierte HTTP Status Codes. Fehlerresponses 
-              enthalten zusätzliche Informationen im JSON Body.
+              {t.apiDocs.errorCodesDesc}
             </p>
 
             <div className="border border-border rounded-xl overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30">
-                    <TableHead className="w-24">Code</TableHead>
-                    <TableHead className="w-40">Status</TableHead>
-                    <TableHead>Beschreibung</TableHead>
+                    <TableHead className="w-24">{t.apiDocs.code}</TableHead>
+                    <TableHead className="w-40">{t.apiDocs.status}</TableHead>
+                    <TableHead>{t.apiDocs.description}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {[
-                    { code: 200, status: 'OK', desc: 'Erfolgreiche Anfrage', color: 'bg-green-100 text-green-700' },
-                    { code: 201, status: 'Created', desc: 'Ressource erfolgreich erstellt', color: 'bg-green-100 text-green-700' },
-                    { code: 400, status: 'Bad Request', desc: 'Ungültige Request-Parameter', color: 'bg-amber-100 text-amber-700' },
-                    { code: 401, status: 'Unauthorized', desc: 'Fehlender oder ungültiger API Key', color: 'bg-red-100 text-red-700' },
-                    { code: 403, status: 'Forbidden', desc: 'Keine Berechtigung für diese Aktion', color: 'bg-red-100 text-red-700' },
-                    { code: 404, status: 'Not Found', desc: 'Ressource nicht gefunden', color: 'bg-amber-100 text-amber-700' },
-                    { code: 429, status: 'Too Many Requests', desc: 'Rate Limit überschritten', color: 'bg-amber-100 text-amber-700' },
-                    { code: 500, status: 'Internal Server Error', desc: 'Serverfehler, bitte später erneut versuchen', color: 'bg-red-100 text-red-700' },
+                    { code: 200, status: 'OK', desc: t.apiDocs.error200, color: 'bg-green-100 text-green-700' },
+                    { code: 201, status: 'Created', desc: t.apiDocs.error201, color: 'bg-green-100 text-green-700' },
+                    { code: 400, status: 'Bad Request', desc: t.apiDocs.error400, color: 'bg-amber-100 text-amber-700' },
+                    { code: 401, status: 'Unauthorized', desc: t.apiDocs.error401, color: 'bg-red-100 text-red-700' },
+                    { code: 403, status: 'Forbidden', desc: t.apiDocs.error403, color: 'bg-red-100 text-red-700' },
+                    { code: 404, status: 'Not Found', desc: t.apiDocs.error404, color: 'bg-amber-100 text-amber-700' },
+                    { code: 429, status: 'Too Many Requests', desc: t.apiDocs.error429, color: 'bg-amber-100 text-amber-700' },
+                    { code: 500, status: 'Internal Server Error', desc: t.apiDocs.error500, color: 'bg-red-100 text-red-700' },
                   ].map((error) => (
                     <TableRow key={error.code}>
                       <TableCell>
@@ -654,7 +645,7 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
             </div>
 
             <CodeBlock 
-              title="Fehler Response Beispiel"
+              title={t.apiDocs.errorResponseExample}
               code={`{
   "error": {
     "code": "invalid_api_key",
@@ -667,23 +658,22 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
 
           {/* Rate Limits */}
           <section id="rate-limits" className="scroll-mt-20 space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Rate Limits</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t.apiDocs.rateLimitsSection}</h2>
             <p className="text-muted-foreground">
-              Die API hat Anfragelimits, um faire Nutzung und Stabilität zu gewährleisten. 
-              Limits werden pro API Key berechnet.
+              {t.apiDocs.rateLimitsDesc}
             </p>
             
             <div className="grid gap-4 sm:grid-cols-2">
               <Card>
                 <CardContent className="pt-6 text-center">
                   <div className="text-4xl font-bold text-primary">120</div>
-                  <p className="text-sm text-muted-foreground mt-1">Requests pro Minute</p>
+                  <p className="text-sm text-muted-foreground mt-1">{t.apiDocs.requestsPerMin}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-6 text-center">
                   <div className="text-4xl font-bold text-primary">10,000</div>
-                  <p className="text-sm text-muted-foreground mt-1">Requests pro Tag</p>
+                  <p className="text-sm text-muted-foreground mt-1">{t.apiDocs.requestsPerDay}</p>
                 </CardContent>
               </Card>
             </div>
@@ -691,13 +681,12 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
             <Alert>
               <ShieldCheck className="h-4 w-4" />
               <AlertDescription>
-                Bei Überschreitung der Limits erhältst du einen <code className="bg-muted px-1 rounded">429 Too Many Requests</code> Status Code. 
-                Burst Protection ist aktiviert – kurzfristige Spitzen werden toleriert.
+                {t.apiDocs.rateLimitExceeded}
               </AlertDescription>
             </Alert>
 
             <div className="p-4 bg-muted/30 rounded-xl border border-border/50">
-              <h4 className="font-semibold mb-2">Rate Limit Headers</h4>
+              <h4 className="font-semibold mb-2">{t.apiDocs.rateLimitHeaders}</h4>
               <div className="space-y-2 text-sm font-mono">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">X-RateLimit-Limit:</span>
@@ -717,10 +706,9 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
 
           {/* SDKs */}
           <section id="sdks" className="scroll-mt-20 space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">SDKs & Libraries</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t.apiDocs.sdks}</h2>
             <p className="text-muted-foreground">
-              Offizielle SDKs für gängige Programmiersprachen sind in Entwicklung. 
-              Die REST API kann direkt mit jeder HTTP-Library verwendet werden.
+              {t.apiDocs.sdksDesc}
             </p>
             
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -731,7 +719,7 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
                   </div>
                   <h3 className="font-semibold">JavaScript SDK</h3>
                   <p className="text-xs text-muted-foreground mt-1">Node.js & Browser</p>
-                  <Badge variant="secondary" className="mt-3">Coming Soon</Badge>
+                  <Badge variant="secondary" className="mt-3">{t.apiDocs.comingSoon}</Badge>
                 </CardContent>
               </Card>
               
@@ -742,7 +730,7 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
                   </div>
                   <h3 className="font-semibold">Python SDK</h3>
                   <p className="text-xs text-muted-foreground mt-1">Python 3.8+</p>
-                  <Badge variant="secondary" className="mt-3">Coming Soon</Badge>
+                  <Badge variant="secondary" className="mt-3">{t.apiDocs.comingSoon}</Badge>
                 </CardContent>
               </Card>
 
@@ -753,13 +741,13 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
                   </div>
                   <h3 className="font-semibold">PHP SDK</h3>
                   <p className="text-xs text-muted-foreground mt-1">PHP 8.0+</p>
-                  <Badge variant="secondary" className="mt-3">Coming Soon</Badge>
+                  <Badge variant="secondary" className="mt-3">{t.apiDocs.comingSoon}</Badge>
                 </CardContent>
               </Card>
             </div>
 
             <CodeBlock 
-              title="cURL Beispiel"
+              title={t.apiDocs.curlExample}
               code={`curl -X GET "https://api.metanetwork.agency/v1/agency-accounts" \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json"`}
@@ -769,10 +757,10 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
           {/* Footer */}
           <footer className="border-t border-border pt-8 mt-16 text-center">
             <p className="text-muted-foreground">
-              MetaNetwork API – Built for scalable advertising infrastructure.
+              {t.apiDocs.footerText}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Version 1.0.0 • © 2025 MetaNetwork
+              {t.apiDocs.version} 1.0.0 • © 2025 MetaNetwork
             </p>
           </footer>
         </div>

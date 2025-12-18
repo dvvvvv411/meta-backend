@@ -1,5 +1,6 @@
 import { Loader2, Check, AlertCircle, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PaymentStatusIndicatorProps {
   status: string;
@@ -7,11 +8,13 @@ interface PaymentStatusIndicatorProps {
 }
 
 export function PaymentStatusIndicator({ status, className }: PaymentStatusIndicatorProps) {
+  const { t } = useLanguage();
+  
   const getStatusConfig = () => {
     switch (status) {
       case 'waiting':
         return { 
-          text: 'Warte auf Zahlung...', 
+          text: t.deposit.statusWaiting, 
           color: 'text-amber-600 bg-amber-50 border-amber-200',
           dotColor: 'bg-amber-500',
           Icon: Clock,
@@ -19,7 +22,7 @@ export function PaymentStatusIndicator({ status, className }: PaymentStatusIndic
         };
       case 'confirming':
         return { 
-          text: 'Bestätigung läuft...', 
+          text: t.deposit.statusConfirming, 
           color: 'text-blue-600 bg-blue-50 border-blue-200',
           dotColor: 'bg-blue-500',
           Icon: Loader2,
@@ -28,7 +31,7 @@ export function PaymentStatusIndicator({ status, className }: PaymentStatusIndic
       case 'confirmed':
       case 'finished':
         return { 
-          text: 'Zahlung erfolgreich!', 
+          text: t.deposit.statusSuccess, 
           color: 'text-emerald-600 bg-emerald-50 border-emerald-200',
           dotColor: 'bg-emerald-500',
           Icon: Check,
@@ -37,7 +40,7 @@ export function PaymentStatusIndicator({ status, className }: PaymentStatusIndic
       case 'failed':
       case 'expired':
         return { 
-          text: 'Zahlung fehlgeschlagen', 
+          text: t.deposit.statusFailed, 
           color: 'text-red-600 bg-red-50 border-red-200',
           dotColor: 'bg-red-500',
           Icon: AlertCircle,
@@ -45,7 +48,7 @@ export function PaymentStatusIndicator({ status, className }: PaymentStatusIndic
         };
       default:
         return { 
-          text: 'Status unbekannt', 
+          text: t.deposit.statusUnknown, 
           color: 'text-muted-foreground bg-muted border-border',
           dotColor: 'bg-muted-foreground',
           Icon: Loader2,
