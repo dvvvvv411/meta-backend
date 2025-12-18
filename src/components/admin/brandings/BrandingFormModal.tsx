@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LogoUpload } from './LogoUpload';
 import { brandingSchema, type BrandingFormData } from '@/lib/validators';
 import { useCreateBranding, useUpdateBranding, type Branding } from '@/hooks/useBrandings';
+import { GermanFlag, BritishFlag } from '@/components/ui/flag-icons';
 
 interface BrandingFormModalProps {
   open: boolean;
@@ -30,6 +32,7 @@ export function BrandingFormModal({ open, onOpenChange, branding }: BrandingForm
       primary_color: '#6366f1',
       logo_url: null,
       is_active: true,
+      default_language: 'de',
     },
   });
 
@@ -42,6 +45,7 @@ export function BrandingFormModal({ open, onOpenChange, branding }: BrandingForm
         primary_color: branding.primary_color || '#6366f1',
         logo_url: branding.logo_url,
         is_active: branding.is_active,
+        default_language: branding.default_language || 'de',
       });
     } else {
       form.reset({
@@ -51,6 +55,7 @@ export function BrandingFormModal({ open, onOpenChange, branding }: BrandingForm
         primary_color: '#6366f1',
         logo_url: null,
         is_active: true,
+        default_language: 'de',
       });
     }
   }, [branding, form]);
@@ -149,6 +154,38 @@ export function BrandingFormModal({ open, onOpenChange, branding }: BrandingForm
                       disabled={isLoading}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="default_language"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Standard-Sprache</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || 'de'}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sprache auswählen" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="de">
+                        <div className="flex items-center gap-2">
+                          <GermanFlag className="w-6 h-4" />
+                          <span>Deutsch</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="en">
+                        <div className="flex items-center gap-2">
+                          <BritishFlag className="w-6 h-4" />
+                          <span>English</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

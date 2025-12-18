@@ -9,12 +9,14 @@ type TranslationKeys = typeof de;
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
+  setLanguageFromBranding: (lang: Language) => void;
   t: TranslationKeys;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 const LANGUAGE_STORAGE_KEY = 'app-language';
+const MANUAL_LANGUAGE_KEY = 'app-language-manual';
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
@@ -27,15 +29,26 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return 'de';
   });
 
+  // Manual language change by user
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+    localStorage.setItem(MANUAL_LANGUAGE_KEY, 'true');
+  };
+
+  // Automatic language change from branding (only if user hasn't manually chosen)
+  const setLanguageFromBranding = (lang: Language) => {
+    const hasManualChoice = localStorage.getItem(MANUAL_LANGUAGE_KEY);
+    if (!hasManualChoice) {
+      setLanguageState(lang);
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+    }
   };
 
   const translations = language === 'de' ? de : en;
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t: translations }}>
+    <LanguageContext.Provider value={{ language, setLanguage, setLanguageFromBranding, t: translations }}>
       {children}
     </LanguageContext.Provider>
   );

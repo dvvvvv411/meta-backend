@@ -194,6 +194,7 @@ export type Database = {
         Row: {
           created_at: string | null
           created_by: string | null
+          default_language: string | null
           domain: string
           email: string
           id: string
@@ -207,6 +208,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           created_by?: string | null
+          default_language?: string | null
           domain: string
           email: string
           id?: string
@@ -220,6 +222,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           created_by?: string | null
+          default_language?: string | null
           domain?: string
           email?: string
           id?: string

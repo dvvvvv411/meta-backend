@@ -19,6 +19,7 @@ export const brandingSchema = z.object({
     .default('#6366f1'),
   logo_url: z.string().nullable().optional(),
   is_active: z.boolean().optional().default(true),
+  default_language: z.enum(['de', 'en']).optional().default('de'),
 });
 
 export type BrandingFormData = z.infer<typeof brandingSchema>;
