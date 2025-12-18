@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { AccountCard } from './AccountCard';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { AdvertiserAccount } from '@/hooks/useAdvertiserAccounts';
 
 interface AccountListProps {
@@ -20,6 +21,8 @@ export function AccountList({
   isRenaming,
   onAddAccount,
 }: AccountListProps) {
+  const { t, language } = useLanguage();
+
   if (accounts.length === 0) {
     return null;
   }
@@ -27,7 +30,7 @@ export function AccountList({
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-foreground">
-        Bereits gemietete Accounts
+        {language === 'de' ? 'Bereits gemietete Accounts' : 'Rented Accounts'}
       </h3>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -50,7 +53,7 @@ export function AccountList({
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
               <Plus className="h-6 w-6 text-primary" />
             </div>
-            <p className="font-medium">Weiteren Account mieten</p>
+            <p className="font-medium">{t.accountList.addAccount}</p>
           </CardContent>
         </Card>
       </div>

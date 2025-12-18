@@ -1,6 +1,6 @@
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, enUS } from 'date-fns/locale';
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 
 interface OrderConfirmationProps {
@@ -33,9 +34,12 @@ export function OrderConfirmation({
   orderData,
   onGoToDashboard 
 }: OrderConfirmationProps) {
+  const { t, language } = useLanguage();
+  
   if (!orderData) return null;
 
-  const formatDate = (date: Date) => format(date, 'dd.MM.yyyy', { locale: de });
+  const dateLocale = language === 'de' ? de : enUS;
+  const formatDate = (date: Date) => format(date, 'dd.MM.yyyy', { locale: dateLocale });
 
 
   return (
@@ -45,41 +49,45 @@ export function OrderConfirmation({
           <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
             <CheckCircle2 className="h-8 w-8 text-green-600" />
           </div>
-          <DialogTitle className="text-2xl">Zahlung erfolgreich!</DialogTitle>
+          <DialogTitle className="text-2xl">
+            {language === 'de' ? 'Zahlung erfolgreich!' : 'Payment successful!'}
+          </DialogTitle>
         </DialogHeader>
 
         <p className="text-center text-muted-foreground">
-          Dein Agency Account wurde aktiviert.
+          {t.rentAccount.orderConfirmedDesc}
         </p>
 
         <Separator />
 
         <div className="space-y-3">
-          <h4 className="font-medium text-sm text-muted-foreground">Bestellübersicht</h4>
+          <h4 className="font-medium text-sm text-muted-foreground">
+            {language === 'de' ? 'Bestellübersicht' : 'Order Summary'}
+          </h4>
           
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Rechnungsnummer</span>
+              <span className="text-muted-foreground">{t.rentAccount.invoiceNumber}</span>
               <span className="font-mono">{orderData.invoiceNumber}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Produkt</span>
+              <span className="text-muted-foreground">{language === 'de' ? 'Produkt' : 'Product'}</span>
               <span>Agency Account</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Betrag</span>
+              <span className="text-muted-foreground">{t.rentAccount.amount}</span>
               <span>{orderData.amount.toFixed(2)} € (160 USDT)</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Startdatum</span>
+              <span className="text-muted-foreground">{language === 'de' ? 'Startdatum' : 'Start date'}</span>
               <span>{formatDate(orderData.startDate)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Gültig bis</span>
+              <span className="text-muted-foreground">{language === 'de' ? 'Gültig bis' : 'Valid until'}</span>
               <span>{formatDate(orderData.endDate)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Nächste Abrechnung</span>
+              <span className="text-muted-foreground">{language === 'de' ? 'Nächste Abrechnung' : 'Next billing'}</span>
               <span>{formatDate(orderData.endDate)}</span>
             </div>
           </div>
@@ -90,7 +98,7 @@ export function OrderConfirmation({
             className="w-full"
             onClick={onGoToDashboard}
           >
-            Zum Dashboard
+            {t.rentAccount.goToDashboard}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>

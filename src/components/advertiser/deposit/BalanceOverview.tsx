@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BalanceOverviewProps {
   balanceEur: number;
@@ -27,9 +28,10 @@ const generateCardDigits = (userId: string | undefined): string => {
 
 export function BalanceOverview({ balanceEur, onDepositClick }: BalanceOverviewProps) {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
+    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
   const cardLastDigits = generateCardDigits(user?.id);
@@ -69,7 +71,7 @@ export function BalanceOverview({ balanceEur, onDepositClick }: BalanceOverviewP
 
           {/* Balance */}
           <div className="mb-4">
-            <p className="text-white/60 text-sm mb-1">Verfügbares Guthaben</p>
+            <p className="text-white/60 text-sm mb-1">{t.dashboard.availableBalance}</p>
             <p className="text-4xl font-bold tracking-tight">{formatCurrency(balanceEur)}</p>
           </div>
 
@@ -96,8 +98,12 @@ export function BalanceOverview({ balanceEur, onDepositClick }: BalanceOverviewP
               <Zap className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium text-foreground">Werbebudget</p>
-              <p className="text-xs text-muted-foreground">Für Kampagnen</p>
+              <p className="text-sm font-medium text-foreground">
+                {language === 'de' ? 'Werbebudget' : 'Ad Budget'}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {language === 'de' ? 'Für Kampagnen' : 'For campaigns'}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
@@ -105,8 +111,12 @@ export function BalanceOverview({ balanceEur, onDepositClick }: BalanceOverviewP
               <Building2 className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium text-foreground">Account-Käufe</p>
-              <p className="text-xs text-muted-foreground">Weitere Accounts</p>
+              <p className="text-sm font-medium text-foreground">
+                {language === 'de' ? 'Account-Käufe' : 'Account Purchases'}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {language === 'de' ? 'Weitere Accounts' : 'More accounts'}
+              </p>
             </div>
           </div>
         </div>
@@ -118,7 +128,7 @@ export function BalanceOverview({ balanceEur, onDepositClick }: BalanceOverviewP
             onClick={onDepositClick}
           >
             <Plus className="h-4 w-4 mr-2" />
-            Guthaben einzahlen
+            {t.deposit.depositFunds}
           </Button>
           <Button 
             variant="outline" 
@@ -127,7 +137,7 @@ export function BalanceOverview({ balanceEur, onDepositClick }: BalanceOverviewP
           >
             <Link to="/advertiser/rent-account">
               <Building2 className="h-4 w-4 mr-2" />
-              Agency Account mieten
+              {t.rentAccount.pageTitle}
             </Link>
           </Button>
         </div>

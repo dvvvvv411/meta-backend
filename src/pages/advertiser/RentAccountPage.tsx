@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function RentAccountPage() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -29,6 +30,7 @@ export default function RentAccountPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t, language } = useLanguage();
   const { 
     accounts, 
     isLoading, 
@@ -42,6 +44,10 @@ export default function RentAccountPage() {
   const customerEmail = user?.email ?? '';
   const companyName = user?.user_metadata?.company_name;
   const customerName = companyName || customerEmail;
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }).format(amount);
+  };
 
   const handlePaymentSuccess = async (paymentMethod: 'balance' | 'crypto', transactionId?: string) => {
     try {
@@ -79,13 +85,13 @@ export default function RentAccountPage() {
       setConfirmationOpen(true);
 
       toast({
-        title: 'Account aktiviert!',
-        description: 'Dein Agency Account wurde erfolgreich aktiviert.',
+        title: t.rentAccount.accountActivated,
+        description: t.rentAccount.accountActivatedDesc,
       });
     } catch (error) {
       toast({
-        title: 'Fehler',
-        description: error instanceof Error ? error.message : 'Es gab ein Problem bei der Aktivierung.',
+        title: t.rentAccount.activationError,
+        description: error instanceof Error ? error.message : t.rentAccount.activationErrorDesc,
         variant: 'destructive',
       });
     }
@@ -97,16 +103,16 @@ export default function RentAccountPage() {
       {
         onSuccess: () => {
           toast({
-            title: autoRenew ? 'Auto-Verlängerung aktiviert' : 'Auto-Verlängerung deaktiviert',
+            title: autoRenew ? t.rentAccount.autoRenewEnabled : t.rentAccount.autoRenewDisabled,
             description: autoRenew 
-              ? 'Dein Account wird automatisch verlängert.' 
-              : 'Dein Account wird nicht automatisch verlängert.',
+              ? t.rentAccount.autoRenewEnabledDesc 
+              : t.rentAccount.autoRenewDisabledDesc,
           });
         },
         onError: () => {
           toast({
-            title: 'Fehler',
-            description: 'Die Einstellung konnte nicht gespeichert werden.',
+            title: t.common.error,
+            description: t.rentAccount.settingError,
             variant: 'destructive',
           });
         },
@@ -133,9 +139,9 @@ export default function RentAccountPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Agency Account mieten</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t.rentAccount.pageTitle}</h1>
         <p className="text-muted-foreground mt-1">
-          Starte jetzt mit deinem professionellen Werbekonto.
+          {t.rentAccount.pageSubtitle}
         </p>
       </div>
 
@@ -150,14 +156,14 @@ export default function RentAccountPage() {
                   <Wallet className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium">Geteiltes Guthaben</p>
+                  <p className="font-medium">{t.rentAccount.sharedBalance}</p>
                   <p className="text-sm text-muted-foreground">
-                    Alle deine Agency Accounts nutzen dieses Guthaben
+                    {t.rentAccount.sharedBalanceDesc}
                   </p>
                 </div>
               </div>
               <p className="text-2xl font-bold">
-                {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(balanceEur)}
+                {formatCurrency(balanceEur)}
               </p>
             </div>
           </CardContent>

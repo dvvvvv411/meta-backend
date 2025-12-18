@@ -3,27 +3,30 @@ import { Check, Zap, Shield, BarChart3, Headphones, Clock, ArrowRight, Star, Loc
 const DEFAULT_LOGO_URL = 'https://tpkecrwoyfxcynezbyel.supabase.co/storage/v1/object/public/branding-logos/fec753ad-b83c-4bf6-b1e8-3879fccd5018.png';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-
-const benefits = [
-  { icon: Zap, text: 'Keine Limits' },
-  { icon: BarChart3, text: 'Skalierbar' },
-  { icon: Shield, text: 'Meta Trust' },
-  { icon: Clock, text: 'Sofort aktiv' },
-  { icon: Headphones, text: '24/7 Support' },
-  { icon: Check, text: 'Transparent' },
-];
-
-const trustPoints = [
-  '30 Tage Laufzeit',
-  'Sofort einsatzbereit', 
-  'Sichere Crypto-Zahlung',
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ProductDetailProps {
   onRentClick: () => void;
 }
 
 export function ProductDetail({ onRentClick }: ProductDetailProps) {
+  const { t, language } = useLanguage();
+
+  const benefits = [
+    { icon: Zap, text: language === 'de' ? 'Keine Limits' : 'No Limits' },
+    { icon: BarChart3, text: language === 'de' ? 'Skalierbar' : 'Scalable' },
+    { icon: Shield, text: 'Meta Trust' },
+    { icon: Clock, text: language === 'de' ? 'Sofort aktiv' : 'Instant activation' },
+    { icon: Headphones, text: '24/7 Support' },
+    { icon: Check, text: language === 'de' ? 'Transparent' : 'Transparent' },
+  ];
+
+  const trustPoints = [
+    language === 'de' ? '30 Tage Laufzeit' : '30 days duration',
+    language === 'de' ? 'Sofort einsatzbereit' : 'Ready to use immediately', 
+    language === 'de' ? 'Sichere Crypto-Zahlung' : 'Secure crypto payment',
+  ];
+
   return (
     <div className="relative">
       {/* Main card with subtle border */}
@@ -34,7 +37,7 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
           <div className="absolute top-4 right-4 z-10">
             <Badge className="bg-primary/10 text-primary border-primary/20 text-xs font-medium">
               <Sparkles className="h-3 w-3 mr-1" />
-              Beliebt
+              {language === 'de' ? 'Beliebt' : 'Popular'}
             </Badge>
           </div>
           
@@ -48,7 +51,7 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
                   <div className="flex items-center justify-center gap-3">
                     <img src={DEFAULT_LOGO_URL} alt="MetaNetwork Agency" className="h-8 w-auto" />
                     <Badge className="gradient-bg text-primary-foreground border-0 text-sm px-3 py-1">
-                      Premium • 30 Tage
+                      Premium • 30 {language === 'de' ? 'Tage' : 'Days'}
                     </Badge>
                   </div>
 
@@ -58,25 +61,27 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
                       Agency Account
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      Dein Schlüssel zu professionellem Advertising
+                      {language === 'de' 
+                        ? 'Dein Schlüssel zu professionellem Advertising' 
+                        : 'Your key to professional advertising'}
                     </p>
                   </div>
 
                   {/* Price */}
                   <div className="flex items-baseline justify-center gap-2">
                     <span className="text-5xl lg:text-6xl font-bold gradient-text">150€</span>
-                    <span className="text-lg text-muted-foreground">/ 30 Tage</span>
+                    <span className="text-lg text-muted-foreground">/ 30 {language === 'de' ? 'Tage' : 'Days'}</span>
                   </div>
 
                   {/* Features list */}
                   <div className="flex flex-wrap justify-center gap-3 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      <span>Automatische Verlängerung</span>
+                      <span>{language === 'de' ? 'Automatische Verlängerung' : 'Auto-renewal'}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      <span>Jederzeit kündbar</span>
+                      <span>{language === 'de' ? 'Jederzeit kündbar' : 'Cancel anytime'}</span>
                     </div>
                   </div>
 
@@ -87,14 +92,14 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
                     className="w-full group"
                     onClick={onRentClick}
                   >
-                    Jetzt mieten
+                    {t.rentAccount.rentNow}
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
 
                   {/* Trust badge */}
                   <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
                     <Lock className="h-3.5 w-3.5" />
-                    <span>Sichere & verschlüsselte Zahlung</span>
+                    <span>{language === 'de' ? 'Sichere & verschlüsselte Zahlung' : 'Secure & encrypted payment'}</span>
                   </div>
                 </div>
               </div>
@@ -103,7 +108,7 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
               <div className="order-1 lg:order-2 lg:border-l lg:border-border/50 lg:pl-10">
                 <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                   <span className="w-6 h-1 gradient-bg rounded-full" />
-                  Deine Vorteile
+                  {language === 'de' ? 'Deine Vorteile' : 'Your Benefits'}
                 </h3>
 
                 {/* Flowchart Grid */}
@@ -173,7 +178,7 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
                   ))}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">3.500+</span> zufriedene Werbetreibende vertrauen uns
+                  <span className="font-semibold text-foreground">3.500+</span> {t.rentAccount.socialProof.split('3.500+')[1] || (language === 'de' ? 'zufriedene Werbetreibende vertrauen uns' : 'satisfied advertisers trust us')}
                 </p>
               </div>
             </div>

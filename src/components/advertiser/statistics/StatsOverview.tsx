@@ -1,5 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface KPIData {
   spend: number;
@@ -53,31 +54,32 @@ function StatCard({ title, value, subtitle, accentColor, delay, isEmpty }: StatC
 }
 
 export function StatsOverview({ data, isEmpty }: StatsOverviewProps) {
+  const { t, language } = useLanguage();
   const cpc = data.clicks > 0 ? data.spend / data.clicks : 0;
 
   const stats = [
     {
-      title: 'Ausgaben',
-      value: isEmpty ? '€0,00' : `€${data.spend.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      subtitle: 'Gesamtausgaben',
+      title: t.statistics.spend,
+      value: isEmpty ? '€0,00' : `€${data.spend.toLocaleString(language === 'de' ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      subtitle: language === 'de' ? 'Gesamtausgaben' : 'Total spend',
       accentColor: 'from-blue-500 to-indigo-500',
     },
     {
-      title: 'Reichweite',
-      value: isEmpty ? '0' : data.impressions.toLocaleString('de-DE'),
-      subtitle: 'Impressionen',
+      title: t.statistics.reach,
+      value: isEmpty ? '0' : data.impressions.toLocaleString(language === 'de' ? 'de-DE' : 'en-US'),
+      subtitle: language === 'de' ? 'Impressionen' : 'Impressions',
       accentColor: 'from-cyan-500 to-teal-500',
     },
     {
-      title: 'Ergebnisse',
-      value: isEmpty ? '0' : data.clicks.toLocaleString('de-DE'),
-      subtitle: 'Klicks',
+      title: t.statistics.results,
+      value: isEmpty ? '0' : data.clicks.toLocaleString(language === 'de' ? 'de-DE' : 'en-US'),
+      subtitle: language === 'de' ? 'Klicks' : 'Clicks',
       accentColor: 'from-green-500 to-emerald-500',
     },
     {
-      title: 'Kosten pro Ergebnis',
-      value: isEmpty ? '--' : `€${cpc.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      subtitle: 'pro Klick',
+      title: t.statistics.costPerResult,
+      value: isEmpty ? '--' : `€${cpc.toLocaleString(language === 'de' ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      subtitle: language === 'de' ? 'pro Klick' : 'per click',
       accentColor: 'from-violet-500 to-purple-500',
     },
   ];
