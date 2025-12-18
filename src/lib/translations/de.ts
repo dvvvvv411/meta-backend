@@ -227,6 +227,12 @@ export const de = {
     pending: 'Ausstehend',
     failed: 'Fehlgeschlagen',
     expired: 'Abgelaufen',
+    // Payment Status Indicator
+    statusWaiting: 'Warte auf Zahlung...',
+    statusConfirming: 'Bestätigung läuft...',
+    statusSuccess: 'Zahlung erfolgreich!',
+    statusFailed: 'Zahlung fehlgeschlagen',
+    statusUnknown: 'Status unbekannt',
     // Filter
     filterAll: 'Alle',
     filterDeposit: 'Einzahlung',

@@ -227,6 +227,12 @@ export const en = {
     pending: 'Pending',
     failed: 'Failed',
     expired: 'Expired',
+    // Payment Status Indicator
+    statusWaiting: 'Waiting for payment...',
+    statusConfirming: 'Confirming...',
+    statusSuccess: 'Payment successful!',
+    statusFailed: 'Payment failed',
+    statusUnknown: 'Status unknown',
     // Filter
     filterAll: 'All',
     filterDeposit: 'Deposit',
