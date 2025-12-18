@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, enUS } from 'date-fns/locale';
 import { CheckCircle2, Clock, XCircle, Receipt, Download, Eye, ChevronDown } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,12 +30,16 @@ import { Label } from '@/components/ui/label';
 import type { Deposit } from '@/hooks/useDeposits';
 import { generateCSV, downloadCSV, formatDateForCSV } from '@/lib/csv-export';
 import { TransactionDetailModal } from './TransactionDetailModal';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TransactionHistoryProps {
   deposits: Deposit[];
 }
 
 export function TransactionHistory({ deposits }: TransactionHistoryProps) {
+  const { t, language } = useLanguage();
+  const dateLocale = language === 'de' ? de : enUS;
+  
   const [selectedTransaction, setSelectedTransaction] = useState<Deposit | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [typeFilter, setTypeFilter] = useState<'all' | 'deposit' | 'rental' | 'withdrawal'>('all');
@@ -47,7 +51,7 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
+    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
   // Filter deposits based on type and expired status
@@ -75,7 +79,7 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
       return (
         <Badge className="bg-gray-500/10 text-gray-500 border-gray-500/20">
           <XCircle className="h-3 w-3 mr-1" />
-          Abgelaufen
+          {t.deposit.expired}
         </Badge>
       );
     }
@@ -85,21 +89,21 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
         return (
           <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
             <CheckCircle2 className="h-3 w-3 mr-1" />
-            Bestätigt
+            {t.deposit.confirmed}
           </Badge>
         );
       case 'pending':
         return (
           <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">
             <Clock className="h-3 w-3 mr-1" />
-            Ausstehend
+            {t.deposit.pending}
           </Badge>
         );
       case 'failed':
         return (
           <Badge className="bg-destructive/10 text-destructive border-destructive/20">
             <XCircle className="h-3 w-3 mr-1" />
-            Fehlgeschlagen
+            {t.deposit.failed}
           </Badge>
         );
       default:
@@ -110,11 +114,11 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
   const getTypeBadge = (type: string) => {
     switch (type) {
       case 'deposit':
-        return <Badge variant="outline" className="text-green-600 border-green-200">Einzahlung</Badge>;
+        return <Badge variant="outline" className="text-green-600 border-green-200">{t.deposit.filterDeposit}</Badge>;
       case 'rental':
-        return <Badge variant="outline" className="text-blue-600 border-blue-200">Account Miete</Badge>;
+        return <Badge variant="outline" className="text-blue-600 border-blue-200">{t.deposit.filterRental}</Badge>;
       case 'withdrawal':
-        return <Badge variant="outline" className="text-orange-600 border-orange-200">Auszahlung</Badge>;
+        return <Badge variant="outline" className="text-orange-600 border-orange-200">{t.deposit.filterWithdrawal}</Badge>;
       default:
         return <Badge variant="outline">{type}</Badge>;
     }
@@ -122,27 +126,27 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
 
   const handleExportCSV = () => {
     const columns = [
-      { header: 'Datum', accessor: (d: Deposit) => formatDateForCSV(d.created_at) },
-      { header: 'Typ', accessor: (d: Deposit) => {
+      { header: t.common.date, accessor: (d: Deposit) => formatDateForCSV(d.created_at) },
+      { header: t.common.type, accessor: (d: Deposit) => {
         switch (d.type) {
-          case 'deposit': return 'Einzahlung';
-          case 'rental': return 'Account Miete';
-          case 'withdrawal': return 'Auszahlung';
+          case 'deposit': return t.deposit.filterDeposit;
+          case 'rental': return t.deposit.filterRental;
+          case 'withdrawal': return t.deposit.filterWithdrawal;
           default: return d.type;
         }
       }},
-      { header: 'Betrag', accessor: (d: Deposit) => formatCurrency(d.amount) },
-      { header: 'Status', accessor: (d: Deposit) => {
+      { header: t.common.amount, accessor: (d: Deposit) => formatCurrency(d.amount) },
+      { header: t.common.status, accessor: (d: Deposit) => {
         if (d.status === 'pending' && d.expires_at && new Date(d.expires_at) < new Date()) {
-          return 'Abgelaufen';
+          return t.deposit.expired;
         }
-        return d.status === 'completed' ? 'Bestätigt' : d.status === 'pending' ? 'Ausstehend' : 'Fehlgeschlagen';
+        return d.status === 'completed' ? t.deposit.confirmed : d.status === 'pending' ? t.deposit.pending : t.deposit.failed;
       }},
-      { header: 'Beschreibung', accessor: (d: Deposit) => d.description || '-' },
+      { header: t.common.description, accessor: (d: Deposit) => d.description || '-' },
     ];
 
     const csvContent = generateCSV(deposits, columns);
-    downloadCSV(csvContent, `transaktionen-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    downloadCSV(csvContent, `transactions-${format(new Date(), 'yyyy-MM-dd')}.csv`);
   };
 
   // Mobile Card Component
@@ -157,7 +161,7 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
               {/* Left: Date + Type */}
               <div className="flex flex-col items-start gap-1.5 min-w-0">
                 <span className="text-sm text-muted-foreground">
-                  {format(new Date(deposit.created_at), 'dd.MM.yyyy', { locale: de })}
+                  {format(new Date(deposit.created_at), 'dd.MM.yyyy', { locale: dateLocale })}
                 </span>
                 {getTypeBadge(deposit.type)}
               </div>
@@ -182,7 +186,7 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
               {/* Description */}
               {deposit.description && (
                 <div className="flex justify-between items-start gap-2">
-                  <span className="text-sm text-muted-foreground">Beschreibung</span>
+                  <span className="text-sm text-muted-foreground">{t.common.description}</span>
                   <span className="text-sm text-right">{deposit.description}</span>
                 </div>
               )}
@@ -198,7 +202,7 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
                   }}
                 >
                   <Eye className="h-4 w-4 mr-2" />
-                  Zahlungsdetails anzeigen
+                  {t.deposit.showPaymentDetails}
                 </Button>
               )}
             </div>
@@ -214,8 +218,8 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle className="text-lg">Transaktionshistorie</CardTitle>
-              <CardDescription>Alle deine Ein- und Auszahlungen</CardDescription>
+              <CardTitle className="text-lg">{t.deposit.transactionHistory}</CardTitle>
+              <CardDescription>{t.deposit.transactionHistoryDesc}</CardDescription>
             </div>
             <Button 
               variant="outline" 
@@ -224,23 +228,23 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
               disabled={deposits.length === 0}
             >
               <Download className="h-4 w-4 mr-2" />
-              CSV Export
+              {t.deposit.csvExport}
             </Button>
           </div>
           
           {/* Filters */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex items-center gap-2">
-              <Label htmlFor="type-filter" className="text-sm text-muted-foreground whitespace-nowrap">Typ:</Label>
+              <Label htmlFor="type-filter" className="text-sm text-muted-foreground whitespace-nowrap">{t.common.type}:</Label>
               <Select value={typeFilter} onValueChange={(value: 'all' | 'deposit' | 'rental' | 'withdrawal') => setTypeFilter(value)}>
                 <SelectTrigger id="type-filter" className="w-[160px] h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle</SelectItem>
-                  <SelectItem value="deposit">Einzahlung</SelectItem>
-                  <SelectItem value="rental">Account Miete</SelectItem>
-                  <SelectItem value="withdrawal">Auszahlung</SelectItem>
+                  <SelectItem value="all">{t.deposit.filterAll}</SelectItem>
+                  <SelectItem value="deposit">{t.deposit.filterDeposit}</SelectItem>
+                  <SelectItem value="rental">{t.deposit.filterRental}</SelectItem>
+                  <SelectItem value="withdrawal">{t.deposit.filterWithdrawal}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -252,7 +256,7 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
                 onCheckedChange={setHideExpired}
               />
               <Label htmlFor="hide-expired" className="text-sm text-muted-foreground cursor-pointer">
-                Abgelaufene ausblenden
+                {t.deposit.hideExpired}
               </Label>
             </div>
           </div>
@@ -265,12 +269,12 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
               <Receipt className="h-8 w-8 text-muted-foreground" />
             </div>
             <p className="text-muted-foreground font-medium">
-              {deposits.length === 0 ? 'Keine Transaktionen vorhanden' : 'Keine Transaktionen gefunden'}
+              {deposits.length === 0 ? t.deposit.noTransactions : t.deposit.noTransactionsFiltered}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
               {deposits.length === 0 
-                ? 'Deine Ein- und Auszahlungen werden hier angezeigt.'
-                : 'Passe die Filter an, um mehr Transaktionen zu sehen.'
+                ? t.deposit.noTransactionsDesc
+                : t.deposit.noTransactionsFilteredDesc
               }
             </p>
           </div>
@@ -288,19 +292,19 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Datum</TableHead>
-                    <TableHead>Typ</TableHead>
-                    <TableHead className="text-right">Betrag</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Beschreibung</TableHead>
-                    <TableHead className="text-right">Aktionen</TableHead>
+                    <TableHead>{t.common.date}</TableHead>
+                    <TableHead>{t.common.type}</TableHead>
+                    <TableHead className="text-right">{t.common.amount}</TableHead>
+                    <TableHead>{t.common.status}</TableHead>
+                    <TableHead>{t.common.description}</TableHead>
+                    <TableHead className="text-right">{t.common.actions}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredDeposits.map((deposit) => (
                     <TableRow key={deposit.id}>
                       <TableCell className="whitespace-nowrap">
-                        {format(new Date(deposit.created_at), 'dd.MM.yyyy', { locale: de })}
+                        {format(new Date(deposit.created_at), 'dd.MM.yyyy', { locale: dateLocale })}
                       </TableCell>
                       <TableCell>
                         {getTypeBadge(deposit.type)}
@@ -322,7 +326,7 @@ export function TransactionHistory({ deposits }: TransactionHistoryProps) {
                             onClick={() => openDetails(deposit)}
                           >
                             <Eye className="h-4 w-4 mr-1" />
-                            Details
+                            {t.common.details}
                           </Button>
                         )}
                       </TableCell>

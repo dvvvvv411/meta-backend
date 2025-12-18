@@ -4,17 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, Trash2 } from 'lucide-react';
 import { DeleteAccountModal } from './DeleteAccountModal';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function DangerZoneSection() {
+  const { t } = useLanguage();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   return (
     <div className="space-y-6">
       <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>Achtung: Gefährlicher Bereich</AlertTitle>
+        <AlertTitle>{t.settings.dangerZoneWarning}</AlertTitle>
         <AlertDescription>
-          Die folgenden Aktionen sind permanent und können nicht rückgängig gemacht werden.
+          {t.settings.dangerZoneDesc}
         </AlertDescription>
       </Alert>
 
@@ -22,21 +24,21 @@ export function DangerZoneSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-destructive">
             <Trash2 className="h-5 w-5" />
-            Account löschen
+            {t.settings.deleteAccount}
           </CardTitle>
           <CardDescription>
-            Ihren Account und alle zugehörigen Daten permanent löschen
+            {t.settings.deleteAccountDesc}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-sm text-muted-foreground space-y-2">
-            <p>Wenn Sie Ihren Account löschen:</p>
+            <p>{t.settings.deleteAccountInfo}</p>
             <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>Werden alle Ihre persönlichen Daten gelöscht</li>
-              <li>Verlieren Sie Zugang zu allen gemieteten Agency Accounts</li>
-              <li>Werden alle offenen Guthaben verfallen</li>
-              <li>Können Sie diese E-Mail-Adresse nicht erneut registrieren</li>
-              <li>Werden alle Support-Tickets geschlossen</li>
+              <li>{t.settings.deleteAccountPoint1}</li>
+              <li>{t.settings.deleteAccountPoint2}</li>
+              <li>{t.settings.deleteAccountPoint3}</li>
+              <li>{t.settings.deleteAccountPoint4}</li>
+              <li>{t.settings.deleteAccountPoint5}</li>
             </ul>
           </div>
           
@@ -45,7 +47,7 @@ export function DangerZoneSection() {
             onClick={() => setShowDeleteModal(true)}
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            Account permanent löschen
+            {t.settings.deleteAccountButton}
           </Button>
         </CardContent>
       </Card>

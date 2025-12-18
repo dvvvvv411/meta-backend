@@ -16,6 +16,7 @@ import { useUserBalance } from '@/hooks/useUserBalance';
 import { useWithdrawals } from '@/hooks/useWithdrawals';
 import { useUsdtRate } from '@/hooks/useUsdtRate';
 import { TetherIcon, ERC20Icon } from '@/lib/crypto-icons';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface WithdrawModalProps {
   open: boolean;
@@ -23,6 +24,7 @@ interface WithdrawModalProps {
 }
 
 export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const { balanceEur, invalidateBalance } = useUserBalance();
   const { createWithdrawalRequest } = useWithdrawals();
@@ -70,13 +72,13 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
       invalidateBalance();
       
       toast({
-        title: 'Auszahlungsanfrage erstellt',
-        description: 'Deine Anfrage wird innerhalb von 24-48h bearbeitet.',
+        title: t.deposit.withdrawalRequestCreated,
+        description: t.deposit.withdrawalRequestCreatedDesc,
       });
     } catch (error) {
       toast({
-        title: 'Fehler',
-        description: error instanceof Error ? error.message : 'Auszahlung konnte nicht erstellt werden',
+        title: t.common.error,
+        description: error instanceof Error ? error.message : t.deposit.withdrawalError,
         variant: 'destructive',
       });
     } finally {
@@ -100,12 +102,12 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
             </div>
           </div>
           <DialogTitle className="text-xl">
-            {isSuccess ? 'Anfrage erstellt!' : 'Guthaben auszahlen'}
+            {isSuccess ? t.deposit.requestCreated : t.deposit.withdrawModalTitle}
           </DialogTitle>
           <DialogDescription>
             {isSuccess 
-              ? 'Deine Auszahlungsanfrage wurde erfolgreich eingereicht'
-              : 'Auszahlung via USDT auf dem Ethereum Netzwerk'
+              ? t.deposit.requestSubmitted
+              : `${t.deposit.withdrawFundsDesc.split('USDT')[0]}USDT ${t.deposit.ethereumNetwork}`
             }
           </DialogDescription>
         </DialogHeader>
@@ -123,14 +125,14 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
             </div>
             
             <div>
-              <p className="text-lg font-semibold">Auszahlung beantragt!</p>
+              <p className="text-lg font-semibold">{t.deposit.withdrawalRequested}</p>
               <p className="text-2xl font-bold text-[#26A17B] mt-2">
                 ≈ {eurToUsdt(numAmount).toFixed(2)} USDT
               </p>
               <p className="text-sm text-muted-foreground mt-2">
-                werden an deine ERC20 Wallet gesendet.
+                {t.deposit.toYourWallet}
                 <br />
-                Bearbeitungszeit: 24-48 Stunden.
+                {t.deposit.processingTimeNote}
               </p>
             </div>
             
@@ -138,14 +140,14 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
               className="w-full h-12 gradient-bg"
               onClick={() => onOpenChange(false)}
             >
-              Fertig
+              {t.common.done}
             </Button>
           </div>
         ) : (
           <div className="space-y-5">
             {/* Current Balance */}
             <div className="p-4 rounded-xl bg-muted/30 border border-border/50 text-center">
-              <p className="text-sm text-muted-foreground">Verfügbares Guthaben</p>
+              <p className="text-sm text-muted-foreground">{t.deposit.availableBalance}</p>
               <p className="text-3xl font-bold text-foreground mt-1">
                 {balanceEur.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
               </p>
@@ -158,14 +160,14 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
             <div className="space-y-2">
               <Label htmlFor="wallet" className="text-sm font-medium flex items-center gap-2">
                 <TetherIcon size={16} />
-                USDT (ERC20) Wallet-Adresse
+                {t.deposit.usdtWallet}
               </Label>
               <div className="relative">
                 <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="wallet"
                   type="text"
-                  placeholder="0x..."
+                  placeholder={t.deposit.walletPlaceholder}
                   value={walletAddress}
                   onChange={(e) => setWalletAddress(e.target.value)}
                   className="pl-10 font-mono text-sm"
@@ -177,7 +179,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="amount" className="text-sm font-medium">
-                  Auszahlungsbetrag
+                  {t.deposit.withdrawalAmount}
                 </Label>
                 <Button
                   type="button"
@@ -187,7 +189,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
                   onClick={handleWithdrawAll}
                   disabled={balanceEur <= 0}
                 >
-                  Alles auszahlen
+                  {t.deposit.withdrawAll}
                 </Button>
               </div>
               <div className="relative">
@@ -210,11 +212,11 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
                 </p>
               )}
               <p className="text-xs text-muted-foreground">
-                Min. {minAmount}€ • Max. {maxAmount.toFixed(2)}€
+                {t.deposit.minWithdrawal} • {t.deposit.maxWithdrawal} {maxAmount.toFixed(2)}€
               </p>
               {amount && !isValidAmount && numAmount > maxAmount && (
                 <p className="text-xs text-destructive">
-                  Der Betrag übersteigt dein verfügbares Guthaben
+                  {t.deposit.exceedsBalance}
                 </p>
               )}
             </div>
@@ -225,12 +227,12 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
                 <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
                 <div className="space-y-2">
                   <AlertDescription className="text-blue-800 text-sm">
-                    Auszahlungen werden innerhalb von 24-48 Stunden bearbeitet.
+                    {t.deposit.processingTime}
                   </AlertDescription>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/80 border border-blue-200">
                       <ERC20Icon size={14} />
-                      <span className="text-xs font-medium text-blue-800">Ethereum (ERC20)</span>
+                      <span className="text-xs font-medium text-blue-800">{t.deposit.ethereumNetwork}</span>
                     </div>
                   </div>
                 </div>
@@ -246,10 +248,10 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Wird bearbeitet...
+                  {t.deposit.processing}
                 </>
               ) : (
-                'Auszahlung beantragen'
+                t.deposit.submitWithdrawal
               )}
             </Button>
           </div>

@@ -8,8 +8,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Lock, Mail } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function ProfileSection() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
   
@@ -21,11 +23,11 @@ export function ProfileSection() {
 
   const handlePasswordChange = async () => {
     if (passwords.new !== passwords.confirm) {
-      toast.error('Passwörter stimmen nicht überein');
+      toast.error(t.settings.passwordMismatch);
       return;
     }
     if (passwords.new.length < 8) {
-      toast.error('Passwort muss mindestens 8 Zeichen haben');
+      toast.error(t.settings.passwordTooShort);
       return;
     }
     
@@ -38,9 +40,9 @@ export function ProfileSection() {
       if (error) throw error;
       
       setPasswords({ current: '', new: '', confirm: '' });
-      toast.success('Passwort erfolgreich geändert');
+      toast.success(t.settings.passwordChanged);
     } catch (error) {
-      toast.error('Fehler beim Ändern des Passworts');
+      toast.error(t.settings.passwordChangeError);
     } finally {
       setIsPasswordLoading(false);
     }
@@ -54,15 +56,15 @@ export function ProfileSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
-            E-Mail-Adresse
+            {t.settings.emailLabel}
           </CardTitle>
           <CardDescription>
-            Ihre registrierte E-Mail-Adresse
+            {t.settings.emailDesc}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="email">E-Mail</Label>
+            <Label htmlFor="email">{t.auth.email}</Label>
             <Input
               id="email"
               type="email"
@@ -71,7 +73,7 @@ export function ProfileSection() {
               className="bg-muted"
             />
             <p className="text-xs text-muted-foreground">
-              Die E-Mail-Adresse kann nicht geändert werden
+              {t.settings.emailCannotChange}
             </p>
           </div>
         </CardContent>
@@ -81,15 +83,15 @@ export function ProfileSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lock className="h-5 w-5" />
-            Passwort ändern
+            {t.settings.changePassword}
           </CardTitle>
           <CardDescription>
-            Aktualisieren Sie Ihr Passwort für mehr Sicherheit
+            {t.settings.changePasswordDesc}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword">Aktuelles Passwort</Label>
+            <Label htmlFor="currentPassword">{t.settings.currentPassword}</Label>
             <Input
               id="currentPassword"
               type="password"
@@ -101,7 +103,7 @@ export function ProfileSection() {
           <Separator />
           
           <div className="space-y-2">
-            <Label htmlFor="newPassword">Neues Passwort</Label>
+            <Label htmlFor="newPassword">{t.settings.newPassword}</Label>
             <Input
               id="newPassword"
               type="password"
@@ -109,12 +111,12 @@ export function ProfileSection() {
               onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
             />
             <p className="text-xs text-muted-foreground">
-              Mindestens 8 Zeichen
+              {t.settings.minChars}
             </p>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Passwort bestätigen</Label>
+            <Label htmlFor="confirmPassword">{t.settings.confirmPassword}</Label>
             <Input
               id="confirmPassword"
               type="password"
@@ -127,7 +129,7 @@ export function ProfileSection() {
             onClick={handlePasswordChange} 
             disabled={isPasswordLoading || !isPasswordValid}
           >
-            {isPasswordLoading ? 'Ändern...' : 'Passwort ändern'}
+            {isPasswordLoading ? t.settings.changing : t.settings.changePassword}
           </Button>
         </CardContent>
       </Card>

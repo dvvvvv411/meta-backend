@@ -38,8 +38,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function ApiKeysSection() {
+  const { t, language } = useLanguage();
   const { apiKeys, isLoading, createKey, revokeKey } = useApiKeys();
   const [newKeyName, setNewKeyName] = useState('');
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
@@ -47,7 +49,7 @@ export function ApiKeysSection() {
 
   const handleGenerateKey = async () => {
     if (!newKeyName.trim()) {
-      toast.error('Bitte geben Sie einen Namen für den API Key ein');
+      toast.error(t.settings.keyNameRequired);
       return;
     }
 
@@ -55,25 +57,25 @@ export function ApiKeysSection() {
       const fullKey = await createKey.mutateAsync(newKeyName.trim());
       setNewlyCreatedKey(fullKey);
       setNewKeyName('');
-      toast.success('API Key erfolgreich erstellt');
+      toast.success(t.settings.keyCreatedSuccess);
     } catch (error) {
-      toast.error('Fehler beim Erstellen des API Keys');
+      toast.error(t.settings.keyCreatedError);
     }
   };
 
   const handleCopyKey = async (key: string) => {
     await navigator.clipboard.writeText(key);
     setCopied(true);
-    toast.success('API Key kopiert');
+    toast.success(t.settings.keyCopied);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleRevokeKey = async (id: string) => {
     try {
       await revokeKey.mutateAsync(id);
-      toast.success('API Key widerrufen');
+      toast.success(t.settings.keyRevoked);
     } catch (error) {
-      toast.error('Fehler beim Widerrufen des API Keys');
+      toast.error(t.settings.keyRevokedError);
     }
   };
 
@@ -90,7 +92,7 @@ export function ApiKeysSection() {
           <AlertDescription className="text-green-800">
             <div className="space-y-3">
               <p className="font-medium">
-                Ihr neuer API Key wurde erstellt. Kopieren Sie ihn jetzt – er wird nur einmal angezeigt.
+                {t.settings.keyCreatedAlert}
               </p>
               <div className="flex items-center gap-2">
                 <code className="flex-1 bg-green-100 px-3 py-2 rounded text-sm font-mono break-all">
@@ -106,7 +108,7 @@ export function ApiKeysSection() {
                 </Button>
               </div>
               <Button size="sm" variant="ghost" onClick={dismissNewKey}>
-                Verstanden, Key gesichert
+                {t.settings.keySecured}
               </Button>
             </div>
           </AlertDescription>
@@ -118,16 +120,16 @@ export function ApiKeysSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5" />
-            Neuen API Key erstellen
+            {t.settings.createApiKey}
           </CardTitle>
           <CardDescription>
-            Erstellen Sie einen neuen API Key für den programmatischen Zugriff
+            {t.settings.createApiKeyDesc}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-3">
             <Input
-              placeholder="Key-Name (z.B. Production, Development)"
+              placeholder={t.settings.keyNamePlaceholder}
               value={newKeyName}
               onChange={(e) => setNewKeyName(e.target.value)}
               className="flex-1"
@@ -142,7 +144,7 @@ export function ApiKeysSection() {
               ) : (
                 <Key className="h-4 w-4 mr-2" />
               )}
-              Generieren
+              {t.common.generate}
             </Button>
           </div>
         </CardContent>
@@ -153,32 +155,32 @@ export function ApiKeysSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Key className="h-5 w-5" />
-            Ihre API Keys
+            {t.settings.yourApiKeys}
           </CardTitle>
           <CardDescription>
-            Verwalten Sie Ihre aktiven API Keys
+            {t.settings.manageApiKeys}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="text-center py-8">
               <Loader2 className="h-8 w-8 mx-auto animate-spin text-muted-foreground" />
-              <p className="text-sm text-muted-foreground mt-2">Lade API Keys...</p>
+              <p className="text-sm text-muted-foreground mt-2">{t.settings.loadingKeys}</p>
             </div>
           ) : apiKeys.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Key className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>Noch keine API Keys erstellt</p>
-              <p className="text-sm">Erstellen Sie Ihren ersten Key oben</p>
+              <p>{t.settings.noKeysYet}</p>
+              <p className="text-sm">{t.settings.createFirstKey}</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Key</TableHead>
-                  <TableHead>Erstellt am</TableHead>
-                  <TableHead className="text-right">Aktionen</TableHead>
+                  <TableHead>{t.settings.keyName}</TableHead>
+                  <TableHead>{t.settings.key}</TableHead>
+                  <TableHead>{t.settings.createdOn}</TableHead>
+                  <TableHead className="text-right">{t.common.actions}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -191,7 +193,7 @@ export function ApiKeysSection() {
                       </code>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {new Date(apiKey.created_at).toLocaleDateString('de-DE')}
+                      {new Date(apiKey.created_at).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-US')}
                     </TableCell>
                     <TableCell className="text-right">
                       <AlertDialog>
@@ -202,19 +204,18 @@ export function ApiKeysSection() {
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>API Key widerrufen?</AlertDialogTitle>
+                            <AlertDialogTitle>{t.settings.revokeKey}</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Der Key "{apiKey.name}" wird sofort ungültig. 
-                              Alle Anwendungen, die diesen Key verwenden, verlieren den Zugriff.
+                              "{apiKey.name}" {t.settings.revokeKeyDesc}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                            <AlertDialogCancel>{t.settings.revokeKeyCancel}</AlertDialogCancel>
                             <AlertDialogAction 
                               onClick={() => handleRevokeKey(apiKey.id)}
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >
-                              Widerrufen
+                              {t.settings.revokeKeyConfirm}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -237,7 +238,7 @@ export function ApiKeysSection() {
                 <Globe className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h4 className="font-medium mb-1">Base URL</h4>
+                <h4 className="font-medium mb-1">{t.settings.baseUrl}</h4>
                 <code className="text-xs bg-muted px-2 py-1 rounded block mt-1">
                   https://api.metanetwork.agency/v1
                 </code>
@@ -253,8 +254,8 @@ export function ApiKeysSection() {
                 <Clock className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h4 className="font-medium mb-1">Rate Limits</h4>
-                <p className="text-sm text-muted-foreground">120 Requests / Minute</p>
+                <h4 className="font-medium mb-1">{t.settings.rateLimits}</h4>
+                <p className="text-sm text-muted-foreground">120 {t.settings.requestsPerMinute}</p>
               </div>
             </div>
           </CardContent>
@@ -267,12 +268,12 @@ export function ApiKeysSection() {
                 <ExternalLink className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h4 className="font-medium mb-1">Dokumentation</h4>
+                <h4 className="font-medium mb-1">{t.settings.documentation}</h4>
                 <Link 
                   to="/advertiser/api" 
                   className="text-sm text-primary hover:underline"
                 >
-                  API Docs öffnen →
+                  {t.settings.openDocs}
                 </Link>
               </div>
             </div>
@@ -284,8 +285,7 @@ export function ApiKeysSection() {
       <Alert className="border-amber-200 bg-amber-50">
         <AlertTriangle className="h-4 w-4 text-amber-600" />
         <AlertDescription className="text-amber-800">
-          <strong>Sicherheitshinweis:</strong> Teilen Sie Ihre API Keys niemals öffentlich. 
-          Speichern Sie sie sicher und rotieren Sie sie regelmäßig.
+          <strong>{t.settings.securityWarning}:</strong> {t.settings.securityWarningText}
         </AlertDescription>
       </Alert>
     </div>

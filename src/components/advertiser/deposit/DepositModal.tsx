@@ -19,6 +19,7 @@ import { TrustBadges, PoweredByBadge } from '@/components/advertiser/shared/Trus
 import { QuickAmountSelector } from '@/components/advertiser/shared/QuickAmountSelector';
 import { FeeCalculator } from '@/components/advertiser/shared/FeeCalculator';
 import { PaymentStatusIndicator } from '@/components/advertiser/shared/PaymentStatusIndicator';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DepositModalProps {
   open: boolean;
@@ -30,6 +31,7 @@ type Step = 'amount' | 'currency' | 'payment' | 'status';
 const QUICK_AMOUNTS = [100, 250, 500, 1000];
 
 export function DepositModal({ open, onOpenChange }: DepositModalProps) {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const { createPayment, checkPaymentStatus } = useNowPayments();
   
@@ -75,8 +77,8 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
           setIsPolling(false);
           setStep('status');
           toast({
-            title: 'Zahlung erfolgreich!',
-            description: `${paymentData.net_amount.toFixed(2)} € wurden deinem Guthaben gutgeschrieben.`,
+            title: t.deposit.paymentSuccessful,
+            description: `${paymentData.net_amount.toFixed(2)} € ${t.deposit.balanceCredited}`,
           });
         } else if (status.payment_status === 'failed' || status.payment_status === 'expired') {
           setIsPolling(false);
@@ -88,7 +90,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [paymentData?.payment_id, isPolling, checkPaymentStatus, toast, paymentData?.net_amount]);
+  }, [paymentData?.payment_id, isPolling, checkPaymentStatus, toast, paymentData?.net_amount, t]);
 
   // Countdown Timer
   useEffect(() => {
@@ -100,7 +102,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
       const difference = expiry - now;
       
       if (difference <= 0) {
-        setTimeLeft('Abgelaufen');
+        setTimeLeft(t.deposit.expired);
         setPaymentStatus('expired');
         setIsPolling(false);
         return;
@@ -121,7 +123,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
     const interval = setInterval(calculateTimeLeft, 1000);
     
     return () => clearInterval(interval);
-  }, [paymentData?.expires_at, step]);
+  }, [paymentData?.expires_at, step, t]);
 
   const numAmount = parseFloat(amount) || 0;
 
@@ -132,8 +134,8 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
   const handleAmountSubmit = () => {
     if (isNaN(numAmount) || numAmount < 10 || numAmount > 10000) {
       toast({
-        title: 'Ungültiger Betrag',
-        description: 'Bitte gib einen Betrag zwischen 10€ und 10.000€ ein.',
+        title: t.deposit.invalidAmount,
+        description: t.deposit.invalidAmountDesc,
         variant: 'destructive',
       });
       return;
@@ -164,8 +166,8 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
       setStep('payment');
     } catch (error) {
       toast({
-        title: 'Fehler',
-        description: error instanceof Error ? error.message : 'Zahlung konnte nicht erstellt werden',
+        title: t.common.error,
+        description: error instanceof Error ? error.message : t.deposit.paymentCreationError,
         variant: 'destructive',
       });
     }
@@ -176,8 +178,8 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
     setCopied(type);
     setTimeout(() => setCopied(null), 2000);
     toast({
-      title: 'Kopiert!',
-      description: type === 'address' ? 'Adresse kopiert.' : 'Betrag kopiert.',
+      title: t.common.copied,
+      description: type === 'address' ? t.deposit.addressCopied : t.deposit.amountCopied,
     });
   };
 
@@ -195,6 +197,22 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
     return upper;
   };
 
+  const getStepTitle = () => {
+    if (step === 'amount') return t.deposit.depositModalTitle;
+    if (step === 'currency') return t.deposit.selectCurrency;
+    if (step === 'payment') return t.deposit.makePayment;
+    if (step === 'status') return isSuccess ? t.deposit.paymentSuccess : t.deposit.paymentFailedTitle;
+    return '';
+  };
+
+  const getStepDescription = () => {
+    if (step === 'amount') return t.deposit.secureCryptoDeposit;
+    if (step === 'currency') return t.deposit.selectPreferredCurrency;
+    if (step === 'payment') return t.deposit.scanQrCode;
+    if (step === 'status') return isSuccess ? t.deposit.balanceUpdated : t.deposit.paymentCouldNotComplete;
+    return '';
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -203,16 +221,10 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
             <Wallet className="h-6 w-6 text-primary-foreground" />
           </div>
           <DialogTitle className="text-xl">
-            {step === 'amount' && 'Guthaben einzahlen'}
-            {step === 'currency' && 'Kryptowährung wählen'}
-            {step === 'payment' && 'Zahlung durchführen'}
-            {step === 'status' && (isSuccess ? 'Erfolgreich!' : 'Zahlung fehlgeschlagen')}
+            {getStepTitle()}
           </DialogTitle>
           <DialogDescription>
-            {step === 'amount' && 'Sichere Einzahlung via Kryptowährung'}
-            {step === 'currency' && 'Wähle deine bevorzugte Kryptowährung'}
-            {step === 'payment' && 'Scanne den QR-Code oder kopiere die Adresse'}
-            {step === 'status' && (isSuccess ? 'Dein Guthaben wurde aktualisiert' : 'Die Zahlung konnte nicht abgeschlossen werden')}
+            {getStepDescription()}
           </DialogDescription>
         </DialogHeader>
 
@@ -222,7 +234,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
             <div className="space-y-6">
               {/* Quick Amount Selection */}
               <div className="space-y-3">
-                <Label className="text-sm font-medium text-center block">Schnellauswahl</Label>
+                <Label className="text-sm font-medium text-center block">{t.deposit.quickSelect}</Label>
                 <QuickAmountSelector
                   amounts={QUICK_AMOUNTS}
                   selectedAmount={QUICK_AMOUNTS.includes(numAmount) ? numAmount : null}
@@ -236,13 +248,13 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                   <span className="w-full border-t border-border/50" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-3 text-muted-foreground">oder</span>
+                  <span className="bg-background px-3 text-muted-foreground">{t.common.or}</span>
                 </div>
               </div>
 
               {/* Custom Amount Input - Centered & Narrow */}
               <div className="space-y-2">
-                <Label htmlFor="amount" className="text-sm font-medium text-center block">Eigener Betrag</Label>
+                <Label htmlFor="amount" className="text-sm font-medium text-center block">{t.deposit.customAmount}</Label>
                 <div className="flex justify-center">
                   <div className="relative w-48">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-muted-foreground">€</span>
@@ -260,7 +272,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
-                  Min. 10€ • Max. 10.000€
+                  {t.deposit.customAmountHint}
                 </p>
               </div>
               
@@ -272,7 +284,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                 onClick={handleAmountSubmit}
                 disabled={numAmount < 10}
               >
-                Weiter zur Zahlung
+                {t.deposit.continueToPayment}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
@@ -287,12 +299,12 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                 onClick={() => setStep('amount')}
                 className="mb-2 -ml-2"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
+                <ArrowLeft className="mr-2 h-4 w-4" /> {t.common.back}
               </Button>
               
               {/* Amount Summary */}
               <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-sm text-muted-foreground">Einzahlung</span>
+                <span className="text-sm text-muted-foreground">{t.deposit.depositAmount}</span>
                 <span className="font-bold text-lg">{numAmount.toFixed(2)} €</span>
               </div>
               
@@ -322,15 +334,15 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                 {/* Countdown Timer */}
                 <div className={cn(
                   "flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-mono text-base font-semibold mt-3",
-                  timeLeft === 'Abgelaufen' 
+                  timeLeft === t.deposit.expired 
                     ? "bg-destructive/10 text-destructive border border-destructive/20"
                     : "bg-orange-500/10 text-orange-600 border border-orange-500/20"
                 )}>
                   <Timer className="h-4 w-4" />
                   <span>
-                    {timeLeft === 'Abgelaufen' 
-                      ? 'Adresse abgelaufen' 
-                      : `Gültig für: ${timeLeft}`
+                    {timeLeft === t.deposit.expired 
+                      ? t.deposit.addressExpired 
+                      : `${t.deposit.validFor}: ${timeLeft}`
                     }
                   </span>
                 </div>
@@ -340,7 +352,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
               <div className="space-y-3">
                 {/* Amount to pay */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Zu zahlender Betrag</Label>
+                  <Label className="text-xs text-muted-foreground">{t.deposit.amountToPay}</Label>
                   <div className="flex items-center gap-2 p-3 rounded-xl border border-border/50 bg-muted/20">
                     <span className="flex-1 font-mono text-lg font-bold">
                       {paymentData.pay_amount} {formatPayCurrency(paymentData.pay_currency)}
@@ -355,15 +367,15 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                     </Button>
                   </div>
                   <p className="text-sm text-muted-foreground flex items-center gap-1 px-1">
-                    <span>Du erhältst:</span>
+                    <span>{t.deposit.youReceive}:</span>
                     <span className="font-semibold text-foreground">{paymentData.net_amount.toFixed(2)} €</span>
-                    <span>nach Abzug der Gebühr</span>
+                    <span>{t.deposit.afterFee}</span>
                   </p>
                 </div>
                 
                 {/* Wallet Address */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Wallet-Adresse</Label>
+                  <Label className="text-xs text-muted-foreground">{t.deposit.walletAddress}</Label>
                   <div className="flex items-center gap-2 p-3 rounded-xl border border-border/50 bg-muted/20">
                     <span className="flex-1 font-mono text-sm break-all leading-relaxed">
                       {paymentData.pay_address}
@@ -386,7 +398,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
               {/* Footer Info */}
               <div className="text-center space-y-2">
                 <p className="text-xs text-muted-foreground">
-                  Nach Zahlungseingang wird dein Guthaben automatisch aktualisiert.
+                  {t.deposit.autoBalanceUpdate}
                 </p>
                 <PoweredByBadge />
               </div>
@@ -411,12 +423,12 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
               
               <div>
                 <p className="text-lg font-semibold">
-                  {isSuccess ? 'Zahlung abgeschlossen!' : 'Zahlung nicht erfolgreich'}
+                  {isSuccess ? t.deposit.paymentCompleted : t.deposit.paymentNotSuccessful}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
                   {isSuccess 
-                    ? `${paymentData?.net_amount.toFixed(2)} € wurden deinem Guthaben gutgeschrieben.`
-                    : 'Die Zahlung ist abgelaufen oder fehlgeschlagen. Bitte versuche es erneut.'
+                    ? `${paymentData?.net_amount.toFixed(2)} € ${t.deposit.balanceCredited}`
+                    : t.deposit.paymentExpiredOrFailed
                   }
                 </p>
               </div>
@@ -426,7 +438,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                 variant={isSuccess ? "default" : "outline"}
                 onClick={() => onOpenChange(false)}
               >
-                {isSuccess ? 'Fertig' : 'Schließen'}
+                {isSuccess ? t.common.done : t.common.close}
               </Button>
             </div>
           )}
