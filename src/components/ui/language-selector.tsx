@@ -42,7 +42,7 @@ export function LanguageSelector({ variant = 'outline', showLabel = false, class
             className
           )}
         >
-          <FlagIcon code={currentLang.code} className="w-5 h-3.5" />
+          <FlagIcon code={currentLang.code} className="w-7 h-5" />
           <span className="text-xs font-medium">{currentLang.shortLabel}</span>
           <ChevronDown className="h-3 w-3 text-muted-foreground" />
         </Button>
@@ -57,7 +57,7 @@ export function LanguageSelector({ variant = 'outline', showLabel = false, class
               language === lang.code && 'bg-accent'
             )}
           >
-            <FlagIcon code={lang.code} className="w-5 h-3.5" />
+            <FlagIcon code={lang.code} className="w-7 h-5" />
             <span className="flex-1">{lang.label}</span>
             {language === lang.code && (
               <Check className="h-4 w-4 text-primary" />
