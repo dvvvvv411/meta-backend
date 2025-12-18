@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import type { Deposit } from '@/hooks/useDeposits';
 import { useNowPayments } from '@/hooks/useNowPayments';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TransactionDetailModalProps {
   transaction: Deposit | null;
@@ -20,6 +21,7 @@ interface TransactionDetailModalProps {
 }
 
 export function TransactionDetailModal({ transaction, open, onOpenChange }: TransactionDetailModalProps) {
+  const { t } = useLanguage();
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
   const [isExpired, setIsExpired] = useState(false);
   const { checkPaymentStatus } = useNowPayments();
@@ -81,13 +83,13 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
     try {
       await navigator.clipboard.writeText(text);
       toast({
-        title: 'Kopiert',
-        description: `${label} wurde in die Zwischenablage kopiert.`,
+        title: t.deposit.copied,
+        description: `${label} ${t.deposit.copiedToClipboard}`,
       });
     } catch {
       toast({
-        title: 'Fehler',
-        description: 'Konnte nicht kopieren.',
+        title: t.common.error,
+        description: t.deposit.copyError,
         variant: 'destructive',
       });
     }
@@ -99,14 +101,14 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
         return (
           <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
             <Clock className="h-3 w-3 mr-1" />
-            Warte auf Zahlung
+            {t.deposit.statusWaitingShort}
           </Badge>
         );
       case 'confirming':
         return (
           <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">
             <Clock className="h-3 w-3 mr-1" />
-            Wird bestätigt
+            {t.deposit.statusConfirmingShort}
           </Badge>
         );
       case 'confirmed':
@@ -114,21 +116,21 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
         return (
           <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
             <CheckCircle2 className="h-3 w-3 mr-1" />
-            Bestätigt
+            {t.deposit.statusConfirmed}
           </Badge>
         );
       case 'expired':
         return (
           <Badge className="bg-destructive/10 text-destructive border-destructive/20">
             <AlertCircle className="h-3 w-3 mr-1" />
-            Abgelaufen
+            {t.deposit.statusExpired}
           </Badge>
         );
       default:
         return (
           <Badge className="bg-muted text-muted-foreground">
             <Clock className="h-3 w-3 mr-1" />
-            {status || 'Ausstehend'}
+            {status || t.deposit.statusPending}
           </Badge>
         );
     }
@@ -145,13 +147,13 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Transaktionsdetails</DialogTitle>
+          <DialogTitle>{t.deposit.transactionDetails}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 sm:space-y-6">
           {/* Status */}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Status</span>
+            <span className="text-sm text-muted-foreground">{t.deposit.status}</span>
             {getStatusDisplay(currentStatus || transaction.payment_status)}
           </div>
 
@@ -164,7 +166,7 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
-                      <span className="text-sm sm:text-base text-orange-700 font-medium">Ablauf in</span>
+                      <span className="text-sm sm:text-base text-orange-700 font-medium">{t.deposit.expiresIn}</span>
                     </div>
                     <span className="font-mono text-lg sm:text-xl font-bold text-orange-600">
                       {timeLeft}
@@ -196,7 +198,7 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
               {/* Amount to pay */}
               <div className="bg-muted/50 rounded-xl p-3 sm:p-4 space-y-3">
                 <div>
-                  <p className="text-xs text-muted-foreground mb-2">Zu zahlen</p>
+                  <p className="text-xs text-muted-foreground mb-2">{t.deposit.toPay}</p>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <span className="font-mono font-semibold text-xl sm:text-lg">
                       {formatAmount(transaction.pay_amount, transaction.pay_currency)}
@@ -206,17 +208,17 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
                         variant="outline"
                         size="sm"
                         className="w-full sm:w-auto h-10 sm:h-8"
-                        onClick={() => copyToClipboard(transaction.pay_amount!.toString(), 'Betrag')}
+                        onClick={() => copyToClipboard(transaction.pay_amount!.toString(), t.deposit.amount)}
                       >
                         <Copy className="h-4 w-4 mr-2 sm:mr-0" />
-                        <span className="sm:hidden">Betrag kopieren</span>
+                        <span className="sm:hidden">{t.deposit.copyAmount}</span>
                       </Button>
                     )}
                   </div>
                 </div>
 
                 <div className="pt-3 border-t border-border">
-                  <p className="text-xs text-muted-foreground mb-2">Wallet-Adresse</p>
+                  <p className="text-xs text-muted-foreground mb-2">{t.deposit.walletAddress}</p>
                   <code className="block text-xs bg-background rounded-lg px-3 py-2.5 font-mono break-all sm:truncate mb-2">
                     {transaction.pay_address}
                   </code>
@@ -224,10 +226,10 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
                     variant="outline"
                     size="sm"
                     className="w-full sm:w-auto h-10 sm:h-8"
-                    onClick={() => copyToClipboard(transaction.pay_address!, 'Wallet-Adresse')}
+                    onClick={() => copyToClipboard(transaction.pay_address!, t.deposit.walletAddress)}
                   >
                     <Copy className="h-4 w-4 mr-2 sm:mr-0" />
-                    <span className="sm:hidden">Adresse kopieren</span>
+                    <span className="sm:hidden">{t.deposit.copyAddress}</span>
                   </Button>
                 </div>
               </div>
@@ -238,9 +240,9 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
           {isExpired && transaction.status !== 'completed' && (
             <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4 sm:p-4 text-center">
               <AlertCircle className="h-10 w-10 sm:h-8 sm:w-8 text-destructive mx-auto mb-2" />
-              <p className="text-base sm:text-sm font-medium text-destructive">Zahlungsfrist abgelaufen</p>
+              <p className="text-base sm:text-sm font-medium text-destructive">{t.deposit.paymentExpired}</p>
               <p className="text-sm sm:text-xs text-muted-foreground mt-1">
-                Diese Zahlungsanfrage ist nicht mehr gültig.
+                {t.deposit.paymentExpiredDesc}
               </p>
             </div>
           )}
@@ -249,9 +251,9 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
           {transaction.status === 'completed' && (
             <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 sm:p-4 text-center">
               <CheckCircle2 className="h-10 w-10 sm:h-8 sm:w-8 text-green-600 mx-auto mb-2" />
-              <p className="text-base sm:text-sm font-medium text-green-600">Zahlung abgeschlossen</p>
+              <p className="text-base sm:text-sm font-medium text-green-600">{t.deposit.paymentCompletedTitle}</p>
               <p className="text-sm sm:text-xs text-muted-foreground mt-1">
-                Der Betrag wurde deinem Guthaben gutgeschrieben.
+                {t.deposit.balanceCreditedDesc}
               </p>
             </div>
           )}
@@ -259,14 +261,14 @@ export function TransactionDetailModal({ transaction, open, onOpenChange }: Tran
           {/* Transaction Details */}
           <div className="space-y-3 sm:space-y-2 text-sm bg-muted/30 rounded-xl p-3 sm:p-0 sm:bg-transparent">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Betrag (EUR)</span>
+              <span className="text-muted-foreground">{t.deposit.amountEur}</span>
               <span className="font-medium">
                 {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(transaction.amount)}
               </span>
             </div>
             {transaction.pay_currency && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Währung</span>
+                <span className="text-muted-foreground">{t.deposit.currency}</span>
                 <span className="font-medium">{transaction.pay_currency.toUpperCase()}</span>
               </div>
             )}

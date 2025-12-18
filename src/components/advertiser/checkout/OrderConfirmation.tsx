@@ -50,7 +50,7 @@ export function OrderConfirmation({
             <CheckCircle2 className="h-8 w-8 text-green-600" />
           </div>
           <DialogTitle className="text-2xl">
-            {language === 'de' ? 'Zahlung erfolgreich!' : 'Payment successful!'}
+            {t.rentAccount.paymentSuccessful}
           </DialogTitle>
         </DialogHeader>
 
@@ -62,7 +62,7 @@ export function OrderConfirmation({
 
         <div className="space-y-3">
           <h4 className="font-medium text-sm text-muted-foreground">
-            {language === 'de' ? 'Bestellübersicht' : 'Order Summary'}
+            {t.rentAccount.orderSummary}
           </h4>
           
           <div className="space-y-2 text-sm">
@@ -71,7 +71,7 @@ export function OrderConfirmation({
               <span className="font-mono">{orderData.invoiceNumber}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{language === 'de' ? 'Produkt' : 'Product'}</span>
+              <span className="text-muted-foreground">{t.rentAccount.product}</span>
               <span>Agency Account</span>
             </div>
             <div className="flex justify-between">
@@ -79,15 +79,15 @@ export function OrderConfirmation({
               <span>{orderData.amount.toFixed(2)} € (160 USDT)</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{language === 'de' ? 'Startdatum' : 'Start date'}</span>
+              <span className="text-muted-foreground">{t.rentAccount.startDate}</span>
               <span>{formatDate(orderData.startDate)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{language === 'de' ? 'Gültig bis' : 'Valid until'}</span>
+              <span className="text-muted-foreground">{t.rentAccount.validUntil}</span>
               <span>{formatDate(orderData.endDate)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{language === 'de' ? 'Nächste Abrechnung' : 'Next billing'}</span>
+              <span className="text-muted-foreground">{t.rentAccount.nextBilling}</span>
               <span>{formatDate(orderData.endDate)}</span>
             </div>
           </div>
