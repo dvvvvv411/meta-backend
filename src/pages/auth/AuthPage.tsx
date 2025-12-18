@@ -26,7 +26,7 @@ type ForgotPasswordFormData = { email: string };
 type AuthView = 'login' | 'register' | 'forgot-password';
 
 const AuthPage: React.FC = () => {
-  const { t, language } = useLanguage();
+  const { t, language, setLanguageFromBranding } = useLanguage();
   const [searchParams] = useSearchParams();
   const initialView = searchParams.get('mode') === 'register' ? 'register' : 'login';
   
@@ -43,6 +43,13 @@ const AuthPage: React.FC = () => {
   
   const logoUrl = branding?.logo_url || DEFAULT_LOGO_URL;
   const brandName = branding?.name || 'MetaNetwork';
+
+  // Set language from branding
+  useEffect(() => {
+    if (branding?.default_language) {
+      setLanguageFromBranding(branding.default_language as 'de' | 'en');
+    }
+  }, [branding?.default_language, setLanguageFromBranding]);
 
   // Dynamic validation schemas based on language
   const loginSchema = z.object({
