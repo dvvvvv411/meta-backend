@@ -19,10 +19,12 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
 import { useUserBalance } from '@/hooks/useUserBalance';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useDomainBranding } from '@/hooks/useDomainBranding';
+import { LanguageSelector } from '@/components/ui/language-selector';
 
 const DEFAULT_LOGO_URL = 'https://tpkecrwoyfxcynezbyel.supabase.co/storage/v1/object/public/branding-logos/fec753ad-b83c-4bf6-b1e8-3879fccd5018.png';
 
@@ -33,6 +35,7 @@ interface AdvertiserHeaderProps {
 
 export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: AdvertiserHeaderProps) => {
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
   const { hasActiveAccount, isLoading: accountsLoading } = useAdvertiserAccounts();
   const { balanceEur, isLoading: balanceLoading } = useUserBalance();
   const { notifications, unreadCount } = useNotifications();
@@ -69,7 +72,7 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
       {/* Left: Menu Button (Mobile) + Search */}
       <div className="flex items-center gap-2 sm:gap-4 flex-1">
         {showMenuButton && (
-          <Button variant="ghost" size="icon" onClick={onMenuToggle} className="shrink-0" aria-label="Navigation öffnen">
+          <Button variant="ghost" size="icon" onClick={onMenuToggle} className="shrink-0" aria-label={t.header.openNavigation}>
             <Menu className="h-5 w-5" aria-hidden="true" />
           </Button>
         )}
@@ -78,17 +81,20 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
         <div className="relative hidden md:block max-w-xs flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <Input
-            placeholder="Kampagnen, Statistiken..."
+            placeholder={t.header.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 bg-muted/50"
-            aria-label="Suche"
+            aria-label={t.common.search}
           />
         </div>
       </div>
 
-      {/* Right: Balance, Notifications, User Dropdown */}
+      {/* Right: Language, Balance, Notifications, User Dropdown */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {/* Language Selector */}
+        <LanguageSelector className="hidden sm:flex" />
+
         {/* Quick Balance */}
         <Card className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-card/50 border-border/50">
           <Wallet className="h-4 w-4 text-muted-foreground" />
@@ -96,7 +102,7 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
             <Skeleton className="h-5 w-20" />
           ) : (
             <div className="text-right">
-              <p className="text-xs text-muted-foreground leading-none">Guthaben</p>
+              <p className="text-xs text-muted-foreground leading-none">{t.header.balance}</p>
               <p className="text-sm font-semibold text-foreground leading-none">
                 {formatCurrency(balanceEur)}
               </p>
@@ -107,7 +113,7 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
         {/* Notifications Bell */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative" aria-label={`Benachrichtigungen${unreadCount > 0 ? `, ${unreadCount} ungelesen` : ''}`}>
+            <Button variant="ghost" size="icon" className="relative" aria-label={`${t.header.notifications}${unreadCount > 0 ? `, ${unreadCount}` : ''}`}>
               <Bell className="h-5 w-5" aria-hidden="true" />
               {unreadCount > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center" aria-hidden="true">
@@ -118,7 +124,7 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
           </PopoverTrigger>
           <PopoverContent className="w-80 p-0 bg-popover" align="end">
             <div className="p-3 border-b border-border">
-              <h4 className="font-semibold text-sm">Benachrichtigungen</h4>
+              <h4 className="font-semibold text-sm">{t.header.notifications}</h4>
             </div>
             <div className="max-h-80 overflow-y-auto">
               {notifications.length > 0 ? (
@@ -135,7 +141,7 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
                 ))
               ) : (
                 <div className="p-4 text-center text-sm text-muted-foreground">
-                  Keine neuen Benachrichtigungen
+                  {t.header.noNotifications}
                 </div>
               )}
             </div>
@@ -151,7 +157,7 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
               </div>
               <div className="hidden sm:block text-left">
                 <p className="text-sm font-medium leading-tight truncate max-w-[180px]">
-                  {user?.email || 'Benutzer'}
+                  {user?.email || t.header.user}
                 </p>
               {accountsLoading ? (
                   <Skeleton className="h-4 w-12 mt-0.5" />
@@ -160,7 +166,7 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
                     variant={hasActiveAccount ? "default" : "secondary"}
                     className="text-[10px] h-4 px-1.5"
                   >
-                    {hasActiveAccount ? 'Aktiv' : 'Kein Account'}
+                    {hasActiveAccount ? t.common.active : t.header.noAccount}
                   </Badge>
                 )}
               </div>
@@ -174,12 +180,12 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
             <DropdownMenuSeparator className="sm:hidden" />
             <DropdownMenuItem onClick={() => navigate('/advertiser/settings')}>
               <Settings className="h-4 w-4 mr-2" />
-              Einstellungen
+              {t.header.settings}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
               <LogOut className="h-4 w-4 mr-2" />
-              Abmelden
+              {t.auth.logout}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

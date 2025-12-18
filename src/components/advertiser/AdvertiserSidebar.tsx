@@ -18,27 +18,28 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useAdvertiserAccount } from '@/hooks/useAdvertiserAccount';
 import { useDomainBranding } from '@/hooks/useDomainBranding';
 
 const DEFAULT_LOGO_URL = 'https://tpkecrwoyfxcynezbyel.supabase.co/storage/v1/object/public/branding-logos/fec753ad-b83c-4bf6-b1e8-3879fccd5018.png';
 
 interface NavItem {
-  label: string;
+  labelKey: keyof typeof import('@/lib/translations/de').de.sidebar;
   icon: React.ElementType;
   path: string;
   requiresAccount?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Übersicht', icon: LayoutDashboard, path: '/advertiser' },
-  { label: 'Agency Account', icon: Building2, path: '/advertiser/rent-account' },
-  { label: 'Guthaben', icon: Wallet, path: '/advertiser/deposit' },
-  { label: 'Kampagnen', icon: Megaphone, path: '/advertiser/campaigns', requiresAccount: true },
-  { label: 'Statistiken', icon: BarChart3, path: '/advertiser/statistics', requiresAccount: true },
-  { label: 'API Dokumentation', icon: Code2, path: '/advertiser/api' },
-  { label: 'Einstellungen', icon: Settings, path: '/advertiser/settings' },
-  { label: 'Support / Tickets', icon: HelpCircle, path: '/advertiser/support' },
+  { labelKey: 'overview', icon: LayoutDashboard, path: '/advertiser' },
+  { labelKey: 'agencyAccount', icon: Building2, path: '/advertiser/rent-account' },
+  { labelKey: 'balance', icon: Wallet, path: '/advertiser/deposit' },
+  { labelKey: 'campaigns', icon: Megaphone, path: '/advertiser/campaigns', requiresAccount: true },
+  { labelKey: 'statistics', icon: BarChart3, path: '/advertiser/statistics', requiresAccount: true },
+  { labelKey: 'apiDocs', icon: Code2, path: '/advertiser/api' },
+  { labelKey: 'settings', icon: Settings, path: '/advertiser/settings' },
+  { labelKey: 'support', icon: HelpCircle, path: '/advertiser/support' },
 ];
 
 interface AdvertiserSidebarProps {
@@ -51,6 +52,7 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { t } = useLanguage();
   const { hasActiveAccount, isLoading } = useAdvertiserAccount();
   const { data: branding } = useDomainBranding();
 
@@ -67,7 +69,7 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
 
   const handleLogout = async () => {
     await signOut();
-    navigate('/auth/login');
+    navigate('/auth');
   };
 
   const logoUrl = branding?.logo_url || DEFAULT_LOGO_URL;
@@ -114,6 +116,7 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
           const isActive = location.pathname === item.path;
           const isLocked = item.requiresAccount && !isLoading && !hasActiveAccount;
           const Icon = item.icon;
+          const label = t.sidebar[item.labelKey];
 
           const navButton = (
             <button
@@ -149,7 +152,7 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
                   "font-medium text-sm transition-colors duration-200",
                   isActive ? "text-primary-foreground" : "text-foreground"
                 )}>
-                  {item.label}
+                  {label}
                 </span>
               )}
             </button>
@@ -163,8 +166,8 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
                 </TooltipTrigger>
                 <TooltipContent side="right" className="font-medium max-w-xs">
                   {isLocked 
-                    ? "Dieses Feature wird freigeschaltet, nachdem du mindestens ein Agency Account gemietet hast." 
-                    : item.label
+                    ? t.sidebar.lockedFeatureTooltip
+                    : label
                   }
                 </TooltipContent>
               </Tooltip>
@@ -190,12 +193,12 @@ export const AdvertiserSidebar = ({ isMobile = false, onNavigate }: AdvertiserSi
                 <LogOut className="h-5 w-5 text-destructive" />
               </div>
               {!isCollapsed && (
-                <span className="font-medium text-sm text-destructive">Abmelden</span>
+                <span className="font-medium text-sm text-destructive">{t.auth.logout}</span>
               )}
             </button>
           </TooltipTrigger>
           {isCollapsed && (
-            <TooltipContent side="right">Abmelden</TooltipContent>
+            <TooltipContent side="right">{t.auth.logout}</TooltipContent>
           )}
         </Tooltip>
       </div>

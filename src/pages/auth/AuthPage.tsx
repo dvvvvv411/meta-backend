@@ -8,38 +8,25 @@ import {
   Shield, Check, Lock as LockIcon, BadgeCheck, Zap, ShieldCheck, Target
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useDomainBranding } from '@/hooks/useDomainBranding';
 import { usePageMeta } from '@/hooks/usePageMeta';
+import { LanguageSelector } from '@/components/ui/language-selector';
 
 // MetaNetwork Agency Logo aus der DB als Fallback
 const DEFAULT_LOGO_URL = 'https://tpkecrwoyfxcynezbyel.supabase.co/storage/v1/object/public/branding-logos/fec753ad-b83c-4bf6-b1e8-3879fccd5018.png';
 
-// Validation Schemas
-const loginSchema = z.object({
-  email: z.string().email('Bitte geben Sie eine gültige E-Mail-Adresse ein'),
-  password: z.string().min(1, 'Bitte geben Sie Ihr Passwort ein'),
-});
-
-const registerSchema = z.object({
-  email: z.string().email('Bitte geben Sie eine gültige E-Mail-Adresse ein'),
-  password: z.string().min(8, 'Das Passwort muss mindestens 8 Zeichen lang sein'),
-  companyName: z.string().optional(),
-});
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email('Bitte geben Sie eine gültige E-Mail-Adresse ein'),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-type RegisterFormData = z.infer<typeof registerSchema>;
-type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+type LoginFormData = { email: string; password: string };
+type RegisterFormData = { email: string; password: string; companyName?: string };
+type ForgotPasswordFormData = { email: string };
 type AuthView = 'login' | 'register' | 'forgot-password';
 
 const AuthPage: React.FC = () => {
+  const { t, language } = useLanguage();
   const [searchParams] = useSearchParams();
   const initialView = searchParams.get('mode') === 'register' ? 'register' : 'login';
   
@@ -56,6 +43,22 @@ const AuthPage: React.FC = () => {
   
   const logoUrl = branding?.logo_url || DEFAULT_LOGO_URL;
   const brandName = branding?.name || 'MetaNetwork';
+
+  // Dynamic validation schemas based on language
+  const loginSchema = z.object({
+    email: z.string().email(t.auth.invalidEmail),
+    password: z.string().min(1, t.auth.passwordRequired),
+  });
+
+  const registerSchema = z.object({
+    email: z.string().email(t.auth.invalidEmail),
+    password: z.string().min(8, t.auth.passwordMinLength),
+    companyName: z.string().optional(),
+  });
+
+  const forgotPasswordSchema = z.object({
+    email: z.string().email(t.auth.invalidEmail),
+  });
 
   // Redirect based on role if already logged in
   useEffect(() => {
@@ -91,11 +94,10 @@ const AuthPage: React.FC = () => {
     if (error) {
       toast({
         variant: 'destructive',
-        title: 'Anmeldung fehlgeschlagen',
+        title: t.auth.loginFailed,
         description: error,
       });
     }
-    // Redirect is handled by useEffect based on role
   };
 
   const handleRegister = async (data: RegisterFormData) => {
@@ -106,13 +108,13 @@ const AuthPage: React.FC = () => {
     if (error) {
       toast({
         variant: 'destructive',
-        title: 'Registrierung fehlgeschlagen',
+        title: t.auth.registerFailed,
         description: error,
       });
     } else {
       toast({
-        title: 'Willkommen!',
-        description: 'Ihr Konto wurde erfolgreich erstellt.',
+        title: t.auth.welcome,
+        description: t.auth.accountCreated,
       });
       navigate('/advertiser');
     }
@@ -126,7 +128,7 @@ const AuthPage: React.FC = () => {
     if (error) {
       toast({
         variant: 'destructive',
-        title: 'Fehler',
+        title: t.common.error,
         description: error,
       });
     } else {
@@ -140,16 +142,20 @@ const AuthPage: React.FC = () => {
     setShowPassword(false);
   };
 
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {/* Language Selector - Top Right */}
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSelector />
+      </div>
+
       <div className="flex-1 flex">
         {/* Left Column - Forms */}
         <div className="w-full lg:w-[45%] flex flex-col justify-center px-6 py-12 lg:px-16 xl:px-24">
           <div className="w-full max-w-md mx-auto">
             {/* Logo */}
-          <div className="mb-10 flex justify-center">
-            <img src={logoUrl} alt={brandName} className="h-8 w-auto" />
+            <div className="mb-10 flex justify-center">
+              <img src={logoUrl} alt={brandName} className="h-8 w-auto" />
             </div>
 
             {/* Tab Switcher - Only show for login/register */}
@@ -163,7 +169,7 @@ const AuthPage: React.FC = () => {
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  Anmelden
+                  {t.auth.login}
                 </button>
                 <button
                   onClick={() => switchView('register')}
@@ -173,7 +179,7 @@ const AuthPage: React.FC = () => {
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  Registrieren
+                  {t.auth.register}
                 </button>
               </div>
             )}
@@ -181,18 +187,18 @@ const AuthPage: React.FC = () => {
             {/* Login Form */}
             {view === 'login' && (
               <div className="animate-fade-in">
-                <h1 className="text-2xl font-semibold text-foreground mb-2">Willkommen zurück</h1>
-                <p className="text-muted-foreground mb-8">Melden Sie sich in Ihrem Konto an</p>
+                <h1 className="text-2xl font-semibold text-foreground mb-2">{t.auth.welcomeBack}</h1>
+                <p className="text-muted-foreground mb-8">{t.auth.loginSubtitle}</p>
 
                 <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email">E-Mail</Label>
+                    <Label htmlFor="login-email">{t.auth.email}</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="login-email"
                         type="email"
-                        placeholder="ihre@email.de"
+                        placeholder={t.auth.emailPlaceholder}
                         className="pl-10 h-11"
                         {...loginForm.register('email')}
                       />
@@ -203,13 +209,13 @@ const AuthPage: React.FC = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="login-password">Passwort</Label>
+                    <Label htmlFor="login-password">{t.auth.password}</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="login-password"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="••••••••"
+                        placeholder={t.auth.passwordPlaceholder}
                         className="pl-10 pr-10 h-11"
                         {...loginForm.register('password')}
                       />
@@ -232,7 +238,7 @@ const AuthPage: React.FC = () => {
                       onClick={() => switchView('forgot-password')}
                       className="text-sm text-primary hover:underline"
                     >
-                      Passwort vergessen?
+                      {t.auth.forgotPassword}
                     </button>
                   </div>
 
@@ -240,10 +246,10 @@ const AuthPage: React.FC = () => {
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Wird angemeldet...
+                        {t.auth.loggingIn}
                       </>
                     ) : (
-                      'Einloggen'
+                      t.auth.loginButton
                     )}
                   </Button>
                 </form>
@@ -253,18 +259,18 @@ const AuthPage: React.FC = () => {
             {/* Register Form */}
             {view === 'register' && (
               <div className="animate-fade-in">
-                <h1 className="text-2xl font-semibold text-foreground mb-2">Konto erstellen</h1>
-                <p className="text-muted-foreground mb-8">Starten Sie jetzt mit {brandName}</p>
+                <h1 className="text-2xl font-semibold text-foreground mb-2">{t.auth.createAccount}</h1>
+                <p className="text-muted-foreground mb-8">{t.auth.createAccountSubtitle} {brandName}</p>
 
                 <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="register-email">E-Mail</Label>
+                    <Label htmlFor="register-email">{t.auth.email}</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="register-email"
                         type="email"
-                        placeholder="ihre@email.de"
+                        placeholder={t.auth.emailPlaceholder}
                         className="pl-10 h-11"
                         {...registerForm.register('email')}
                       />
@@ -275,13 +281,13 @@ const AuthPage: React.FC = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="register-password">Passwort</Label>
+                    <Label htmlFor="register-password">{t.auth.password}</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="register-password"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="Mindestens 8 Zeichen"
+                        placeholder={t.auth.passwordMinChars}
                         className="pl-10 pr-10 h-11"
                         {...registerForm.register('password')}
                       />
@@ -299,13 +305,13 @@ const AuthPage: React.FC = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="register-company">Firmenname (optional)</Label>
+                    <Label htmlFor="register-company">{t.auth.companyName}</Label>
                     <div className="relative">
                       <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="register-company"
                         type="text"
-                        placeholder="Ihre Firma GmbH"
+                        placeholder={t.auth.companyPlaceholder}
                         className="pl-10 h-11"
                         {...registerForm.register('companyName')}
                       />
@@ -316,17 +322,17 @@ const AuthPage: React.FC = () => {
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Wird registriert...
+                        {t.auth.registering}
                       </>
                     ) : (
-                      'Konto erstellen'
+                      t.auth.registerButton
                     )}
                   </Button>
 
                   <p className="text-xs text-center text-muted-foreground">
-                    Mit der Registrierung stimmen Sie unseren{' '}
-                    <a href="/datenschutz" className="text-primary hover:underline">Datenschutzrichtlinien</a>
-                    {' '}zu.
+                    {t.auth.termsPrefix}{' '}
+                    <a href="/datenschutz" className="text-primary hover:underline">{t.auth.termsLink}</a>
+                    {' '}{t.auth.termsSuffix}
                   </p>
                 </form>
               </div>
@@ -342,9 +348,9 @@ const AuthPage: React.FC = () => {
                         <CheckCircle className="h-8 w-8 text-primary" />
                       </div>
                     </div>
-                    <h1 className="text-2xl font-semibold text-foreground mb-2">E-Mail gesendet</h1>
+                    <h1 className="text-2xl font-semibold text-foreground mb-2">{t.auth.emailSent}</h1>
                     <p className="text-muted-foreground mb-8">
-                      Wenn ein Konto mit dieser E-Mail-Adresse existiert, haben wir Ihnen einen Link zum Zurücksetzen gesendet.
+                      {t.auth.emailSentMessage}
                     </p>
                     <Button
                       variant="outline"
@@ -352,7 +358,7 @@ const AuthPage: React.FC = () => {
                       onClick={() => switchView('login')}
                     >
                       <ArrowLeft className="mr-2 h-4 w-4" />
-                      Zurück zur Anmeldung
+                      {t.auth.backToLogin}
                     </Button>
                   </div>
                 ) : (
@@ -362,21 +368,21 @@ const AuthPage: React.FC = () => {
                       className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
                     >
                       <ArrowLeft className="h-4 w-4" />
-                      Zurück zur Anmeldung
+                      {t.auth.backToLogin}
                     </button>
 
-                    <h1 className="text-2xl font-semibold text-foreground mb-2">Passwort vergessen?</h1>
-                    <p className="text-muted-foreground mb-8">Wir senden Ihnen einen Link zum Zurücksetzen</p>
+                    <h1 className="text-2xl font-semibold text-foreground mb-2">{t.auth.forgotPasswordTitle}</h1>
+                    <p className="text-muted-foreground mb-8">{t.auth.forgotPasswordSubtitle}</p>
 
                     <form onSubmit={forgotForm.handleSubmit(handleForgotPassword)} className="space-y-5">
                       <div className="space-y-2">
-                        <Label htmlFor="forgot-email">E-Mail</Label>
+                        <Label htmlFor="forgot-email">{t.auth.email}</Label>
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
                             id="forgot-email"
                             type="email"
-                            placeholder="ihre@email.de"
+                            placeholder={t.auth.emailPlaceholder}
                             className="pl-10 h-11"
                             {...forgotForm.register('email')}
                           />
@@ -390,10 +396,10 @@ const AuthPage: React.FC = () => {
                         {isLoading ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Wird gesendet...
+                            {t.auth.sending}
                           </>
                         ) : (
-                          'Link senden'
+                          t.auth.sendLink
                         )}
                       </Button>
                     </form>
@@ -423,12 +429,12 @@ const AuthPage: React.FC = () => {
             
             {/* Headline */}
             <h2 className="text-2xl xl:text-3xl font-semibold text-[#1c1e21] mb-3">
-              Verbinde dich mit deiner Zielgruppe
+              {language === 'de' ? 'Verbinde dich mit deiner Zielgruppe' : 'Connect with your audience'}
             </h2>
             
             {/* Subline */}
             <p className="text-base text-[#606770] mb-8">
-              Deine Vorteile mit {brandName}
+              {language === 'de' ? `Deine Vorteile mit ${brandName}` : `Your benefits with ${brandName}`}
             </p>
             
             {/* Benefits Grid */}
@@ -441,8 +447,12 @@ const AuthPage: React.FC = () => {
                     <BadgeCheck className="h-5 w-5 text-[#1877F2]" strokeWidth={1.5} />
                   </div>
                 </div>
-                <div className="font-semibold text-[#1c1e21] text-base">Verifizierte Accounts</div>
-                <div className="text-sm text-[#606770] mt-1">Geprüfte Agency Accounts</div>
+                <div className="font-semibold text-[#1c1e21] text-base">
+                  {language === 'de' ? 'Verifizierte Accounts' : 'Verified Accounts'}
+                </div>
+                <div className="text-sm text-[#606770] mt-1">
+                  {language === 'de' ? 'Geprüfte Agency Accounts' : 'Verified agency accounts'}
+                </div>
               </div>
               
               {/* Benefit 2 */}
@@ -453,8 +463,12 @@ const AuthPage: React.FC = () => {
                     <Zap className="h-5 w-5 text-[#1877F2]" strokeWidth={1.5} />
                   </div>
                 </div>
-                <div className="font-semibold text-[#1c1e21] text-base">Sofortiger Zugang</div>
-                <div className="text-sm text-[#606770] mt-1">In Minuten startklar</div>
+                <div className="font-semibold text-[#1c1e21] text-base">
+                  {language === 'de' ? 'Sofortiger Zugang' : 'Instant Access'}
+                </div>
+                <div className="text-sm text-[#606770] mt-1">
+                  {language === 'de' ? 'In Minuten startklar' : 'Ready in minutes'}
+                </div>
               </div>
               
               {/* Benefit 3 */}
@@ -465,8 +479,12 @@ const AuthPage: React.FC = () => {
                     <ShieldCheck className="h-5 w-5 text-[#1877F2]" strokeWidth={1.5} />
                   </div>
                 </div>
-                <div className="font-semibold text-[#1c1e21] text-base">Sichere Zahlungen</div>
-                <div className="text-sm text-[#606770] mt-1">Transparente Abrechnung</div>
+                <div className="font-semibold text-[#1c1e21] text-base">
+                  {language === 'de' ? 'Sichere Zahlungen' : 'Secure Payments'}
+                </div>
+                <div className="text-sm text-[#606770] mt-1">
+                  {language === 'de' ? 'Transparente Abrechnung' : 'Transparent billing'}
+                </div>
               </div>
               
               {/* Benefit 4 */}
@@ -477,8 +495,12 @@ const AuthPage: React.FC = () => {
                     <Target className="h-5 w-5 text-[#1877F2]" strokeWidth={1.5} />
                   </div>
                 </div>
-                <div className="font-semibold text-[#1c1e21] text-base">Keine Sperrrisiken</div>
-                <div className="text-sm text-[#606770] mt-1">Professionell verwaltet</div>
+                <div className="font-semibold text-[#1c1e21] text-base">
+                  {language === 'de' ? 'Keine Sperrrisiken' : 'No Ban Risks'}
+                </div>
+                <div className="text-sm text-[#606770] mt-1">
+                  {language === 'de' ? 'Professionell verwaltet' : 'Professionally managed'}
+                </div>
               </div>
             </div>
             
@@ -486,11 +508,11 @@ const AuthPage: React.FC = () => {
             <div className="flex items-center justify-center gap-6 text-sm text-[#606770]">
               <span className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
-                DSGVO-konform
+                {t.auth.trustBadgeGdpr}
               </span>
               <span className="flex items-center gap-2">
                 <Lock className="h-4 w-4" />
-                SSL-gesichert
+                {t.auth.trustBadgeSsl}
               </span>
             </div>
           </div>
