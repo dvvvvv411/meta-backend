@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { AdvertiserSidebar } from './AdvertiserSidebar';
@@ -7,12 +7,21 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { useDomainBranding } from '@/hooks/useDomainBranding';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const AdvertiserLayout = () => {
   usePageMeta();
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
-  const { isLoading: brandingLoading } = useDomainBranding();
+  const { data: branding, isLoading: brandingLoading } = useDomainBranding();
+  const { setLanguageFromBranding } = useLanguage();
+
+  // Auto-set language from branding if user hasn't manually chosen
+  useEffect(() => {
+    if (branding?.default_language) {
+      setLanguageFromBranding(branding.default_language);
+    }
+  }, [branding?.default_language, setLanguageFromBranding]);
 
   if (brandingLoading) {
     return (

@@ -11,6 +11,7 @@ export interface Branding {
   logo_url: string | null;
   primary_color: string;
   is_active: boolean;
+  default_language: 'de' | 'en' | null;
   created_at: string;
   created_by: string | null;
   updated_at: string | null;
@@ -114,6 +115,7 @@ export function useCreateBranding() {
           primary_color: branding.primary_color || '#6366f1',
           logo_url: branding.logo_url || null,
           is_active: branding.is_active ?? true,
+          default_language: branding.default_language || 'de',
           created_by: user?.id,
         })
         .select()

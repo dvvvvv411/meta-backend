@@ -6,6 +6,7 @@ export interface DomainBranding {
   name: string;
   logo_url: string | null;
   primary_color: string | null;
+  default_language: 'de' | 'en' | null;
 }
 
 export function useDomainBranding() {
@@ -28,7 +29,7 @@ export function useDomainBranding() {
       // First try exact domain match
       let { data } = await supabase
         .from('brandings')
-        .select('id, name, logo_url, primary_color')
+        .select('id, name, logo_url, primary_color, default_language')
         .eq('domain', hostname)
         .eq('is_active', true)
         .maybeSingle();
@@ -39,7 +40,7 @@ export function useDomainBranding() {
         if (baseDomain !== hostname) {
           const result = await supabase
             .from('brandings')
-            .select('id, name, logo_url, primary_color')
+            .select('id, name, logo_url, primary_color, default_language')
             .eq('domain', baseDomain)
             .eq('is_active', true)
             .maybeSingle();
@@ -47,7 +48,7 @@ export function useDomainBranding() {
         }
       }
 
-      return data;
+      return data as DomainBranding | null;
     },
     staleTime: 1000 * 60 * 30, // 30 minutes cache
   });
