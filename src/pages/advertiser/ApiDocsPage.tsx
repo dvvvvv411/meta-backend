@@ -25,20 +25,25 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-const sections = [
-  { id: 'introduction', label: 'Einführung', icon: BookOpen },
-  { id: 'authentication', label: 'Authentifizierung', icon: Key },
-  { id: 'base-url', label: 'Base URL & Versioning', icon: Globe },
-  { id: 'agency-accounts', label: 'Agency Accounts', icon: Building2 },
-  { id: 'campaigns', label: 'Kampagnen', icon: Megaphone },
-  { id: 'wallet', label: 'Budget & Top-Up', icon: Wallet },
-  { id: 'statistics', label: 'Statistiken & Reporting', icon: BarChart3 },
-  { id: 'webhooks', label: 'Webhooks', icon: Webhook },
-  { id: 'errors', label: 'Fehlercodes', icon: AlertCircle },
-  { id: 'rate-limits', label: 'Rate Limits', icon: Clock },
-  { id: 'sdks', label: 'SDKs & Libraries', icon: Package },
-];
+const ApiDocsPage = () => {
+  const [activeSection, setActiveSection] = useState('introduction');
+  const { t } = useLanguage();
+
+  const sections = [
+    { id: 'introduction', label: t.apiDocs.introduction, icon: BookOpen },
+    { id: 'authentication', label: t.apiDocs.authentication, icon: Key },
+    { id: 'base-url', label: t.apiDocs.baseUrl, icon: Globe },
+    { id: 'agency-accounts', label: t.apiDocs.agencyAccounts, icon: Building2 },
+    { id: 'campaigns', label: t.apiDocs.campaignsSection, icon: Megaphone },
+    { id: 'wallet', label: t.apiDocs.wallet, icon: Wallet },
+    { id: 'statistics', label: t.apiDocs.statisticsSection, icon: BarChart3 },
+    { id: 'webhooks', label: t.apiDocs.webhooks, icon: Webhook },
+    { id: 'errors', label: t.apiDocs.errorCodes, icon: AlertCircle },
+    { id: 'rate-limits', label: t.apiDocs.rateLimitsSection, icon: Clock },
+    { id: 'sdks', label: t.apiDocs.sdks, icon: Package },
+  ];
 
 interface CodeBlockProps {
   code: string;
@@ -106,9 +111,6 @@ const EndpointCard = ({ method, path, description, request, response }: Endpoint
   );
 };
 
-const ApiDocsPage = () => {
-  const [activeSection, setActiveSection] = useState('introduction');
-
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
@@ -161,7 +163,7 @@ const ApiDocsPage = () => {
         <div className="lg:hidden p-4 border-b border-border sticky top-0 bg-background z-10">
           <Select value={activeSection} onValueChange={scrollToSection}>
             <SelectTrigger>
-              <SelectValue placeholder="Sektion wählen" />
+              <SelectValue placeholder={t.apiDocs.selectSection} />
             </SelectTrigger>
             <SelectContent>
               {sections.map((s) => (
@@ -216,14 +218,13 @@ const ApiDocsPage = () => {
 
           {/* Authentication */}
           <section id="authentication" className="scroll-mt-20 space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Authentifizierung</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t.apiDocs.authentication}</h2>
             <p className="text-muted-foreground">
-              Alle API-Requests erfordern einen Bearer Token im Authorization Header. 
-              API Keys können im Dashboard unter Einstellungen → API generiert werden.
+              {t.apiDocs.authDesc}
             </p>
             
             <CodeBlock 
-              title="Authorization Header"
+              title={t.apiDocs.authHeader}
               code="Authorization: Bearer YOUR_API_KEY"
             />
 
@@ -232,12 +233,11 @@ const ApiDocsPage = () => {
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
                     <Key className="h-4 w-4" />
-                    API Keys
+                    {t.apiDocs.apiKeysTitle}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm text-muted-foreground">
-                  Generiere API Keys in deinem Dashboard. Jeder Key hat individuelle Berechtigungen 
-                  und kann jederzeit widerrufen werden.
+                  {t.apiDocs.apiKeysDesc}
                 </CardContent>
               </Card>
               
@@ -245,12 +245,11 @@ const ApiDocsPage = () => {
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
                     <ShieldCheck className="h-4 w-4" />
-                    Sicherheit
+                    {t.apiDocs.securityTitle}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm text-muted-foreground">
-                  Alle Requests müssen über HTTPS erfolgen. HTTP-Requests werden automatisch 
-                  abgelehnt. API Keys niemals client-seitig speichern.
+                  {t.apiDocs.securityDesc}
                 </CardContent>
               </Card>
             </div>
@@ -258,10 +257,9 @@ const ApiDocsPage = () => {
 
           {/* Base URL */}
           <section id="base-url" className="scroll-mt-20 space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Base URL & Versioning</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t.apiDocs.baseUrl}</h2>
             <p className="text-muted-foreground">
-              Alle API-Requests verwenden die folgende Base URL. Die API ist versioniert, 
-              um Abwärtskompatibilität zu gewährleisten.
+              {t.apiDocs.baseUrlDesc}
             </p>
             
             <CodeBlock 

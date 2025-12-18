@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { CurrencySearchSelector, CurrencyOption } from '@/components/advertiser/shared/CurrencySearchSelector';
 import { TrustBadges, PoweredByBadge } from '@/components/advertiser/shared/TrustBadges';
 import { PaymentStatusIndicator } from '@/components/advertiser/shared/PaymentStatusIndicator';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const DEFAULT_LOGO_URL = 'https://tpkecrwoyfxcynezbyel.supabase.co/storage/v1/object/public/branding-logos/fec753ad-b83c-4bf6-b1e8-3879fccd5018.png';
 
@@ -56,6 +57,7 @@ export function CheckoutModal({
   
   const { toast } = useToast();
   const { createPayment, checkPaymentStatus } = useNowPayments();
+  const { t } = useLanguage();
 
   const hasSufficientBalance = balanceEur >= RENTAL_PRICE;
 
@@ -87,8 +89,8 @@ export function CheckoutModal({
         } else if (status.payment_status === 'failed' || status.payment_status === 'expired') {
           setIsPolling(false);
           toast({
-            title: 'Zahlung fehlgeschlagen',
-            description: 'Die Zahlung ist abgelaufen oder fehlgeschlagen.',
+            title: t.rentAccount.paymentFailed,
+            description: t.rentAccount.paymentExpiredOrFailed,
             variant: 'destructive',
           });
         }
@@ -114,8 +116,8 @@ export function CheckoutModal({
       setStep('success');
     } catch (error) {
       toast({
-        title: 'Fehler',
-        description: 'Die Zahlung konnte nicht verarbeitet werden.',
+        title: t.rentAccount.activationError,
+        description: t.rentAccount.paymentProcessError,
         variant: 'destructive',
       });
     }
@@ -142,8 +144,8 @@ export function CheckoutModal({
       setStep('crypto-payment');
     } catch (error) {
       toast({
-        title: 'Fehler',
-        description: error instanceof Error ? error.message : 'Zahlung konnte nicht erstellt werden',
+        title: t.rentAccount.activationError,
+        description: error instanceof Error ? error.message : t.rentAccount.paymentCreationError,
         variant: 'destructive',
       });
     }
@@ -154,8 +156,8 @@ export function CheckoutModal({
     setCopied(type);
     setTimeout(() => setCopied(null), 2000);
     toast({
-      title: 'Kopiert!',
-      description: type === 'address' ? 'Adresse kopiert.' : 'Betrag kopiert.',
+      title: t.rentAccount.copied,
+      description: type === 'address' ? t.rentAccount.addressCopied : t.rentAccount.amountCopied,
     });
   };
 
@@ -167,18 +169,18 @@ export function CheckoutModal({
             <ShoppingBag className="h-6 w-6 text-primary-foreground" />
           </div>
           <DialogTitle className="text-xl">
-            {step === 'select' && 'Checkout'}
-            {step === 'balance-confirm' && 'Zahlung bestätigen'}
-            {step === 'crypto-currency' && 'Kryptowährung wählen'}
-            {step === 'crypto-payment' && 'Zahlung durchführen'}
-            {step === 'success' && 'Erfolgreich!'}
+            {step === 'select' && t.rentAccount.checkout}
+            {step === 'balance-confirm' && t.rentAccount.paymentConfirm}
+            {step === 'crypto-currency' && t.rentAccount.chooseCrypto}
+            {step === 'crypto-payment' && t.deposit.makePayment}
+            {step === 'success' && t.rentAccount.orderConfirmed}
           </DialogTitle>
           <DialogDescription>
-            {step === 'select' && 'Sichere Zahlung für dein Agency Account'}
-            {step === 'balance-confirm' && 'Bestätige die Zahlung mit deinem Guthaben'}
-            {step === 'crypto-currency' && 'Wähle deine bevorzugte Kryptowährung'}
-            {step === 'crypto-payment' && 'Scanne den QR-Code oder kopiere die Adresse'}
-            {step === 'success' && 'Dein Agency Account wurde aktiviert!'}
+            {step === 'select' && t.rentAccount.securePayment}
+            {step === 'balance-confirm' && t.rentAccount.paymentConfirm}
+            {step === 'crypto-currency' && t.rentAccount.chooseCryptoDesc}
+            {step === 'crypto-payment' && t.rentAccount.scanOrCopy}
+            {step === 'success' && t.rentAccount.orderConfirmedDesc}
           </DialogDescription>
         </DialogHeader>
 
@@ -196,13 +198,13 @@ export function CheckoutModal({
                         <img src={DEFAULT_LOGO_URL} alt="MetaNetwork Agency" className="w-full h-full object-contain" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-bold text-foreground">Agency Account</p>
-                        <p className="text-sm text-muted-foreground">Meta Ads Werbekonto</p>
+                        <p className="font-bold text-foreground">{t.rentAccount.productTitle}</p>
+                        <p className="text-sm text-muted-foreground">{t.rentAccount.metaAdsAccount}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-                            Premium
+                            {t.rentAccount.premium}
                           </span>
-                          <span className="text-xs text-muted-foreground">30 Tage</span>
+                          <span className="text-xs text-muted-foreground">30 {t.rentAccount.days}</span>
                         </div>
                       </div>
                     </div>
@@ -211,19 +213,19 @@ export function CheckoutModal({
                   {/* Price Breakdown */}
                   <div className="p-4 space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Laufzeit</span>
-                      <span className="font-medium">30 Tage</span>
+                      <span className="text-muted-foreground">{t.rentAccount.duration}</span>
+                      <span className="font-medium">30 {t.rentAccount.days}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Auto-Verlängerung</span>
+                      <span className="text-muted-foreground">{t.rentAccount.autoRenewal}</span>
                       <span className="font-medium text-primary flex items-center gap-1">
                         <Check className="h-3.5 w-3.5" />
-                        Aktiv
+                        {t.rentAccount.autoRenewalActive}
                       </span>
                     </div>
                     <Separator className="my-3" />
                     <div className="flex justify-between items-center">
-                      <span className="font-semibold">Gesamt</span>
+                      <span className="font-semibold">{t.rentAccount.total}</span>
                       <span className="text-2xl font-bold">{RENTAL_PRICE},00 €</span>
                     </div>
                   </div>
@@ -232,7 +234,7 @@ export function CheckoutModal({
 
               {/* Payment Method Selection */}
               <div className="space-y-3">
-                <Label className="text-sm font-medium">Zahlungsmethode wählen</Label>
+                <Label className="text-sm font-medium">{t.rentAccount.paymentMethod}</Label>
                 
                 <div className="grid gap-2">
                   {/* Balance Option */}
@@ -256,11 +258,11 @@ export function CheckoutModal({
                       <CreditCard className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold">Guthaben verwenden</p>
+                      <p className="font-semibold">{t.rentAccount.payFromBalance}</p>
                       <p className="text-sm text-muted-foreground">
                         {hasSufficientBalance 
-                          ? `${balanceEur.toFixed(2)} € verfügbar`
-                          : `${balanceEur.toFixed(2)} € (nicht genug)`
+                          ? `${balanceEur.toFixed(2)} € ${t.rentAccount.available}`
+                          : `${balanceEur.toFixed(2)} € (${t.rentAccount.notEnough})`
                         }
                       </p>
                     </div>
@@ -270,7 +272,7 @@ export function CheckoutModal({
                       </div>
                     )}
                     {!hasSufficientBalance && (
-                      <span className="text-xs text-destructive font-medium">Nicht genug</span>
+                      <span className="text-xs text-destructive font-medium">{t.rentAccount.insufficientBalanceHint}</span>
                     )}
                   </button>
                   
@@ -293,8 +295,8 @@ export function CheckoutModal({
                       <Coins className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold">Kryptowährung</p>
-                      <p className="text-sm text-muted-foreground">USDT, BTC, ETH, USDC & mehr</p>
+                      <p className="font-semibold">{t.rentAccount.payWithCrypto}</p>
+                      <p className="text-sm text-muted-foreground">{t.rentAccount.cryptoOptions}</p>
                     </div>
                     {paymentMethod === 'crypto' && (
                       <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
@@ -310,7 +312,7 @@ export function CheckoutModal({
                 size="lg"
                 onClick={handleContinue}
               >
-                Weiter
+                {t.rentAccount.proceedToPayment}
               </Button>
 
               <TrustBadges variant="footer" />
@@ -326,22 +328,22 @@ export function CheckoutModal({
                 onClick={() => setStep('select')}
                 className="-ml-2"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
+                <ArrowLeft className="mr-2 h-4 w-4" /> {t.common.back}
               </Button>
 
               <Card className="border-border/50">
                 <CardContent className="pt-4 pb-4 space-y-3">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Aktuelles Guthaben</span>
+                    <span className="text-muted-foreground">{t.rentAccount.currentBalance}</span>
                     <span className="font-medium">{balanceEur.toFixed(2)} €</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Kosten</span>
+                    <span className="text-muted-foreground">{t.rentAccount.costs}</span>
                     <span className="font-medium text-destructive">-{RENTAL_PRICE},00 €</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between">
-                    <span className="font-semibold">Neues Guthaben</span>
+                    <span className="font-semibold">{t.rentAccount.newBalance}</span>
                     <span className="font-bold text-lg text-primary">{(balanceEur - RENTAL_PRICE).toFixed(2)} €</span>
                   </div>
                 </CardContent>
@@ -350,7 +352,7 @@ export function CheckoutModal({
               <Alert variant="default" className="bg-primary/5 border-primary/20">
                 <AlertCircle className="h-4 w-4 text-primary" />
                 <AlertDescription className="text-sm">
-                  Mit Klick auf "Jetzt bezahlen" wird dein Agency Account sofort aktiviert.
+                  {t.rentAccount.instantActivation}
                 </AlertDescription>
               </Alert>
 
@@ -360,13 +362,13 @@ export function CheckoutModal({
                 onClick={handleBalancePayment}
                 disabled={isProcessing || !hasSufficientBalance}
               >
-                {isProcessing ? (
+              {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Wird verarbeitet...
+                    {t.common.loading}
                   </>
                 ) : (
-                  `Jetzt ${RENTAL_PRICE}€ bezahlen`
+                  `${t.rentAccount.payNow} ${RENTAL_PRICE}€`
                 )}
               </Button>
               
@@ -383,12 +385,12 @@ export function CheckoutModal({
                 onClick={() => setStep('select')}
                 className="-ml-2"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
+                <ArrowLeft className="mr-2 h-4 w-4" /> {t.common.back}
               </Button>
               
               {/* Price Summary */}
               <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-sm text-muted-foreground">Zu zahlen</span>
+                <span className="text-sm text-muted-foreground">{t.rentAccount.toPay}</span>
                 <span className="font-bold text-lg">{RENTAL_PRICE},00 €</span>
               </div>
               
@@ -420,7 +422,7 @@ export function CheckoutModal({
               <div className="space-y-3">
                 {/* Amount to pay */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Zu zahlender Betrag</Label>
+                  <Label className="text-xs text-muted-foreground">{t.deposit.amountToPay}</Label>
                   <div className="flex items-center gap-2 p-3 rounded-xl border border-border/50 bg-muted/20">
                     <span className="flex-1 font-mono text-lg font-bold">
                       {paymentData.pay_amount} {paymentData.pay_currency.toUpperCase()}
@@ -438,7 +440,7 @@ export function CheckoutModal({
                 
                 {/* Wallet Address */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Wallet-Adresse</Label>
+                  <Label className="text-xs text-muted-foreground">{t.deposit.walletAddress}</Label>
                   <div className="flex items-center gap-2 p-3 rounded-xl border border-border/50 bg-muted/20">
                     <span className="flex-1 font-mono text-xs break-all leading-relaxed">
                       {paymentData.pay_address}
@@ -461,7 +463,7 @@ export function CheckoutModal({
               {/* Footer Info */}
               <div className="text-center space-y-2">
                 <p className="text-xs text-muted-foreground">
-                  Dein Account wird nach Zahlungseingang automatisch aktiviert.
+                  {t.rentAccount.autoActivation}
                 </p>
                 <PoweredByBadge />
               </div>
@@ -476,9 +478,9 @@ export function CheckoutModal({
               </div>
               
               <div>
-                <p className="text-lg font-semibold">Dein Agency Account ist aktiv!</p>
+                <p className="text-lg font-semibold">{t.rentAccount.successTitle}</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Du kannst jetzt mit dem Werben beginnen. Viel Erfolg!
+                  {t.rentAccount.successDesc}
                 </p>
               </div>
               
@@ -486,7 +488,7 @@ export function CheckoutModal({
                 className="w-full h-12 gradient-bg text-base font-semibold"
                 onClick={() => onOpenChange(false)}
               >
-                Los geht's
+                {t.rentAccount.letsGo}
               </Button>
             </div>
           )}
