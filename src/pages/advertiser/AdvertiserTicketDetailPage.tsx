@@ -14,9 +14,13 @@ import { useToast } from '@/hooks/use-toast';
 import { useTicketMessages, useCreateMessage } from '@/hooks/useTicketMessages';
 import { useTicketAttachments, useUploadAttachment } from '@/hooks/useTicketAttachments';
 import { format, formatDistanceToNow } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, enUS } from 'date-fns/locale';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function AdvertiserTicketDetailPage() {
+  const { t, language } = useLanguage();
+  const dateLocale = language === 'de' ? de : enUS;
+  
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -60,8 +64,8 @@ export default function AdvertiserTicketDetailPage() {
 
     if (file.size > 10 * 1024 * 1024) {
       toast({
-        title: 'Datei zu groß',
-        description: 'Die maximale Dateigröße beträgt 10 MB.',
+        title: t.support.fileTooLarge,
+        description: t.support.fileTooLargeDesc,
         variant: 'destructive',
       });
       return;
@@ -109,15 +113,15 @@ export default function AdvertiserTicketDetailPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'open':
-        return <Badge variant="secondary">Offen</Badge>;
+        return <Badge variant="secondary">{t.support.open}</Badge>;
       case 'in_progress':
-        return <Badge className="bg-blue-500 hover:bg-blue-600">In Bearbeitung</Badge>;
+        return <Badge className="bg-blue-500 hover:bg-blue-600">{t.support.inProgress}</Badge>;
       case 'waiting':
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600">Wartet auf Antwort</Badge>;
+        return <Badge className="bg-yellow-500 hover:bg-yellow-600">{t.support.waiting}</Badge>;
       case 'resolved':
-        return <Badge className="bg-green-500 hover:bg-green-600">Gelöst</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600">{t.support.resolved}</Badge>;
       case 'closed':
-        return <Badge variant="outline">Geschlossen</Badge>;
+        return <Badge variant="outline">{t.support.closed}</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -143,11 +147,11 @@ export default function AdvertiserTicketDetailPage() {
           className="gap-2 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Zurück zu Tickets
+          {t.support.backToTickets}
         </Button>
         <Card>
           <CardContent className="py-16 text-center text-muted-foreground">
-            Ticket nicht gefunden.
+            {t.support.ticketNotFound}
           </CardContent>
         </Card>
       </div>
@@ -162,7 +166,7 @@ export default function AdvertiserTicketDetailPage() {
         className="gap-2 text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        Zurück zu Tickets
+        {t.support.backToTickets}
       </Button>
 
       {/* Header */}
@@ -170,7 +174,7 @@ export default function AdvertiserTicketDetailPage() {
         <div>
           <h1 className="text-xl font-semibold text-foreground">{ticket.subject}</h1>
           <p className="text-sm text-muted-foreground">
-            Ticket #{ticket.id.slice(0, 8).toUpperCase()}
+            {t.support.ticketId} #{ticket.id.slice(0, 8).toUpperCase()}
           </p>
         </div>
         {getStatusBadge(ticket.status || 'open')}
@@ -181,7 +185,7 @@ export default function AdvertiserTicketDetailPage() {
         <div className="lg:col-span-2">
           <Card className="flex flex-col h-[600px]">
             <CardHeader className="pb-3 border-b">
-              <CardTitle className="text-base">Nachrichten</CardTitle>
+              <CardTitle className="text-base">{t.support.messages}</CardTitle>
             </CardHeader>
 
             {/* Messages */}
@@ -194,7 +198,7 @@ export default function AdvertiserTicketDetailPage() {
                       <p className="text-sm whitespace-pre-wrap">{ticket.description}</p>
                     </div>
                     <p className="text-xs text-muted-foreground text-right">
-                      {format(new Date(ticket.created_at!), 'PPp', { locale: de })}
+                      {format(new Date(ticket.created_at!), 'PPp', { locale: dateLocale })}
                     </p>
                   </div>
                 </div>
@@ -211,7 +215,7 @@ export default function AdvertiserTicketDetailPage() {
                       <div className={`max-w-[80%] space-y-1 ${isOwnMessage ? '' : ''}`}>
                         {!isOwnMessage && (
                           <p className="text-xs font-medium text-muted-foreground mb-1">
-                            Support-Team
+                            {t.support.supportTeam}
                           </p>
                         )}
                         <div
@@ -230,7 +234,7 @@ export default function AdvertiserTicketDetailPage() {
                         >
                           {formatDistanceToNow(new Date(msg.created_at), {
                             addSuffix: true,
-                            locale: de,
+                            locale: dateLocale,
                           })}
                         </p>
                       </div>
@@ -278,7 +282,7 @@ export default function AdvertiserTicketDetailPage() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Schreibe eine Nachricht... (Strg+Enter zum Senden)"
+                  placeholder={t.support.messagePlaceholder}
                   className="min-h-[80px] resize-none"
                   disabled={isSending}
                 />
@@ -302,7 +306,7 @@ export default function AdvertiserTicketDetailPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Ticket-Details</CardTitle>
+              <CardTitle className="text-base">{t.support.ticketDetails}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
@@ -310,7 +314,7 @@ export default function AdvertiserTicketDetailPage() {
                   <User className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Status</p>
+                  <p className="text-xs text-muted-foreground">{t.support.status}</p>
                   <div className="mt-0.5">{getStatusBadge(ticket.status || 'open')}</div>
                 </div>
               </div>
@@ -322,9 +326,9 @@ export default function AdvertiserTicketDetailPage() {
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Erstellt am</p>
+                  <p className="text-xs text-muted-foreground">{t.support.createdAt}</p>
                   <p className="text-sm font-medium">
-                    {format(new Date(ticket.created_at!), 'PPP', { locale: de })}
+                    {format(new Date(ticket.created_at!), 'PPP', { locale: dateLocale })}
                   </p>
                 </div>
               </div>
@@ -336,11 +340,11 @@ export default function AdvertiserTicketDetailPage() {
                   <Clock className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Letzte Aktivität</p>
+                  <p className="text-xs text-muted-foreground">{t.support.lastResponse}</p>
                   <p className="text-sm font-medium">
                     {formatDistanceToNow(
                       new Date(ticket.last_reply_at || ticket.updated_at || ticket.created_at!),
-                      { addSuffix: true, locale: de }
+                      { addSuffix: true, locale: dateLocale }
                     )}
                   </p>
                 </div>
@@ -352,7 +356,7 @@ export default function AdvertiserTicketDetailPage() {
           {attachments && attachments.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Anhänge</CardTitle>
+                <CardTitle className="text-base">{t.support.attachments}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 {attachments.map((attachment) => (

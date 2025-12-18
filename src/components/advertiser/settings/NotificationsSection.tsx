@@ -6,71 +6,73 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { Bell, CreditCard, Clock, MessageSquare, Mail } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface NotificationSetting {
   id: string;
-  label: string;
-  description: string;
+  labelKey: keyof typeof import('@/lib/translations/de').de.settings;
+  descKey: keyof typeof import('@/lib/translations/de').de.settings;
   enabled: boolean;
   icon: React.ReactNode;
 }
 
 export function NotificationsSection() {
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [notifications, setNotifications] = useState<NotificationSetting[]>([
     {
       id: 'payment_success',
-      label: 'Erfolgreiche Zahlungen',
-      description: 'Benachrichtigung bei erfolgreichen Einzahlungen und Zahlungen',
+      labelKey: 'successfulPayments',
+      descKey: 'successfulPaymentsDesc',
       enabled: true,
       icon: <CreditCard className="h-4 w-4" />,
     },
     {
       id: 'payment_failed',
-      label: 'Fehlgeschlagene Zahlungen',
-      description: 'Benachrichtigung wenn eine Zahlung fehlschlägt',
+      labelKey: 'failedPayments',
+      descKey: 'failedPaymentsDesc',
       enabled: true,
       icon: <CreditCard className="h-4 w-4" />,
     },
     {
       id: 'account_expiry_7d',
-      label: 'Account läuft bald ab (7 Tage)',
-      description: 'Erinnerung 7 Tage vor Ablauf Ihres Agency Accounts',
+      labelKey: 'accountExpiry7d',
+      descKey: 'accountExpiry7dDesc',
       enabled: true,
       icon: <Clock className="h-4 w-4" />,
     },
     {
       id: 'account_expiry_1d',
-      label: 'Account läuft bald ab (1 Tag)',
-      description: 'Erinnerung 1 Tag vor Ablauf Ihres Agency Accounts',
+      labelKey: 'accountExpiry1d',
+      descKey: 'accountExpiry1dDesc',
       enabled: true,
       icon: <Clock className="h-4 w-4" />,
     },
     {
       id: 'account_expired',
-      label: 'Account abgelaufen',
-      description: 'Benachrichtigung wenn Ihr Account abgelaufen ist',
+      labelKey: 'accountExpired',
+      descKey: 'accountExpiredDesc',
       enabled: true,
       icon: <Clock className="h-4 w-4" />,
     },
     {
       id: 'ticket_reply',
-      label: 'Support-Antworten',
-      description: 'Benachrichtigung bei neuen Antworten auf Ihre Support-Tickets',
+      labelKey: 'ticketReply',
+      descKey: 'ticketReplyDesc',
       enabled: true,
       icon: <MessageSquare className="h-4 w-4" />,
     },
     {
       id: 'ticket_resolved',
-      label: 'Ticket geschlossen',
-      description: 'Benachrichtigung wenn ein Ticket als gelöst markiert wird',
+      labelKey: 'ticketResolved',
+      descKey: 'ticketResolvedDesc',
       enabled: true,
       icon: <MessageSquare className="h-4 w-4" />,
     },
     {
       id: 'marketing',
-      label: 'Marketing & Newsletter',
-      description: 'Neuigkeiten, Updates und Angebote per E-Mail',
+      labelKey: 'marketingNewsletter',
+      descKey: 'marketingNewsletterDesc',
       enabled: false,
       icon: <Mail className="h-4 w-4" />,
     },
@@ -87,7 +89,7 @@ export function NotificationsSection() {
     // Simulate save
     await new Promise(resolve => setTimeout(resolve, 500));
     setIsLoading(false);
-    toast.success('Benachrichtigungseinstellungen gespeichert');
+    toast.success(t.settings.settingsSaved);
   };
 
   const groupedNotifications = {
@@ -97,29 +99,33 @@ export function NotificationsSection() {
     marketing: notifications.filter(n => n.id === 'marketing'),
   };
 
+  const getLabel = (key: keyof typeof t.settings) => {
+    return (t.settings as Record<string, string>)[key] || key;
+  };
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            E-Mail-Benachrichtigungen
+            {t.settings.notificationsTitle}
           </CardTitle>
           <CardDescription>
-            Wählen Sie, welche E-Mail-Benachrichtigungen Sie erhalten möchten
+            {t.settings.notificationsDesc}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <h4 className="font-medium flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
-              Zahlungen
+              {t.settings.payments}
             </h4>
             {groupedNotifications.payments.map((notification) => (
               <div key={notification.id} className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor={notification.id}>{notification.label}</Label>
-                  <p className="text-sm text-muted-foreground">{notification.description}</p>
+                  <Label htmlFor={notification.id}>{getLabel(notification.labelKey)}</Label>
+                  <p className="text-sm text-muted-foreground">{getLabel(notification.descKey)}</p>
                 </div>
                 <Switch
                   id={notification.id}
@@ -135,13 +141,13 @@ export function NotificationsSection() {
           <div className="space-y-4">
             <h4 className="font-medium flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              Account-Ablauf
+              {t.settings.accountExpiry}
             </h4>
             {groupedNotifications.account.map((notification) => (
               <div key={notification.id} className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor={notification.id}>{notification.label}</Label>
-                  <p className="text-sm text-muted-foreground">{notification.description}</p>
+                  <Label htmlFor={notification.id}>{getLabel(notification.labelKey)}</Label>
+                  <p className="text-sm text-muted-foreground">{getLabel(notification.descKey)}</p>
                 </div>
                 <Switch
                   id={notification.id}
@@ -157,13 +163,13 @@ export function NotificationsSection() {
           <div className="space-y-4">
             <h4 className="font-medium flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
-              Support-Tickets
+              {t.settings.supportTickets}
             </h4>
             {groupedNotifications.tickets.map((notification) => (
               <div key={notification.id} className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor={notification.id}>{notification.label}</Label>
-                  <p className="text-sm text-muted-foreground">{notification.description}</p>
+                  <Label htmlFor={notification.id}>{getLabel(notification.labelKey)}</Label>
+                  <p className="text-sm text-muted-foreground">{getLabel(notification.descKey)}</p>
                 </div>
                 <Switch
                   id={notification.id}
@@ -179,13 +185,13 @@ export function NotificationsSection() {
           <div className="space-y-4">
             <h4 className="font-medium flex items-center gap-2">
               <Mail className="h-4 w-4" />
-              Marketing
+              {t.settings.marketing}
             </h4>
             {groupedNotifications.marketing.map((notification) => (
               <div key={notification.id} className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor={notification.id}>{notification.label}</Label>
-                  <p className="text-sm text-muted-foreground">{notification.description}</p>
+                  <Label htmlFor={notification.id}>{getLabel(notification.labelKey)}</Label>
+                  <p className="text-sm text-muted-foreground">{getLabel(notification.descKey)}</p>
                 </div>
                 <Switch
                   id={notification.id}
@@ -197,7 +203,7 @@ export function NotificationsSection() {
           </div>
 
           <Button onClick={handleSave} disabled={isLoading}>
-            {isLoading ? 'Speichern...' : 'Einstellungen speichern'}
+            {isLoading ? t.settings.saving : t.settings.saveSettings}
           </Button>
         </CardContent>
       </Card>
