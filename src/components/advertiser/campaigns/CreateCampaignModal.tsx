@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/tooltip';
 import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
 import { ObjectiveSelector } from './ObjectiveSelector';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export type BuyingType = 'auction' | 'reservation';
 export type CampaignObjective = 'awareness' | 'traffic' | 'engagement' | 'leads' | 'app_promotion' | 'sales';
@@ -34,6 +35,7 @@ interface CreateCampaignModalProps {
 
 export function CreateCampaignModal({ open, onOpenChange }: CreateCampaignModalProps) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { activeAccounts } = useAdvertiserAccounts();
   
   const [step, setStep] = useState(1);
@@ -78,22 +80,22 @@ export function CreateCampaignModal({ open, onOpenChange }: CreateCampaignModalP
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             )}
-            {step === 1 ? 'Kampagne erstellen' : 'Campaign Setup'}
+            {step === 1 ? t.campaigns.createCampaign : t.campaigns.campaignSetup}
           </DialogTitle>
         </DialogHeader>
 
-        {/* Scrollbarer Content-Bereich */}
+        {/* Scrollable content area */}
         <div className="flex-1 overflow-y-auto px-1 -mx-1 py-1 -my-1">
           {step === 1 ? (
             <div className="space-y-6">
               {/* Agency Account Selection */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
-                  Agency Account auswählen
+                  {t.campaigns.selectAgencyAccount}
                 </label>
                 <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Account auswählen..." />
+                    <SelectValue placeholder={t.campaigns.selectAccountPlaceholder} />
                   </SelectTrigger>
                   <SelectContent>
                     {activeAccounts.map((account) => (
@@ -108,13 +110,13 @@ export function CreateCampaignModal({ open, onOpenChange }: CreateCampaignModalP
               {/* Buying Type Selection */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground flex items-center gap-1.5">
-                  Choose a buying type
+                  {t.campaigns.chooseBuyingType}
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
-                      Your buying type is how you pay for ads in your campaign.
+                      {t.campaigns.buyingTypeTooltip}
                     </TooltipContent>
                   </Tooltip>
                 </label>
@@ -131,14 +133,14 @@ export function CreateCampaignModal({ open, onOpenChange }: CreateCampaignModalP
                   <SelectContent>
                     <SelectItem value="auction">
                       <div className="flex flex-col items-start">
-                        <span className="font-medium">Auction</span>
-                        <span className="text-xs text-muted-foreground">Buy in real-time with cost effective bidding.</span>
+                        <span className="font-medium">{t.campaigns.auctionTitle}</span>
+                        <span className="text-xs text-muted-foreground">{t.campaigns.auctionDesc}</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="reservation">
                       <div className="flex flex-col items-start">
-                        <span className="font-medium">Reservation</span>
-                        <span className="text-xs text-muted-foreground">Buy in advance for more predictable outcomes.</span>
+                        <span className="font-medium">{t.campaigns.reservationTitle}</span>
+                        <span className="text-xs text-muted-foreground">{t.campaigns.reservationDesc}</span>
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -148,7 +150,7 @@ export function CreateCampaignModal({ open, onOpenChange }: CreateCampaignModalP
               {/* Campaign Objective Selection */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
-                  Choose a campaign objective
+                  {t.campaigns.chooseCampaignObjective}
                 </label>
                 <ObjectiveSelector 
                   buyingType={buyingType}
@@ -160,7 +162,7 @@ export function CreateCampaignModal({ open, onOpenChange }: CreateCampaignModalP
           ) : (
             <div className="space-y-4">
               <label className="text-sm font-medium text-foreground">
-                Choose a campaign setup
+                {t.campaigns.chooseCampaignSetup}
               </label>
               
               <div className="space-y-3">
@@ -177,9 +179,9 @@ export function CreateCampaignModal({ open, onOpenChange }: CreateCampaignModalP
                       <Zap className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground">Recommended Settings</h4>
+                      <h4 className="font-semibold text-foreground">{t.campaigns.recommendedSettings}</h4>
                       <p className="text-sm text-muted-foreground mt-0.5">
-                        Schnellere Einrichtung mit optimierten Standardeinstellungen
+                        {t.campaigns.recommendedSettingsDesc}
                       </p>
                     </div>
                   </div>
@@ -198,9 +200,9 @@ export function CreateCampaignModal({ open, onOpenChange }: CreateCampaignModalP
                       <Settings className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground">Manual traffic campaign</h4>
+                      <h4 className="font-semibold text-foreground">{t.campaigns.manualCampaign}</h4>
                       <p className="text-sm text-muted-foreground mt-0.5">
-                        Vollständige Kontrolle über alle Einstellungen
+                        {t.campaigns.manualCampaignDesc}
                       </p>
                     </div>
                   </div>
@@ -210,13 +212,13 @@ export function CreateCampaignModal({ open, onOpenChange }: CreateCampaignModalP
           )}
         </div>
 
-        {/* Buttons fixiert am unteren Rand */}
+        {/* Buttons fixed at bottom */}
         <div className="flex justify-end gap-2 pt-4 border-t mt-auto shrink-0 bg-background">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button onClick={handleContinue} disabled={!canContinue}>
-            Continue
+            {t.campaigns.continue}
           </Button>
         </div>
       </DialogContent>

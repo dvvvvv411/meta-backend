@@ -8,6 +8,7 @@ import { StepBudget } from './StepBudget';
 import { StepTargeting } from './StepTargeting';
 import { StepCreatives } from './StepCreatives';
 import { StepReview } from './StepReview';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MockFile {
   id: string;
@@ -21,16 +22,9 @@ interface CampaignWizardProps {
   onClose?: () => void;
 }
 
-const WIZARD_STEPS = [
-  { id: 1, title: 'Name', icon: '📝' },
-  { id: 2, title: 'Budget', icon: '💰' },
-  { id: 3, title: 'Zielgruppe', icon: '🎯' },
-  { id: 4, title: 'Creatives', icon: '🎨' },
-  { id: 5, title: 'Vorschau', icon: '✅' },
-];
-
 export function CampaignWizard({ hasActiveAccount, onClose }: CampaignWizardProps) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
 
   // Form state
@@ -47,6 +41,14 @@ export function CampaignWizard({ hasActiveAccount, onClose }: CampaignWizardProp
   const [gender, setGender] = useState('all');
   const [interests, setInterests] = useState('ecommerce');
   const [files, setFiles] = useState<MockFile[]>([]);
+
+  const WIZARD_STEPS = [
+    { id: 1, title: t.campaigns.stepName, icon: '📝' },
+    { id: 2, title: t.campaigns.stepBudget, icon: '💰' },
+    { id: 3, title: t.campaigns.stepTargeting, icon: '🎯' },
+    { id: 4, title: t.campaigns.stepCreatives, icon: '🎨' },
+    { id: 5, title: t.campaigns.stepPreview, icon: '✅' },
+  ];
 
   const canProceed = () => {
     switch (currentStep) {
@@ -87,8 +89,8 @@ export function CampaignWizard({ hasActiveAccount, onClose }: CampaignWizardProp
 
   const handleSave = () => {
     toast({
-      title: 'Demo-Modus',
-      description: 'Diese Funktion ist noch in Entwicklung. Kampagnen können aktuell nicht gespeichert werden.',
+      title: t.campaigns.demoMode,
+      description: t.campaigns.demoModeDesc,
     });
   };
 
@@ -178,7 +180,7 @@ export function CampaignWizard({ hasActiveAccount, onClose }: CampaignWizardProp
             className="gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            {currentStep === 1 ? 'Abbrechen' : 'Zurück'}
+            {currentStep === 1 ? t.common.cancel : t.campaigns.back}
           </Button>
 
           <Button
@@ -186,7 +188,7 @@ export function CampaignWizard({ hasActiveAccount, onClose }: CampaignWizardProp
             disabled={!canProceed()}
             className="gap-2"
           >
-            Weiter
+            {t.campaigns.next}
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
