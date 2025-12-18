@@ -8,17 +8,21 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow, format } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, enUS } from 'date-fns/locale';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function SupportPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t, language } = useLanguage();
+
+  const dateLocale = language === 'de' ? de : enUS;
 
   const { data: tickets, isLoading } = useQuery({
     queryKey: ['user-tickets', user?.id],
@@ -39,15 +43,15 @@ export default function SupportPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'open':
-        return <Badge variant="secondary">Offen</Badge>;
+        return <Badge variant="secondary">{t.support.open}</Badge>;
       case 'in_progress':
-        return <Badge className="bg-blue-500 hover:bg-blue-600">In Bearbeitung</Badge>;
+        return <Badge className="bg-blue-500 hover:bg-blue-600">{t.support.inProgress}</Badge>;
       case 'waiting':
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600">Wartet</Badge>;
+        return <Badge className="bg-yellow-500 hover:bg-yellow-600">{t.support.waiting}</Badge>;
       case 'resolved':
-        return <Badge className="bg-green-500 hover:bg-green-600">Gelöst</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600">{t.support.resolved}</Badge>;
       case 'closed':
-        return <Badge variant="outline">Geschlossen</Badge>;
+        return <Badge variant="outline">{t.support.closed}</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -55,11 +59,11 @@ export default function SupportPage() {
 
   const getCategoryLabel = (category: string) => {
     const categories: Record<string, string> = {
-      technical: 'Technisches Problem',
-      payment: 'Zahlungen & Guthaben',
-      account: 'Account & Zugang',
-      campaign: 'Kampagnen & Werbung',
-      general: 'Allgemeine Anfrage',
+      technical: t.support.categoryTechnical,
+      payment: t.support.categoryBilling,
+      account: t.support.categoryAccount,
+      campaign: language === 'de' ? 'Kampagnen & Werbung' : 'Campaigns & Advertising',
+      general: t.support.categoryOther,
     };
     return categories[category] || category;
   };
@@ -68,14 +72,14 @@ export default function SupportPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Support / Tickets</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t.support.pageTitle}</h1>
           <p className="text-muted-foreground mt-1">
-            Erstelle ein Ticket um Hilfe zu erhalten oder verfolge bestehende Anfragen.
+            {t.support.pageSubtitle}
           </p>
         </div>
         <Button onClick={() => navigate('/advertiser/support/new')} className="gap-2">
           <Plus className="h-4 w-4" />
-          Neues Ticket erstellen
+          {t.support.createTicket}
         </Button>
       </div>
 
@@ -109,7 +113,7 @@ export default function SupportPage() {
                         <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                           <span>
                             {format(new Date(ticket.created_at!), 'dd.MM.yyyy, HH:mm', {
-                              locale: de,
+                              locale: dateLocale,
                             })}
                           </span>
                           {ticket.category && (
@@ -136,10 +140,10 @@ export default function SupportPage() {
                       <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2">
                         <Clock className="h-3 w-3" />
                         <span>
-                          Letzte Antwort{' '}
+                          {t.support.lastResponse}{' '}
                           {formatDistanceToNow(new Date(ticket.last_reply_at), {
                             addSuffix: true,
-                            locale: de,
+                            locale: dateLocale,
                           })}
                         </span>
                       </div>
@@ -156,14 +160,13 @@ export default function SupportPage() {
             <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
               <HelpCircle className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-1">Keine Tickets vorhanden</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-1">{t.support.noTickets}</h3>
             <p className="text-muted-foreground text-center max-w-sm mb-6">
-              Du hast noch keine Support-Tickets erstellt. Bei Fragen oder Problemen kannst du
-              jederzeit ein Ticket erstellen.
+              {t.support.noTicketsDesc}
             </p>
             <Button onClick={() => navigate('/advertiser/support/new')} className="gap-2">
               <Plus className="h-4 w-4" />
-              Neues Ticket erstellen
+              {t.support.createTicket}
             </Button>
           </CardContent>
         </Card>

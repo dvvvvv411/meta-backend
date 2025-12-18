@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Building2, AlertTriangle, Info, Pencil, Check, X } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, enUS } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { AutoRenewToggle } from './AutoRenewToggle';
 import { AccountDetailModal } from './AccountDetailModal';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { AdvertiserAccount } from '@/hooks/useAdvertiserAccounts';
 
 interface AccountCardProps {
@@ -27,9 +28,12 @@ export function AccountCard({
   onRenameAccount,
   isRenaming,
 }: AccountCardProps) {
+  const { t, language } = useLanguage();
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(account.name);
+
+  const dateLocale = language === 'de' ? de : enUS;
 
   const handleSaveEdit = () => {
     if (editName.trim() && editName !== account.name) {
@@ -51,13 +55,13 @@ export function AccountCard({
 
   const getStatusBadge = () => {
     if (account.account_status === 'active' && !isExpired) {
-      return <Badge className="bg-green-500/10 text-green-600 border-green-500/20">Aktiv</Badge>;
+      return <Badge className="bg-green-500/10 text-green-600 border-green-500/20">{t.common.active}</Badge>;
     }
     if (isExpiringSoon) {
-      return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20">Bald fällig</Badge>;
+      return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20">{t.accountList.expiringSoon}</Badge>;
     }
     if (isExpired || account.account_status === 'expired') {
-      return <Badge variant="destructive">Abgelaufen</Badge>;
+      return <Badge variant="destructive">{language === 'de' ? 'Abgelaufen' : 'Expired'}</Badge>;
     }
     return <Badge variant="secondary">{account.account_status}</Badge>;
   };
@@ -126,29 +130,33 @@ export function AccountCard({
           {isExpiringSoon && (
             <div className="flex items-center gap-2 text-amber-600 text-sm bg-amber-500/10 p-2 rounded-lg">
               <AlertTriangle className="h-4 w-4" />
-              <span>Account läuft in {daysRemaining} Tagen ab!</span>
+              <span>
+                {language === 'de' 
+                  ? `Account läuft in ${daysRemaining} Tagen ab!` 
+                  : `Account expires in ${daysRemaining} days!`}
+              </span>
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <p className="text-muted-foreground">Verbleibend</p>
-              <p className="font-medium">{Math.max(0, daysRemaining)} Tage</p>
+              <p className="text-muted-foreground">{t.accountList.daysRemaining}</p>
+              <p className="font-medium">{Math.max(0, daysRemaining)} {t.common.days}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Nächste Abrechnung</p>
+              <p className="text-muted-foreground">{language === 'de' ? 'Nächste Abrechnung' : 'Next billing'}</p>
               <p className="font-medium">
-                {expireDate ? format(expireDate, 'dd.MM.yyyy', { locale: de }) : '-'}
+                {expireDate ? format(expireDate, 'dd.MM.yyyy', { locale: dateLocale }) : '-'}
               </p>
             </div>
             <div>
-              <p className="text-muted-foreground">Startdatum</p>
+              <p className="text-muted-foreground">{t.accountList.startDate}</p>
               <p className="font-medium">
-                {startDate ? format(startDate, 'dd.MM.yyyy', { locale: de }) : '-'}
+                {startDate ? format(startDate, 'dd.MM.yyyy', { locale: dateLocale }) : '-'}
               </p>
             </div>
             <div>
-              <p className="text-muted-foreground">Plattform</p>
+              <p className="text-muted-foreground">{t.accountList.platform}</p>
               <p className="font-medium capitalize">{account.platform}</p>
             </div>
           </div>
@@ -168,7 +176,7 @@ export function AccountCard({
             onClick={() => setDetailsOpen(true)}
           >
             <Info className="mr-1 h-3 w-3" />
-            Details
+            {t.accountList.details}
           </Button>
         </CardContent>
       </Card>

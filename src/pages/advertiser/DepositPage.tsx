@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowDownToLine, ArrowUpFromLine, Receipt, Calendar, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, enUS } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -11,17 +11,21 @@ import { BalanceOverview } from '@/components/advertiser/deposit/BalanceOverview
 import { TransactionHistory } from '@/components/advertiser/deposit/TransactionHistory';
 import { DepositModal } from '@/components/advertiser/deposit/DepositModal';
 import { WithdrawModal } from '@/components/advertiser/deposit/WithdrawModal';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function DepositPage() {
   const { balanceEur } = useUserBalance();
   const { deposits } = useDeposits();
+  const { t, language } = useLanguage();
   const [depositModalOpen, setDepositModalOpen] = useState(false);
   const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
+
+  const dateLocale = language === 'de' ? de : enUS;
 
   // Calculate stats from deposits
   const completedDeposits = deposits.filter(d => d.status === 'completed');
   const lastDeposit = completedDeposits.length > 0 
-    ? format(new Date(completedDeposits[0].created_at), 'dd.MM.yyyy', { locale: de })
+    ? format(new Date(completedDeposits[0].created_at), 'dd.MM.yyyy', { locale: dateLocale })
     : '-';
   const totalTransactions = deposits.length;
 
@@ -29,9 +33,9 @@ export default function DepositPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Guthaben verwalten</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t.deposit.pageTitle}</h1>
         <p className="text-muted-foreground mt-1">
-          Verwalte dein Kontoguthaben – Einzahlungen und Auszahlungen.
+          {t.deposit.pageSubtitle}
         </p>
       </div>
 
@@ -47,12 +51,12 @@ export default function DepositPage() {
                 <ArrowDownToLine className="h-6 w-6 text-primary-foreground" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-foreground text-lg">Guthaben einzahlen</h3>
+                <h3 className="font-semibold text-foreground text-lg">{t.deposit.depositFunds}</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Lade dein Konto auf, um Kampagnen zu schalten und Services zu nutzen.
+                  {t.deposit.depositFundsDesc}
                 </p>
                 <Button className="mt-4 gradient-bg text-primary-foreground hover:opacity-90">
-                  Einzahlen
+                  {t.common.deposit}
                 </Button>
               </div>
             </div>
@@ -66,12 +70,12 @@ export default function DepositPage() {
                 <ArrowUpFromLine className="h-6 w-6 text-muted-foreground" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-foreground text-lg">Guthaben auszahlen</h3>
+                <h3 className="font-semibold text-foreground text-lg">{t.deposit.withdrawFunds}</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Zahle dein Guthaben auf deine USDT Wallet aus.
+                  {t.deposit.withdrawFundsDesc}
                 </p>
                 <Button variant="outline" className="mt-4">
-                  Auszahlen
+                  {t.common.withdraw}
                 </Button>
               </div>
             </div>
@@ -88,7 +92,7 @@ export default function DepositPage() {
                 <Calendar className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Letzte Einzahlung</p>
+                <p className="text-sm text-muted-foreground">{t.deposit.lastDeposit}</p>
                 <p className="font-semibold text-foreground">{lastDeposit}</p>
               </div>
             </div>
@@ -102,7 +106,7 @@ export default function DepositPage() {
                 <TrendingUp className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Letzte Auszahlung</p>
+                <p className="text-sm text-muted-foreground">{t.deposit.lastWithdrawal}</p>
                 <p className="font-semibold text-foreground">-</p>
               </div>
             </div>
@@ -116,7 +120,7 @@ export default function DepositPage() {
                 <Receipt className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Transaktionen gesamt</p>
+                <p className="text-sm text-muted-foreground">{t.deposit.totalTransactions}</p>
                 <p className="font-semibold text-foreground">{totalTransactions}</p>
               </div>
             </div>

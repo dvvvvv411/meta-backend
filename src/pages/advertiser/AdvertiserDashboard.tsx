@@ -1,7 +1,7 @@
 import { ArrowRight, Building2, Wallet, TrendingUp, HelpCircle, Calendar, FileEdit, Plus, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { differenceInDays, format, formatDistanceToNow } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, enUS } from 'date-fns/locale';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,17 +10,21 @@ import { useAdvertiserAccounts } from '@/hooks/useAdvertiserAccounts';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserBalance } from '@/hooks/useUserBalance';
 import { useCampaignDrafts } from '@/hooks/useCampaignDrafts';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function AdvertiserDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const { activeAccounts, hasActiveAccount, isLoading: isAccountsLoading } = useAdvertiserAccounts();
   const { balanceEur, isLoading: isBalanceLoading } = useUserBalance();
   const { drafts, isLoading: isDraftsLoading } = useCampaignDrafts();
   const companyName = user?.user_metadata?.company_name as string | undefined;
 
+  const dateLocale = language === 'de' ? de : enUS;
+
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
+    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
   const isLoading = isAccountsLoading || isBalanceLoading;
@@ -30,10 +34,10 @@ export default function AdvertiserDashboard() {
       {/* Welcome Section */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">
-          Willkommen zurück, {companyName || 'Werbetreibender'}!
+          {t.dashboard.welcomeBack}, {companyName || t.dashboard.advertiser}!
         </h1>
         <p className="text-muted-foreground mt-1">
-          Hier ist deine Übersicht.
+          {t.dashboard.overviewSubtitle}
         </p>
       </div>
 
@@ -43,11 +47,11 @@ export default function AdvertiserDashboard() {
         <CardHeader className="flex flex-row items-start justify-between pb-2">
           <div className="flex items-center gap-2">
             <Wallet className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg font-semibold">Guthaben</CardTitle>
+            <CardTitle className="text-lg font-semibold">{t.dashboard.balanceTitle}</CardTitle>
           </div>
           <Button size="sm" onClick={() => navigate('/advertiser/deposit')}>
             <Plus className="h-4 w-4 mr-1" />
-            Einzahlen
+            {t.common.deposit}
           </Button>
         </CardHeader>
         <CardContent>
@@ -55,7 +59,7 @@ export default function AdvertiserDashboard() {
             {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : formatCurrency(balanceEur)}
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            Verfügbares Guthaben
+            {t.dashboard.availableBalance}
           </p>
         </CardContent>
       </Card>
@@ -69,7 +73,7 @@ export default function AdvertiserDashboard() {
             <div className="flex items-center gap-2">
               <Building2 className="h-5 w-5 text-primary" />
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Agency Accounts
+                {t.dashboard.agencyAccounts}
               </CardTitle>
             </div>
           </CardHeader>
@@ -78,7 +82,7 @@ export default function AdvertiserDashboard() {
               {isLoading ? '...' : activeAccounts.length}
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              {hasActiveAccount ? 'aktive Accounts' : 'Kein Account gemietet'}
+              {hasActiveAccount ? t.dashboard.activeAccounts : t.dashboard.noAccountRented}
             </p>
             <Button 
               variant="outline" 
@@ -86,7 +90,7 @@ export default function AdvertiserDashboard() {
               className="mt-4"
               onClick={() => navigate('/advertiser/rent-account')}
             >
-              Account mieten
+              {t.dashboard.rentAccount}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </CardContent>
@@ -99,7 +103,7 @@ export default function AdvertiserDashboard() {
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Kampagnen
+                {t.dashboard.campaignsTitle}
               </CardTitle>
             </div>
           </CardHeader>
@@ -108,7 +112,7 @@ export default function AdvertiserDashboard() {
               {hasActiveAccount ? '0' : '-'}
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              aktive Kampagnen
+              {t.dashboard.activeCampaigns}
             </p>
             <Button 
               variant="outline" 
@@ -117,7 +121,7 @@ export default function AdvertiserDashboard() {
               onClick={() => navigate('/advertiser/campaigns')}
               disabled={!hasActiveAccount}
             >
-              Kampagne erstellen
+              {t.dashboard.createCampaign}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </CardContent>
@@ -130,10 +134,10 @@ export default function AdvertiserDashboard() {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <Building2 className="h-5 w-5 text-primary" />
-              Deine Agency Accounts
+              {t.dashboard.yourAgencyAccounts}
             </h2>
             <Button variant="ghost" size="sm" onClick={() => navigate('/advertiser/rent-account')}>
-              Alle anzeigen
+              {t.dashboard.viewAll}
               <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           </div>
@@ -153,20 +157,20 @@ export default function AdvertiserDashboard() {
                         {account.name}
                       </CardTitle>
                       <Badge className="bg-success/10 text-success border-success/20">
-                        Aktiv
+                        {t.common.active}
                       </Badge>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
-                        <p className="text-muted-foreground">Verbleibend</p>
-                        <p className="font-medium">{Math.max(0, daysRemaining)} Tage</p>
+                        <p className="text-muted-foreground">{t.dashboard.remaining}</p>
+                        <p className="font-medium">{Math.max(0, daysRemaining)} {t.common.days}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground">Läuft ab am</p>
+                        <p className="text-muted-foreground">{t.dashboard.expiresOn}</p>
                         <p className="font-medium">
-                          {expireDate ? format(expireDate, 'dd.MM.yyyy', { locale: de }) : '-'}
+                          {expireDate ? format(expireDate, 'dd.MM.yyyy', { locale: dateLocale }) : '-'}
                         </p>
                       </div>
                     </div>
@@ -174,10 +178,10 @@ export default function AdvertiserDashboard() {
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-1 text-muted-foreground">
                         <Calendar className="h-3 w-3" />
-                        <span>Auto-Verlängerung</span>
+                        <span>{t.dashboard.autoRenewal}</span>
                       </div>
                       <Badge variant={account.auto_renew ? 'default' : 'secondary'}>
-                        {account.auto_renew ? 'AN' : 'AUS'}
+                        {account.auto_renew ? t.dashboard.on : t.dashboard.off}
                       </Badge>
                     </div>
                   </CardContent>
@@ -193,11 +197,11 @@ export default function AdvertiserDashboard() {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold flex items-center gap-2">
             <FileEdit className="h-5 w-5 text-primary" />
-            Kampagnenentwürfe
+            {t.dashboard.campaignDrafts}
           </h2>
           {drafts.length > 0 && (
             <Button variant="ghost" size="sm" onClick={() => navigate('/advertiser/campaigns')}>
-              Alle anzeigen
+              {t.dashboard.viewAll}
               <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           )}
@@ -213,9 +217,9 @@ export default function AdvertiserDashboard() {
           <Card>
             <CardContent className="py-8 text-center">
               <FileEdit className="h-10 w-10 text-muted-foreground/50 mx-auto mb-3" />
-              <p className="text-muted-foreground">Keine Entwürfe vorhanden</p>
+              <p className="text-muted-foreground">{t.dashboard.noDrafts}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Erstelle deine erste Kampagne um loszulegen.
+                {t.dashboard.noDraftsSubtitle}
               </p>
               {hasActiveAccount && (
                 <Button 
@@ -224,7 +228,7 @@ export default function AdvertiserDashboard() {
                   className="mt-4"
                   onClick={() => navigate('/advertiser/campaigns')}
                 >
-                  Kampagne erstellen
+                  {t.dashboard.createCampaign}
                 </Button>
               )}
             </CardContent>
@@ -235,9 +239,9 @@ export default function AdvertiserDashboard() {
               {drafts.slice(0, 3).map((draft) => (
                 <div key={draft.id} className="flex items-center justify-between p-4">
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium truncate">{draft.name || 'Unbenannter Entwurf'}</p>
+                    <p className="font-medium truncate">{draft.name || t.dashboard.unnamedDraft}</p>
                     <p className="text-sm text-muted-foreground">
-                      Zuletzt bearbeitet: {formatDistanceToNow(new Date(draft.updated_at), { addSuffix: true, locale: de })}
+                      {t.dashboard.lastEdited} {formatDistanceToNow(new Date(draft.updated_at), { addSuffix: true, locale: dateLocale })}
                     </p>
                   </div>
                   <Button 
@@ -245,7 +249,7 @@ export default function AdvertiserDashboard() {
                     size="sm"
                     onClick={() => navigate(`/advertiser/campaigns/edit/new?draftId=${draft.id}`)}
                   >
-                    Fortsetzen
+                    {t.common.continue}
                   </Button>
                 </div>
               ))}
@@ -260,15 +264,15 @@ export default function AdvertiserDashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building2 className="h-5 w-5 text-primary" />
-              Starte jetzt mit deinem Agency Account
+              {t.dashboard.startWithAgencyAccount}
             </CardTitle>
             <CardDescription>
-              Miete einen Agency Account um Kampagnen zu erstellen und deine Werbung zu schalten.
+              {t.dashboard.startWithAgencyAccountDesc}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={() => navigate('/advertiser/rent-account')}>
-              Agency Account mieten
+              {t.dashboard.rentAgencyAccount}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </CardContent>
@@ -277,7 +281,7 @@ export default function AdvertiserDashboard() {
 
       {/* Schnellaktionen */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Schnellaktionen</h2>
+        <h2 className="text-lg font-semibold">{t.dashboard.quickActions}</h2>
         <div className="grid gap-4 md:grid-cols-3">
           {/* Guthaben einzahlen */}
           <Card className="relative overflow-hidden hover:border-blue-300 transition-colors">
@@ -286,9 +290,9 @@ export default function AdvertiserDashboard() {
               <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
                 <Wallet className="h-6 w-6 text-blue-600" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-1">Guthaben einzahlen</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-1">{t.dashboard.depositFunds}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Lade dein Konto auf um Werbung zu schalten.
+                {t.dashboard.depositFundsDesc}
               </p>
               <Button 
                 variant="outline" 
@@ -296,7 +300,7 @@ export default function AdvertiserDashboard() {
                 className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
                 onClick={() => navigate('/advertiser/deposit')}
               >
-                Einzahlen
+                {t.common.deposit}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>
@@ -309,9 +313,9 @@ export default function AdvertiserDashboard() {
               <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-4">
                 <Building2 className="h-6 w-6 text-emerald-600" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-1">Account mieten</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-1">{t.dashboard.rentAccountTitle}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Miete einen Agency Account für 150€/Monat.
+                {t.dashboard.rentAccountDesc}
               </p>
               <Button 
                 variant="outline" 
@@ -319,7 +323,7 @@ export default function AdvertiserDashboard() {
                 className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300"
                 onClick={() => navigate('/advertiser/rent-account')}
               >
-                Account mieten
+                {t.dashboard.rentAccount}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>
@@ -332,9 +336,9 @@ export default function AdvertiserDashboard() {
               <div className="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center mb-4">
                 <HelpCircle className="h-6 w-6 text-violet-600" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-1">Support kontaktieren</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-1">{t.dashboard.contactSupport}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Hast du Fragen? Unser Team hilft dir gerne.
+                {t.dashboard.contactSupportDesc}
               </p>
               <Button 
                 variant="outline" 
@@ -342,7 +346,7 @@ export default function AdvertiserDashboard() {
                 className="text-violet-600 border-violet-200 hover:bg-violet-50 hover:text-violet-700 hover:border-violet-300"
                 onClick={() => navigate('/advertiser/support')}
               >
-                Support öffnen
+                {t.dashboard.openSupport}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>

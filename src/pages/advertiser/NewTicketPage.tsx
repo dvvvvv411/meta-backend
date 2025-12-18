@@ -12,19 +12,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useUploadAttachment } from '@/hooks/useTicketAttachments';
-
-const CATEGORIES = [
-  { value: 'technical', label: 'Technisches Problem' },
-  { value: 'payment', label: 'Zahlungen & Guthaben' },
-  { value: 'account', label: 'Account & Zugang' },
-  { value: 'campaign', label: 'Kampagnen & Werbung' },
-  { value: 'general', label: 'Allgemeine Anfrage' },
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function NewTicketPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t, language } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadAttachment = useUploadAttachment();
 
@@ -33,9 +27,17 @@ export default function NewTicketPage() {
   const [description, setDescription] = useState('');
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
 
+  const CATEGORIES = [
+    { value: 'technical', label: t.support.categoryTechnical },
+    { value: 'payment', label: t.support.categoryBilling },
+    { value: 'account', label: t.support.categoryAccount },
+    { value: 'campaign', label: language === 'de' ? 'Kampagnen & Werbung' : 'Campaigns & Advertising' },
+    { value: 'general', label: t.support.categoryOther },
+  ];
+
   const createTicket = useMutation({
     mutationFn: async () => {
-      if (!user?.id) throw new Error('Nicht eingeloggt');
+      if (!user?.id) throw new Error(language === 'de' ? 'Nicht eingeloggt' : 'Not logged in');
 
       const { data: ticket, error } = await supabase
         .from('tickets')
@@ -65,15 +67,15 @@ export default function NewTicketPage() {
     },
     onSuccess: (ticket) => {
       toast({
-        title: 'Ticket erstellt',
-        description: 'Dein Support-Ticket wurde erfolgreich erstellt.',
+        title: t.support.ticketCreated,
+        description: t.support.ticketCreatedDesc,
       });
       navigate(`/advertiser/support/${ticket.id}`);
     },
     onError: (error) => {
       toast({
-        title: 'Fehler',
-        description: 'Das Ticket konnte nicht erstellt werden.',
+        title: t.common.error,
+        description: language === 'de' ? 'Das Ticket konnte nicht erstellt werden.' : 'The ticket could not be created.',
         variant: 'destructive',
       });
       console.error(error);
@@ -86,8 +88,8 @@ export default function NewTicketPage() {
 
     if (file.size > 10 * 1024 * 1024) {
       toast({
-        title: 'Datei zu groß',
-        description: 'Die maximale Dateigröße beträgt 10 MB.',
+        title: language === 'de' ? 'Datei zu groß' : 'File too large',
+        description: language === 'de' ? 'Die maximale Dateigröße beträgt 10 MB.' : 'Maximum file size is 10 MB.',
         variant: 'destructive',
       });
       return;
@@ -101,8 +103,8 @@ export default function NewTicketPage() {
 
     if (!subject.trim() || subject.trim().length < 5) {
       toast({
-        title: 'Betreff erforderlich',
-        description: 'Bitte gib einen Betreff mit mindestens 5 Zeichen ein.',
+        title: language === 'de' ? 'Betreff erforderlich' : 'Subject required',
+        description: language === 'de' ? 'Bitte gib einen Betreff mit mindestens 5 Zeichen ein.' : 'Please enter a subject with at least 5 characters.',
         variant: 'destructive',
       });
       return;
@@ -110,8 +112,8 @@ export default function NewTicketPage() {
 
     if (!description.trim() || description.trim().length < 20) {
       toast({
-        title: 'Beschreibung erforderlich',
-        description: 'Bitte beschreibe dein Anliegen mit mindestens 20 Zeichen.',
+        title: language === 'de' ? 'Beschreibung erforderlich' : 'Description required',
+        description: language === 'de' ? 'Bitte beschreibe dein Anliegen mit mindestens 20 Zeichen.' : 'Please describe your issue with at least 20 characters.',
         variant: 'destructive',
       });
       return;
@@ -130,25 +132,24 @@ export default function NewTicketPage() {
         className="gap-2 text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        Zurück zu Tickets
+        {t.support.backToTickets}
       </Button>
 
       <div className="max-w-2xl">
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl">Neues Support-Ticket erstellen</CardTitle>
+            <CardTitle className="text-xl">{t.support.newTicketTitle}</CardTitle>
             <CardDescription>
-              Beschreibe dein Anliegen so detailliert wie möglich. Unser Support-Team wird sich
-              schnellstmöglich bei dir melden.
+              {t.support.newTicketSubtitle}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="category">Kategorie</Label>
+                <Label htmlFor="category">{t.support.category}</Label>
                 <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Wähle eine Kategorie" />
+                    <SelectValue placeholder={t.support.categoryPlaceholder} />
                   </SelectTrigger>
                   <SelectContent>
                     {CATEGORIES.map((cat) => (
@@ -162,39 +163,39 @@ export default function NewTicketPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="subject">
-                  Betreff <span className="text-destructive">*</span>
+                  {t.support.subject} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="subject"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  placeholder="Kurze Zusammenfassung deines Anliegens"
+                  placeholder={t.support.subjectPlaceholder}
                   maxLength={200}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {subject.length}/200 Zeichen (min. 5)
+                  {subject.length}/200 {language === 'de' ? 'Zeichen (min. 5)' : 'characters (min. 5)'}
                 </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="description">
-                  Beschreibung <span className="text-destructive">*</span>
+                  {t.support.description} <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Beschreibe dein Anliegen ausführlich. Je mehr Details du angibst, desto schneller können wir dir helfen."
+                  placeholder={t.support.descriptionPlaceholder}
                   rows={8}
                   className="resize-none"
                 />
                 <p className="text-xs text-muted-foreground">
-                  {description.length} Zeichen (min. 20)
+                  {description.length} {language === 'de' ? 'Zeichen (min. 20)' : 'characters (min. 20)'}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label>Anhang (optional)</Label>
+                <Label>{t.support.attachment}</Label>
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -227,11 +228,11 @@ export default function NewTicketPage() {
                     className="gap-2"
                   >
                     <Paperclip className="h-4 w-4" />
-                    Datei hinzufügen
+                    {t.support.attachFile}
                   </Button>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  Max. 10 MB • Bilder, PDF, Word-Dokumente
+                  {t.support.attachmentHint}
                 </p>
               </div>
 
@@ -241,18 +242,18 @@ export default function NewTicketPage() {
                   variant="outline"
                   onClick={() => navigate('/advertiser/support')}
                 >
-                  Abbrechen
+                  {t.common.cancel}
                 </Button>
                 <Button type="submit" disabled={isSubmitting} className="gap-2">
                   {isSubmitting ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Wird erstellt...
+                      {t.support.submitting}
                     </>
                   ) : (
                     <>
                       <Send className="h-4 w-4" />
-                      Ticket erstellen
+                      {t.support.submitTicket}
                     </>
                   )}
                 </Button>

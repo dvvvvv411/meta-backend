@@ -9,24 +9,28 @@ import { CreateCampaignModal } from '@/components/advertiser/campaigns/CreateCam
 import { useCampaignDrafts } from '@/hooks/useCampaignDrafts';
 import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, enUS } from 'date-fns/locale';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function CampaignsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t, language } = useLanguage();
   const { hasActiveAccount, isLoading: isAccountLoading } = useAdvertiserAccount();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { drafts, isLoading: isDraftsLoading, deleteDraft, isDeleting } = useCampaignDrafts();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const dateLocale = language === 'de' ? de : enUS;
 
   // Show loading state while checking account status
   if (isAccountLoading) {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Kampagnen erstellen</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t.campaigns.pageTitle}</h1>
           <p className="text-muted-foreground mt-1">
-            Erstelle und verwalte deine Werbekampagnen.
+            {t.campaigns.pageSubtitle}
           </p>
         </div>
         <div className="flex items-center justify-center py-12">
@@ -63,9 +67,9 @@ export default function CampaignsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Kampagnen erstellen</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t.campaigns.pageTitle}</h1>
           <p className="text-muted-foreground mt-1">
-            Erstelle und verwalte deine Werbekampagnen.
+            {t.campaigns.pageSubtitle}
           </p>
         </div>
 
@@ -73,10 +77,12 @@ export default function CampaignsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-yellow-600">
               <AlertCircle className="h-5 w-5" />
-              Account erforderlich
+              {language === 'de' ? 'Account erforderlich' : 'Account required'}
             </CardTitle>
             <CardDescription>
-              Bitte miete zuerst ein Agency Account um Kampagnen zu erstellen.
+              {language === 'de' 
+                ? 'Bitte miete zuerst ein Agency Account um Kampagnen zu erstellen.' 
+                : 'Please rent an agency account first to create campaigns.'}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -89,14 +95,14 @@ export default function CampaignsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Kampagnen erstellen</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t.campaigns.pageTitle}</h1>
           <p className="text-muted-foreground mt-1">
-            Erstelle und verwalte deine Werbekampagnen.
+            {t.campaigns.pageSubtitle}
           </p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Neue Kampagne
+          {t.campaigns.createCampaign}
         </Button>
       </div>
 
@@ -106,10 +112,12 @@ export default function CampaignsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Entwürfe
+              {t.campaigns.drafts}
             </CardTitle>
             <CardDescription>
-              Setze deine gespeicherten Kampagnen-Entwürfe fort.
+              {language === 'de' 
+                ? 'Setze deine gespeicherten Kampagnen-Entwürfe fort.' 
+                : 'Continue your saved campaign drafts.'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -134,10 +142,12 @@ export default function CampaignsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Entwürfe
+              {t.campaigns.drafts}
             </CardTitle>
             <CardDescription>
-              Setze deine gespeicherten Kampagnen-Entwürfe fort.
+              {language === 'de' 
+                ? 'Setze deine gespeicherten Kampagnen-Entwürfe fort.' 
+                : 'Continue your saved campaign drafts.'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -150,7 +160,7 @@ export default function CampaignsPage() {
                   <div>
                     <p className="font-medium">{draft.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      Zuletzt bearbeitet: {draft.updated_at ? format(new Date(draft.updated_at), 'dd.MM.yyyy HH:mm', { locale: de }) : '-'}
+                      {t.dashboard.lastEdited} {draft.updated_at ? format(new Date(draft.updated_at), 'dd.MM.yyyy HH:mm', { locale: dateLocale }) : '-'}
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -159,7 +169,7 @@ export default function CampaignsPage() {
                       size="sm"
                       onClick={() => handleContinueDraft(draft)}
                     >
-                      Fortsetzen
+                      {t.campaigns.continueDraft}
                     </Button>
                     <Button 
                       variant="ghost" 
@@ -188,14 +198,14 @@ export default function CampaignsPage() {
             <Megaphone className="h-8 w-8 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-semibold text-foreground mb-1">
-            Keine Kampagnen vorhanden
+            {t.campaigns.noCampaigns}
           </h3>
           <p className="text-muted-foreground text-center max-w-sm mb-4">
-            Erstelle deine erste Kampagne um mit der Werbung zu starten.
+            {t.campaigns.noCampaignsDesc}
           </p>
           <Button onClick={() => setShowCreateModal(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            Erste Kampagne erstellen
+            {t.campaigns.createNew}
           </Button>
         </CardContent>
       </Card>
