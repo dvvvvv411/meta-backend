@@ -283,6 +283,7 @@ export type Database = {
       profiles: {
         Row: {
           balance_eur: number | null
+          branding_id: string | null
           company_name: string | null
           created_at: string | null
           email: string
@@ -290,6 +291,7 @@ export type Database = {
         }
         Insert: {
           balance_eur?: number | null
+          branding_id?: string | null
           company_name?: string | null
           created_at?: string | null
           email: string
@@ -297,12 +299,21 @@ export type Database = {
         }
         Update: {
           balance_eur?: number | null
+          branding_id?: string | null
           company_name?: string | null
           created_at?: string | null
           email?: string
           id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ticket_attachments: {
         Row: {

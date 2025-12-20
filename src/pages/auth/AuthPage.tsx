@@ -109,7 +109,7 @@ const AuthPage: React.FC = () => {
 
   const handleRegister = async (data: RegisterFormData) => {
     setIsLoading(true);
-    const { error } = await signUp(data.email, data.password, data.companyName);
+    const { error } = await signUp(data.email, data.password, data.companyName, branding?.id);
     setIsLoading(false);
 
     if (error) {
