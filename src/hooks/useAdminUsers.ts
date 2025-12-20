@@ -8,37 +8,39 @@ export interface AdminUser {
   balance_eur: number | null;
   created_at: string | null;
   accounts_count: number;
+  branding_id: string | null;
+  branding_name: string | null;
 }
 
 export function useAdminUsers() {
   return useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
-      // Get all profiles
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Get all profiles and brandings in parallel
+      const [profilesResult, accountsResult, brandingsResult] = await Promise.all([
+        supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+        supabase.from('accounts').select('user_id'),
+        supabase.from('brandings').select('id, name'),
+      ]);
 
-      if (profilesError) throw profilesError;
-
-      // Get accounts count per user
-      const { data: accounts, error: accountsError } = await supabase
-        .from('accounts')
-        .select('user_id');
-
-      if (accountsError) throw accountsError;
+      if (profilesResult.error) throw profilesResult.error;
+      if (accountsResult.error) throw accountsResult.error;
 
       const accountsCountMap = new Map<string, number>();
-      accounts?.forEach(acc => {
+      accountsResult.data?.forEach(acc => {
         if (acc.user_id) {
           accountsCountMap.set(acc.user_id, (accountsCountMap.get(acc.user_id) || 0) + 1);
         }
       });
 
-      return (profiles || []).map(profile => ({
+      const brandingsMap = new Map<string, string>(
+        brandingsResult.data?.map(b => [b.id, b.name]) || []
+      );
+
+      return (profilesResult.data || []).map(profile => ({
         ...profile,
         accounts_count: accountsCountMap.get(profile.id) || 0,
+        branding_name: profile.branding_id ? brandingsMap.get(profile.branding_id) || null : null,
       })) as AdminUser[];
     },
   });
