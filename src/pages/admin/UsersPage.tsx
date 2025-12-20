@@ -59,7 +59,6 @@ export default function UsersPage() {
                   <TableRow>
                     <TableHead>E-Mail</TableHead>
                     <TableHead>Firma</TableHead>
-                    <TableHead>Branding</TableHead>
                     <TableHead className="text-right">Guthaben</TableHead>
                     <TableHead className="text-center">Accounts</TableHead>
                     <TableHead>Registriert</TableHead>
@@ -76,13 +75,6 @@ export default function UsersPage() {
                       <TableCell className="font-medium">{user.email}</TableCell>
                       <TableCell className="text-muted-foreground">
                         {user.company_name || '-'}
-                      </TableCell>
-                      <TableCell>
-                        {user.branding_name ? (
-                          <Badge variant="outline">{user.branding_name}</Badge>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
                       </TableCell>
                       <TableCell className="text-right font-mono">
                         {(user.balance_eur || 0).toFixed(2)} €

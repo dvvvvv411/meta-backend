@@ -10,7 +10,7 @@ interface AuthContextType {
   role: AppRole | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, companyName?: string, brandingId?: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, companyName?: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
 }
@@ -92,7 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error: error ? getGermanError(error.message) : null };
   };
 
-  const signUp = async (email: string, password: string, companyName?: string, brandingId?: string) => {
+  const signUp = async (email: string, password: string, companyName?: string) => {
     const redirectUrl = `${window.location.origin}/dashboard`;
     
     const { error } = await supabase.auth.signUp({
@@ -102,7 +102,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         emailRedirectTo: redirectUrl,
         data: {
           company_name: companyName || null,
-          branding_id: brandingId || null,
         },
       },
     });
