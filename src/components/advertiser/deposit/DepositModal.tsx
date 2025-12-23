@@ -78,7 +78,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
           setStep('status');
           toast({
             title: t.deposit.paymentSuccessful,
-            description: `${paymentData.net_amount.toFixed(2)} € ${t.deposit.balanceCredited}`,
+            description: `$${paymentData.net_amount.toFixed(2)} ${t.deposit.balanceCredited}`,
           });
         } else if (status.payment_status === 'failed' || status.payment_status === 'expired') {
           setIsPolling(false);
@@ -148,7 +148,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
     
     try {
       const result = await createPayment.mutateAsync({
-        amount_eur: numAmount,
+        amount_usd: numAmount,
         pay_currency: currency.id,
       });
       
@@ -257,7 +257,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                 <Label htmlFor="amount" className="text-sm font-medium text-center block">{t.deposit.customAmount}</Label>
                 <div className="flex justify-center">
                   <div className="relative w-48">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-muted-foreground">€</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-muted-foreground">$</span>
                     <Input
                       id="amount"
                       type="number"
@@ -305,7 +305,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
               {/* Amount Summary */}
               <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/50">
                 <span className="text-sm text-muted-foreground">{t.deposit.depositAmount}</span>
-                <span className="font-bold text-lg">{numAmount.toFixed(2)} €</span>
+                <span className="font-bold text-lg">${numAmount.toFixed(2)}</span>
               </div>
               
               <CurrencySearchSelector
@@ -368,7 +368,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                   </div>
                   <p className="text-sm text-muted-foreground flex items-center gap-1 px-1">
                     <span>{t.deposit.youReceive}:</span>
-                    <span className="font-semibold text-foreground">{paymentData.net_amount.toFixed(2)} €</span>
+                    <span className="font-semibold text-foreground">${paymentData.net_amount.toFixed(2)}</span>
                     <span>{t.deposit.afterFee}</span>
                   </p>
                 </div>
@@ -425,9 +425,9 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                 <p className="text-lg font-semibold">
                   {isSuccess ? t.deposit.paymentCompleted : t.deposit.paymentNotSuccessful}
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                   {isSuccess 
-                    ? `${paymentData?.net_amount.toFixed(2)} € ${t.deposit.balanceCredited}`
+                    ? `$${paymentData?.net_amount.toFixed(2)} ${t.deposit.balanceCredited}`
                     : t.deposit.paymentExpiredOrFailed
                   }
                 </p>

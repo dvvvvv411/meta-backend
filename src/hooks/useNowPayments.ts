@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 interface CreatePaymentParams {
-  amount_eur: number;
+  amount_usd: number;
   pay_currency: string;
   payment_type?: 'deposit' | 'rental';
 }
@@ -15,7 +15,7 @@ interface PaymentResponse {
   pay_currency: string;
   payment_status: string;
   expires_at: string;
-  amount_eur: number;
+  amount_usd: number;
   net_amount: number;
   fee_amount: number;
 }
