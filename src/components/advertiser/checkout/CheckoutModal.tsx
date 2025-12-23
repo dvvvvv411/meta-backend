@@ -21,16 +21,16 @@ import { TrustBadges, PoweredByBadge } from '@/components/advertiser/shared/Trus
 import { PaymentStatusIndicator } from '@/components/advertiser/shared/PaymentStatusIndicator';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const DEFAULT_LOGO_URL = 'https://tpkecrwoyfxcynezbyel.supabase.co/storage/v1/object/public/branding-logos/fec753ad-b83c-4bf6-b1e8-3879fccd5018.png';
+import { RENTAL_PRICE_USD } from '@/lib/crypto-config';
 
-const RENTAL_PRICE = 150;
+const DEFAULT_LOGO_URL = 'https://tpkecrwoyfxcynezbyel.supabase.co/storage/v1/object/public/branding-logos/fec753ad-b83c-4bf6-b1e8-3879fccd5018.png';
 
 interface CheckoutModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onPaymentSuccess: (paymentMethod: 'balance' | 'crypto', transactionId?: string) => Promise<void>;
   isProcessing: boolean;
-  balanceEur: number;
+  balanceUsd: number;
 }
 
 type Step = 'select' | 'balance-confirm' | 'crypto-currency' | 'crypto-payment' | 'success';
@@ -40,7 +40,7 @@ export function CheckoutModal({
   onOpenChange, 
   onPaymentSuccess,
   isProcessing,
-  balanceEur
+  balanceUsd
 }: CheckoutModalProps) {
   const [paymentMethod, setPaymentMethod] = useState<'balance' | 'crypto'>('crypto');
   const [step, setStep] = useState<Step>('select');
@@ -59,7 +59,7 @@ export function CheckoutModal({
   const { createPayment, checkPaymentStatus } = useNowPayments();
   const { t } = useLanguage();
 
-  const hasSufficientBalance = balanceEur >= RENTAL_PRICE;
+  const hasSufficientBalance = balanceUsd >= RENTAL_PRICE_USD;
 
   // Reset state when modal closes
   useEffect(() => {
@@ -128,7 +128,7 @@ export function CheckoutModal({
     
     try {
       const result = await createPayment.mutateAsync({
-        amount_eur: RENTAL_PRICE,
+        amount_eur: RENTAL_PRICE_USD,
         pay_currency: currency.id,
         payment_type: 'rental',
       });
@@ -226,7 +226,7 @@ export function CheckoutModal({
                     <Separator className="my-3" />
                     <div className="flex justify-between items-center">
                       <span className="font-semibold">{t.rentAccount.total}</span>
-                      <span className="text-2xl font-bold">{RENTAL_PRICE},00 €</span>
+                      <span className="text-2xl font-bold">${RENTAL_PRICE_USD}.00</span>
                     </div>
                   </div>
                 </CardContent>
@@ -261,8 +261,8 @@ export function CheckoutModal({
                       <p className="font-semibold">{t.rentAccount.payFromBalance}</p>
                       <p className="text-sm text-muted-foreground">
                         {hasSufficientBalance 
-                          ? `${balanceEur.toFixed(2)} € ${t.rentAccount.available}`
-                          : `${balanceEur.toFixed(2)} € (${t.rentAccount.notEnough})`
+                          ? `$${balanceUsd.toFixed(2)} ${t.rentAccount.available}`
+                          : `$${balanceUsd.toFixed(2)} (${t.rentAccount.notEnough})`
                         }
                       </p>
                     </div>
@@ -335,16 +335,16 @@ export function CheckoutModal({
                 <CardContent className="pt-4 pb-4 space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t.rentAccount.currentBalance}</span>
-                    <span className="font-medium">{balanceEur.toFixed(2)} €</span>
+                    <span className="font-medium">${balanceUsd.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t.rentAccount.costs}</span>
-                    <span className="font-medium text-destructive">-{RENTAL_PRICE},00 €</span>
+                    <span className="font-medium text-destructive">-${RENTAL_PRICE_USD}.00</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between">
                     <span className="font-semibold">{t.rentAccount.newBalance}</span>
-                    <span className="font-bold text-lg text-primary">{(balanceEur - RENTAL_PRICE).toFixed(2)} €</span>
+                    <span className="font-bold text-lg text-primary">${(balanceUsd - RENTAL_PRICE_USD).toFixed(2)}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -368,7 +368,7 @@ export function CheckoutModal({
                     {t.common.loading}
                   </>
                 ) : (
-                  `${t.rentAccount.payNow} ${RENTAL_PRICE}€`
+                  `${t.rentAccount.payNow} $${RENTAL_PRICE_USD}`
                 )}
               </Button>
               
@@ -391,14 +391,14 @@ export function CheckoutModal({
               {/* Price Summary */}
               <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/50">
                 <span className="text-sm text-muted-foreground">{t.rentAccount.toPay}</span>
-                <span className="font-bold text-lg">{RENTAL_PRICE},00 €</span>
+                <span className="font-bold text-lg">${RENTAL_PRICE_USD}.00</span>
               </div>
               
               <CurrencySearchSelector
                 onSelect={handleCurrencySelect}
                 isLoading={createPayment.isPending}
                 loadingCurrencyId={selectedCurrency?.id}
-                amount={RENTAL_PRICE}
+                amount={RENTAL_PRICE_USD}
               />
             </>
           )}
