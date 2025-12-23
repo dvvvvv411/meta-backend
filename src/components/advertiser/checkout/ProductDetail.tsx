@@ -4,6 +4,7 @@ const DEFAULT_LOGO_URL = 'https://tpkecrwoyfxcynezbyel.supabase.co/storage/v1/ob
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { RENTAL_PRICE_USD } from '@/lib/crypto-config';
 
 interface ProductDetailProps {
   onRentClick: () => void;
@@ -69,7 +70,7 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
 
                   {/* Price */}
                   <div className="flex items-baseline justify-center gap-2">
-                    <span className="text-5xl lg:text-6xl font-bold gradient-text">150€</span>
+                    <span className="text-5xl lg:text-6xl font-bold gradient-text">${RENTAL_PRICE_USD}</span>
                     <span className="text-lg text-muted-foreground">/ 30 {language === 'de' ? 'Tage' : 'Days'}</span>
                   </div>
 
@@ -178,7 +179,7 @@ export function ProductDetail({ onRentClick }: ProductDetailProps) {
                   ))}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">3.500+</span> {t.rentAccount.socialProof.split('3.500+')[1] || (language === 'de' ? 'zufriedene Werbetreibende vertrauen uns' : 'satisfied advertisers trust us')}
+                  <span className="font-semibold text-foreground">3,500+</span> {t.rentAccount.socialProof.split('3.500+')[1] || (language === 'de' ? 'zufriedene Werbetreibende vertrauen uns' : 'satisfied advertisers trust us')}
                 </p>
               </div>
             </div>

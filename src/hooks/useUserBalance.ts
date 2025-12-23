@@ -6,7 +6,7 @@ export const useUserBalance = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: balanceEur = 0, isLoading, refetch } = useQuery({
+  const { data: balanceUsd = 0, isLoading, refetch } = useQuery({
     queryKey: ['user-balance', user?.id],
     queryFn: async () => {
       if (!user?.id) return 0;
@@ -22,6 +22,7 @@ export const useUserBalance = () => {
         return 0;
       }
       
+      // Note: DB column is still balance_eur but we treat it as USD now
       return data?.balance_eur ?? 0;
     },
     enabled: !!user?.id,
@@ -33,7 +34,7 @@ export const useUserBalance = () => {
   };
 
   return { 
-    balanceEur, 
+    balanceUsd, 
     isLoading,
     refetch,
     invalidateBalance

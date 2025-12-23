@@ -17,14 +17,14 @@ export default function AdvertiserDashboard() {
   const { user } = useAuth();
   const { t, language } = useLanguage();
   const { activeAccounts, hasActiveAccount, isLoading: isAccountsLoading } = useAdvertiserAccounts();
-  const { balanceEur, isLoading: isBalanceLoading } = useUserBalance();
+  const { balanceUsd, isLoading: isBalanceLoading } = useUserBalance();
   const { drafts, isLoading: isDraftsLoading } = useCampaignDrafts();
   const companyName = user?.user_metadata?.company_name as string | undefined;
 
   const dateLocale = language === 'de' ? de : enUS;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }).format(amount);
+    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: 'USD' }).format(amount);
   };
 
   const isLoading = isAccountsLoading || isBalanceLoading;
@@ -56,7 +56,7 @@ export default function AdvertiserDashboard() {
         </CardHeader>
         <CardContent>
           <div className="text-4xl font-bold text-foreground">
-            {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : formatCurrency(balanceEur)}
+            {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : formatCurrency(balanceUsd)}
           </div>
           <p className="text-sm text-muted-foreground mt-1">
             {t.dashboard.availableBalance}

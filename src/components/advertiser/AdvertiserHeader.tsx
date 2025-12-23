@@ -37,7 +37,7 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
   const { user, signOut } = useAuth();
   const { t } = useLanguage();
   const { hasActiveAccount, isLoading: accountsLoading } = useAdvertiserAccounts();
-  const { balanceEur, isLoading: balanceLoading } = useUserBalance();
+  const { balanceUsd, isLoading: balanceLoading } = useUserBalance();
   const { notifications, unreadCount } = useNotifications();
   const { data: branding } = useDomainBranding();
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
   const logoUrl = branding?.logo_url || DEFAULT_LOGO_URL;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
   };
 
   const handleLogout = async () => {
@@ -104,7 +104,7 @@ export const AdvertiserHeader = ({ onMenuToggle, showMenuButton = false }: Adver
             <div className="text-right">
               <p className="text-xs text-muted-foreground leading-none">{t.header.balance}</p>
               <p className="text-sm font-semibold text-foreground leading-none">
-                {formatCurrency(balanceEur)}
+                {formatCurrency(balanceUsd)}
               </p>
             </div>
           )}

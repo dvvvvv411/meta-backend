@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface QuickAmountSelectorProps {
   amounts: number[];
@@ -11,6 +12,17 @@ export function QuickAmountSelector({
   selectedAmount,
   onSelect,
 }: QuickAmountSelectorProps) {
+  const { language } = useLanguage();
+  
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { 
+      style: 'currency', 
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
   return (
     <div className="grid grid-cols-2 gap-3">
       {amounts.map((amount) => (
@@ -25,7 +37,7 @@ export function QuickAmountSelector({
               : "border-border bg-card text-foreground hover:border-primary/50 hover:bg-muted/50"
           )}
         >
-          {amount.toLocaleString('de-DE')} €
+          {formatCurrency(amount)}
         </button>
       ))}
     </div>

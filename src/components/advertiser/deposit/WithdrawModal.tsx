@@ -24,11 +24,11 @@ interface WithdrawModalProps {
 }
 
 export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
-  const { balanceEur, invalidateBalance } = useUserBalance();
+  const { balanceUsd, invalidateBalance } = useUserBalance();
   const { createWithdrawalRequest } = useWithdrawals();
-  const { eurToUsdt } = useUsdtRate();
+  const { usdToUsdt } = useUsdtRate();
   
   const [walletAddress, setWalletAddress] = useState('');
   const [amount, setAmount] = useState('');
@@ -47,14 +47,14 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
 
   const numAmount = parseFloat(amount) || 0;
   const minAmount = 10;
-  const maxAmount = balanceEur;
+  const maxAmount = balanceUsd;
 
   const isValidWalletAddress = walletAddress.trim().length > 0;
   const isValidAmount = numAmount >= minAmount && numAmount <= maxAmount;
   const canSubmit = isValidWalletAddress && isValidAmount && !isSubmitting;
 
   const handleWithdrawAll = () => {
-    setAmount(balanceEur.toFixed(2));
+    setAmount(balanceUsd.toFixed(2));
   };
 
   const handleSubmit = async () => {
@@ -84,6 +84,13 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { 
+      style: 'currency', 
+      currency: 'USD' 
+    }).format(amount);
   };
 
   return (
@@ -127,7 +134,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
             <div>
               <p className="text-lg font-semibold">{t.deposit.withdrawalRequested}</p>
               <p className="text-2xl font-bold text-[#26A17B] mt-2">
-                ≈ {eurToUsdt(numAmount).toFixed(2)} USDT
+                ≈ {usdToUsdt(numAmount).toFixed(2)} USDT
               </p>
               <p className="text-sm text-muted-foreground mt-2">
                 {t.deposit.toYourWallet}
@@ -149,10 +156,10 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
             <div className="p-4 rounded-xl bg-muted/30 border border-border/50 text-center">
               <p className="text-sm text-muted-foreground">{t.deposit.availableBalance}</p>
               <p className="text-3xl font-bold text-foreground mt-1">
-                {balanceEur.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                {formatCurrency(balanceUsd)}
               </p>
               <p className="text-sm text-[#26A17B] font-medium mt-1">
-                ≈ {eurToUsdt(balanceEur).toLocaleString('de-DE', { minimumFractionDigits: 2 })} USDT
+                ≈ {usdToUsdt(balanceUsd).toFixed(2)} USDT
               </p>
             </div>
 
@@ -187,13 +194,13 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
                   size="sm"
                   className="h-7 text-xs text-primary hover:text-primary/80"
                   onClick={handleWithdrawAll}
-                  disabled={balanceEur <= 0}
+                  disabled={balanceUsd <= 0}
                 >
                   {t.deposit.withdrawAll}
                 </Button>
               </div>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground">€</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground">$</span>
                 <Input
                   id="amount"
                   type="number"
@@ -208,11 +215,11 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
               </div>
               {numAmount > 0 && (
                 <p className="text-sm text-[#26A17B] font-medium">
-                  ≈ {eurToUsdt(numAmount).toFixed(2)} USDT
+                  ≈ {usdToUsdt(numAmount).toFixed(2)} USDT
                 </p>
               )}
               <p className="text-xs text-muted-foreground">
-                {t.deposit.minWithdrawal} • {t.deposit.maxWithdrawal} {maxAmount.toFixed(2)}€
+                {t.deposit.minWithdrawal} • {t.deposit.maxWithdrawal} ${maxAmount.toFixed(2)}
               </p>
               {amount && !isValidAmount && numAmount > maxAmount && (
                 <p className="text-xs text-destructive">

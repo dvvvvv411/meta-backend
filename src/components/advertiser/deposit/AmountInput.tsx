@@ -6,42 +6,44 @@ import { Card, CardContent } from '@/components/ui/card';
 import { 
   DEPOSIT_FEE_PERCENT, 
   EXCHANGE_RATES, 
-  MIN_DEPOSIT_EUR, 
-  MAX_DEPOSIT_EUR 
+  MIN_DEPOSIT_USD, 
+  MAX_DEPOSIT_USD 
 } from '@/lib/crypto-config';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AmountInputProps {
   selectedCoin: string;
-  eurAmount: number;
+  usdAmount: number;
   coinAmount: number;
-  onEurChange: (amount: number) => void;
+  onUsdChange: (amount: number) => void;
   onCoinChange: (amount: number) => void;
 }
 
 export function AmountInput({
   selectedCoin,
-  eurAmount,
+  usdAmount,
   coinAmount,
-  onEurChange,
+  onUsdChange,
   onCoinChange,
 }: AmountInputProps) {
-  const [activeField, setActiveField] = useState<'eur' | 'coin'>('eur');
+  const { language } = useLanguage();
+  const [activeField, setActiveField] = useState<'usd' | 'coin'>('usd');
   
   const exchangeRate = EXCHANGE_RATES[selectedCoin] || 1;
   const feeAmount = coinAmount * (DEPOSIT_FEE_PERCENT / 100);
   const netCoinAmount = coinAmount - feeAmount;
-  const netEurAmount = eurAmount * (1 - DEPOSIT_FEE_PERCENT / 100);
+  const netUsdAmount = usdAmount * (1 - DEPOSIT_FEE_PERCENT / 100);
 
-  const handleEurChange = (value: string) => {
-    const eur = parseFloat(value) || 0;
-    onEurChange(eur);
-    onCoinChange(eur * exchangeRate);
+  const handleUsdChange = (value: string) => {
+    const usd = parseFloat(value) || 0;
+    onUsdChange(usd);
+    onCoinChange(usd * exchangeRate);
   };
 
   const handleCoinChange = (value: string) => {
     const coin = parseFloat(value) || 0;
     onCoinChange(coin);
-    onEurChange(coin / exchangeRate);
+    onUsdChange(coin / exchangeRate);
   };
 
   const formatCoinAmount = (amount: number) => {
@@ -50,38 +52,49 @@ export function AmountInput({
     return amount.toFixed(2);
   };
 
-  const isValidAmount = eurAmount >= MIN_DEPOSIT_EUR && eurAmount <= MAX_DEPOSIT_EUR;
+  const isValidAmount = usdAmount >= MIN_DEPOSIT_USD && usdAmount <= MAX_DEPOSIT_USD;
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { 
+      style: 'currency', 
+      currency: 'USD' 
+    }).format(amount);
+  };
 
   return (
     <div className="space-y-4">
-      <Label>2. Betrag eingeben</Label>
+      <Label>2. {language === 'de' ? 'Betrag eingeben' : 'Enter amount'}</Label>
       
       <div className="flex flex-col sm:flex-row items-center gap-4">
         <div className="flex-1 w-full">
-          <Label className="text-xs text-muted-foreground mb-1 block">Betrag in EUR</Label>
+          <Label className="text-xs text-muted-foreground mb-1 block">
+            {language === 'de' ? 'Betrag in USD' : 'Amount in USD'}
+          </Label>
           <div className="relative">
             <Input
               type="number"
-              placeholder="z.B. 500"
-              value={eurAmount || ''}
-              onChange={(e) => handleEurChange(e.target.value)}
-              onFocus={() => setActiveField('eur')}
+              placeholder={language === 'de' ? 'z.B. 500' : 'e.g. 500'}
+              value={usdAmount || ''}
+              onChange={(e) => handleUsdChange(e.target.value)}
+              onFocus={() => setActiveField('usd')}
               className="pr-10"
-              min={MIN_DEPOSIT_EUR}
-              max={MAX_DEPOSIT_EUR}
+              min={MIN_DEPOSIT_USD}
+              max={MAX_DEPOSIT_USD}
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">€</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
           </div>
         </div>
         
         <ArrowLeftRight className="h-5 w-5 text-muted-foreground shrink-0 rotate-90 sm:rotate-0" />
         
         <div className="flex-1 w-full">
-          <Label className="text-xs text-muted-foreground mb-1 block">Betrag in {selectedCoin}</Label>
+          <Label className="text-xs text-muted-foreground mb-1 block">
+            {language === 'de' ? 'Betrag in' : 'Amount in'} {selectedCoin}
+          </Label>
           <div className="relative">
             <Input
               type="number"
-              placeholder="z.B. 545"
+              placeholder={language === 'de' ? 'z.B. 545' : 'e.g. 545'}
               value={coinAmount || ''}
               onChange={(e) => handleCoinChange(e.target.value)}
               onFocus={() => setActiveField('coin')}
@@ -95,13 +108,13 @@ export function AmountInput({
         </div>
       </div>
 
-      {eurAmount > 0 && (
+      {usdAmount > 0 && (
         <>
           {!isValidAmount && (
             <p className="text-sm text-destructive">
-              {eurAmount < MIN_DEPOSIT_EUR 
-                ? `Mindestbetrag: ${MIN_DEPOSIT_EUR}€`
-                : `Maximalbetrag: ${MAX_DEPOSIT_EUR.toLocaleString('de-DE')}€`
+              {usdAmount < MIN_DEPOSIT_USD 
+                ? `${language === 'de' ? 'Mindestbetrag' : 'Minimum'}: $${MIN_DEPOSIT_USD}`
+                : `${language === 'de' ? 'Maximalbetrag' : 'Maximum'}: $${MAX_DEPOSIT_USD.toLocaleString('en-US')}`
               }
             </p>
           )}
@@ -109,17 +122,17 @@ export function AmountInput({
           <Card className="bg-muted/50">
             <CardContent className="pt-4 space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Bruttobetrag:</span>
+                <span className="text-muted-foreground">{language === 'de' ? 'Bruttobetrag' : 'Gross amount'}:</span>
                 <span className="font-medium">{formatCoinAmount(coinAmount)} {selectedCoin}</span>
               </div>
               <div className="flex justify-between text-destructive/80">
-                <span>Gebühr ({DEPOSIT_FEE_PERCENT}%):</span>
+                <span>{language === 'de' ? 'Gebühr' : 'Fee'} ({DEPOSIT_FEE_PERCENT}%):</span>
                 <span>- {formatCoinAmount(feeAmount)} {selectedCoin}</span>
               </div>
               <div className="border-t pt-2 flex justify-between font-medium">
-                <span>Nettogutschrift:</span>
+                <span>{language === 'de' ? 'Nettogutschrift' : 'Net credit'}:</span>
                 <span className="text-primary">
-                  {formatCoinAmount(netCoinAmount)} {selectedCoin} (≈ {netEurAmount.toFixed(2)}€)
+                  {formatCoinAmount(netCoinAmount)} {selectedCoin} (≈ {formatCurrency(netUsdAmount)})
                 </span>
               </div>
             </CardContent>
