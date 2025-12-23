@@ -128,7 +128,7 @@ export function CheckoutModal({
     
     try {
       const result = await createPayment.mutateAsync({
-        amount_eur: RENTAL_PRICE_USD,
+        amount_usd: RENTAL_PRICE_USD,
         pay_currency: currency.id,
         payment_type: 'rental',
       });

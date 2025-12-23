@@ -24,7 +24,7 @@ serve(async (req) => {
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Nicht autorisiert' }), {
+      return new Response(JSON.stringify({ error: 'Not authorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -38,7 +38,7 @@ serve(async (req) => {
     
     if (authError || !user) {
       console.error('Auth error:', authError);
-      return new Response(JSON.stringify({ error: 'Nicht autorisiert' }), {
+      return new Response(JSON.stringify({ error: 'Not authorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -67,28 +67,28 @@ serve(async (req) => {
     }
 
     if (path === 'create-payment' && req.method === 'POST') {
-      const { amount_eur, pay_currency, payment_type } = await req.json();
+      const { amount_usd, pay_currency, payment_type } = await req.json();
       
       // Validate input
-      if (!amount_eur || amount_eur < 10 || amount_eur > 10000) {
-        return new Response(JSON.stringify({ error: 'Betrag muss zwischen 10€ und 10.000€ liegen' }), {
+      if (!amount_usd || amount_usd < 10 || amount_usd > 10000) {
+        return new Response(JSON.stringify({ error: 'Amount must be between $10 and $10,000' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
       if (!pay_currency) {
-        return new Response(JSON.stringify({ error: 'Währung erforderlich' }), {
+        return new Response(JSON.stringify({ error: 'Currency required' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      console.log(`Creating payment: ${amount_eur} EUR in ${pay_currency} for user ${user.id}`);
+      console.log(`Creating payment: ${amount_usd} USD in ${pay_currency} for user ${user.id}`);
 
       // Check minimum amount for selected currency
       const minAmountResponse = await fetch(
-        `https://api.nowpayments.io/v1/min-amount?currency_from=eur&currency_to=${pay_currency.toLowerCase()}&fiat_equivalent=eur`,
+        `https://api.nowpayments.io/v1/min-amount?currency_from=usd&currency_to=${pay_currency.toLowerCase()}&fiat_equivalent=usd`,
         {
           headers: { 'x-api-key': NOWPAYMENTS_API_KEY! },
         }
@@ -97,10 +97,10 @@ serve(async (req) => {
       const minAmountData = await minAmountResponse.json();
       console.log('Minimum amount data:', JSON.stringify(minAmountData));
       
-      if (minAmountData.fiat_equivalent && amount_eur < minAmountData.fiat_equivalent) {
-        const minEur = Math.ceil(minAmountData.fiat_equivalent);
+      if (minAmountData.fiat_equivalent && amount_usd < minAmountData.fiat_equivalent) {
+        const minUsd = Math.ceil(minAmountData.fiat_equivalent);
         return new Response(JSON.stringify({ 
-          error: `Mindestbetrag für ${pay_currency.toUpperCase()} ist ${minEur}€` 
+          error: `Minimum amount for ${pay_currency.toUpperCase()} is $${minUsd}` 
         }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -115,11 +115,11 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          price_amount: amount_eur,
-          price_currency: 'eur',
+          price_amount: amount_usd,
+          price_currency: 'usd',
           pay_currency: pay_currency.toLowerCase(),
           order_id: `${user.id}_${Date.now()}`,
-          order_description: `Guthaben-Einzahlung ${amount_eur} EUR`,
+          order_description: `Deposit ${amount_usd} USD`,
           ipn_callback_url: `${SUPABASE_URL}/functions/v1/nowpayments-webhook`,
         }),
       });
@@ -133,13 +133,13 @@ serve(async (req) => {
         // Better error message for minimum amount errors
         if (paymentData.code === 'AMOUNT_MINIMAL_ERROR') {
           return new Response(JSON.stringify({ 
-            error: `Betrag zu niedrig für ${pay_currency.toUpperCase()}. Bitte wähle einen höheren Betrag oder eine andere Währung.` 
+            error: `Amount too low for ${pay_currency.toUpperCase()}. Please choose a higher amount or a different currency.` 
           }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
-        return new Response(JSON.stringify({ error: paymentData.message || 'Zahlung konnte nicht erstellt werden' }), {
+        return new Response(JSON.stringify({ error: paymentData.message || 'Payment could not be created' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -147,8 +147,8 @@ serve(async (req) => {
 
       // Calculate fee (2% for deposits, 0% for rentals)
       const isRental = payment_type === 'rental';
-      const feeAmount = isRental ? 0 : amount_eur * 0.02;
-      const netAmount = amount_eur - feeAmount;
+      const feeAmount = isRental ? 0 : amount_usd * 0.02;
+      const netAmount = amount_usd - feeAmount;
 
       // Create transaction record
       const { data: transaction, error: txError } = await supabase
@@ -157,9 +157,9 @@ serve(async (req) => {
           user_id: user.id,
           type: isRental ? 'rental' : 'deposit',
           amount: netAmount,
-          gross_amount: amount_eur,
+          gross_amount: amount_usd,
           fee_amount: feeAmount,
-          currency: 'EUR',
+          currency: 'USD',
           status: 'pending',
           coin_type: pay_currency.toUpperCase(),
           network: paymentData.network || pay_currency,
@@ -170,15 +170,15 @@ serve(async (req) => {
           payment_status: paymentData.payment_status || 'waiting',
           expires_at: paymentData.expiration_estimate_date || new Date(Date.now() + 60 * 60 * 1000).toISOString(),
           description: isRental 
-            ? `Agency Account Miete ${amount_eur} EUR via ${pay_currency.toUpperCase()}`
-            : `Einzahlung ${amount_eur} EUR via ${pay_currency.toUpperCase()}`,
+            ? `Agency Account Rental ${amount_usd} USD via ${pay_currency.toUpperCase()}`
+            : `Deposit ${amount_usd} USD via ${pay_currency.toUpperCase()}`,
         })
         .select()
         .single();
 
       if (txError) {
         console.error('Transaction insert error:', txError);
-        return new Response(JSON.stringify({ error: 'Transaktion konnte nicht erstellt werden' }), {
+        return new Response(JSON.stringify({ error: 'Transaction could not be created' }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -192,7 +192,7 @@ serve(async (req) => {
         pay_currency: paymentData.pay_currency,
         payment_status: paymentData.payment_status,
         expires_at: paymentData.expiration_estimate_date,
-        amount_eur: amount_eur,
+        amount_usd: amount_usd,
         net_amount: netAmount,
         fee_amount: feeAmount,
       }), {
@@ -204,7 +204,7 @@ serve(async (req) => {
       const { payment_id } = await req.json();
       
       if (!payment_id) {
-        return new Response(JSON.stringify({ error: 'Payment ID erforderlich' }), {
+        return new Response(JSON.stringify({ error: 'Payment ID required' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -259,14 +259,14 @@ serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ error: 'Endpoint nicht gefunden' }), {
+    return new Response(JSON.stringify({ error: 'Endpoint not found' }), {
       status: 404,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
     console.error('Error in nowpayments function:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
