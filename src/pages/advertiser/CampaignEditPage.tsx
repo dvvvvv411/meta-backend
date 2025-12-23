@@ -276,7 +276,7 @@ export default function CampaignEditPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { saveDraftAsync, isSaving, loadDraft } = useCampaignDrafts();
-  const { balanceEur } = useUserBalance();
+  const { balanceUsd } = useUserBalance();
   const isMobile = useIsMobile();
   
   const MINIMUM_PUBLISH_BALANCE = 1000;
@@ -496,9 +496,9 @@ export default function CampaignEditPage() {
 
   const handlePublish = async () => {
     // Zuerst Guthaben prüfen
-    if (balanceEur < MINIMUM_PUBLISH_BALANCE) {
+    if (balanceUsd < MINIMUM_PUBLISH_BALANCE) {
       toast.error('Unzureichendes Guthaben', {
-        description: 'Du benötigst mindestens €1.000 Guthaben, um eine Kampagne zu veröffentlichen.'
+        description: 'Du benötigst mindestens $1,000 Guthaben, um eine Kampagne zu veröffentlichen.'
       });
       return;
     }

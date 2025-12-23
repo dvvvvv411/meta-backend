@@ -14,7 +14,7 @@ import { WithdrawModal } from '@/components/advertiser/deposit/WithdrawModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function DepositPage() {
-  const { balanceEur } = useUserBalance();
+  const { balanceUsd } = useUserBalance();
   const { deposits } = useDeposits();
   const { t, language } = useLanguage();
   const [depositModalOpen, setDepositModalOpen] = useState(false);
@@ -40,7 +40,7 @@ export default function DepositPage() {
       </div>
 
       {/* Current Balance */}
-      <BalanceOverview balanceEur={balanceEur} onDepositClick={() => setDepositModalOpen(true)} />
+      <BalanceOverview balanceUsd={balanceUsd} onDepositClick={() => setDepositModalOpen(true)} />
 
       {/* Action Buttons */}
       <div className="grid gap-4 sm:grid-cols-2">

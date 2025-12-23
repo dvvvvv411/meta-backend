@@ -48,15 +48,16 @@ export const CRYPTO_CONFIG: Record<string, CryptoConfig> = {
 };
 
 export const DEPOSIT_FEE_PERCENT = 2;
-export const MIN_DEPOSIT_EUR = 10;
-export const MAX_DEPOSIT_EUR = 10000;
+export const MIN_DEPOSIT_USD = 10;
+export const MAX_DEPOSIT_USD = 10000;
+export const RENTAL_PRICE_USD = 59;
 
-// Approximate exchange rates (in real app, fetch from API)
+// Exchange rates (USDT/USDC ≈ 1:1 with USD)
 export const EXCHANGE_RATES: Record<string, number> = {
-  USDT: 1.09, // 1 USDT = 0.92 EUR, so 1 EUR = 1.09 USDT
-  USDC: 1.09,
-  BTC: 0.000024, // 1 EUR = 0.000024 BTC
-  ETH: 0.00043, // 1 EUR = 0.00043 ETH
+  USDT: 1, // 1 USD = 1 USDT
+  USDC: 1, // 1 USD = 1 USDC
+  BTC: 0.000015, // 1 USD ≈ 0.000015 BTC
+  ETH: 0.00028, // 1 USD ≈ 0.00028 ETH
 };
 
 export const getCoinList = () => Object.values(CRYPTO_CONFIG);

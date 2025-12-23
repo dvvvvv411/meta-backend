@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { RENTAL_PRICE_USD } from '@/lib/crypto-config';
 
 
 interface OrderConfirmationProps {
@@ -41,6 +42,12 @@ export function OrderConfirmation({
   const dateLocale = language === 'de' ? de : enUS;
   const formatDate = (date: Date) => format(date, 'dd.MM.yyyy', { locale: dateLocale });
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { 
+      style: 'currency', 
+      currency: 'USD' 
+    }).format(amount);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -76,7 +83,7 @@ export function OrderConfirmation({
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t.rentAccount.amount}</span>
-              <span>{orderData.amount.toFixed(2)} € (160 USDT)</span>
+              <span>{formatCurrency(RENTAL_PRICE_USD)} ({RENTAL_PRICE_USD} USDT)</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t.rentAccount.startDate}</span>

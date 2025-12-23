@@ -39,14 +39,14 @@ export default function RentAccountPage() {
     toggleAutoRenew,
     renameAccount,
   } = useAdvertiserAccounts();
-  const { balanceEur, invalidateBalance } = useUserBalance();
+  const { balanceUsd, invalidateBalance } = useUserBalance();
 
   const customerEmail = user?.email ?? '';
   const companyName = user?.user_metadata?.company_name;
   const customerName = companyName || customerEmail;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }).format(amount);
+    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: 'USD' }).format(amount);
   };
 
   const handlePaymentSuccess = async (paymentMethod: 'balance' | 'crypto', transactionId?: string) => {
@@ -163,7 +163,7 @@ export default function RentAccountPage() {
                 </div>
               </div>
               <p className="text-2xl font-bold">
-                {formatCurrency(balanceEur)}
+                {formatCurrency(balanceUsd)}
               </p>
             </div>
           </CardContent>
@@ -184,7 +184,7 @@ export default function RentAccountPage() {
         onOpenChange={setCheckoutOpen}
         onPaymentSuccess={handlePaymentSuccess}
         isProcessing={payWithBalance.isPending || createAccount.isPending}
-        balanceEur={balanceEur}
+        balanceUsd={balanceUsd}
       />
 
       <OrderConfirmation

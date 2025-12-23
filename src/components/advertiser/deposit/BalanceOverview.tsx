@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BalanceOverviewProps {
-  balanceEur: number;
+  balanceUsd: number;
   onDepositClick?: () => void;
 }
 
@@ -26,12 +26,12 @@ const generateCardDigits = (userId: string | undefined): string => {
   return digits.toString().padStart(4, '0');
 };
 
-export function BalanceOverview({ balanceEur, onDepositClick }: BalanceOverviewProps) {
+export function BalanceOverview({ balanceUsd, onDepositClick }: BalanceOverviewProps) {
   const { user } = useAuth();
   const { t, language } = useLanguage();
   
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }).format(amount);
+    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: 'USD' }).format(amount);
   };
 
   const cardLastDigits = generateCardDigits(user?.id);
@@ -72,7 +72,7 @@ export function BalanceOverview({ balanceEur, onDepositClick }: BalanceOverviewP
           {/* Balance */}
           <div className="mb-4">
             <p className="text-white/60 text-sm mb-1">{t.dashboard.availableBalance}</p>
-            <p className="text-4xl font-bold tracking-tight">{formatCurrency(balanceEur)}</p>
+            <p className="text-4xl font-bold tracking-tight">{formatCurrency(balanceUsd)}</p>
           </div>
 
           {/* Card Number & Logo */}
